@@ -28,7 +28,7 @@ namespace discordbot.Commands
         /// <param name="operationSelection">Operation type to run.</param>
         /// <param name="rowID">Row number from the events table to update or delete. Optional.</param>
         [Command("event")]
-        public async Task Event(CommandContext ctx, string operationSelection = null, string optionalInput = null)
+        public async Task Event(CommandContext ctx, string operationSelection, params string[] optionalInput)
         {           
             if (operationSelection == "create")
             {
@@ -614,21 +614,19 @@ namespace discordbot.Commands
                 }
             }
 
-            else if (operationSelection == "list")
+            else if (operationSelection == "search")
             {
-                int? rowID = null;
+                string parseOptionalInput = string.Join(" ", optionalInput);
 
-                // Converts the optionalInput into integer so we can access our targeted row.
-                try
-                {
-                    rowID = Convert.ToInt32(optionalInput);
-                }
+                // Converts the optionalInput into a number so we can access our targeted row.
+                // If true, execute query based on row ID. If false, execute query based on provided event name.
+                bool isNumber = int.TryParse(parseOptionalInput, out int rowID);
 
-                catch { }
+                bool isLetter = parseOptionalInput.All(char.IsLetter);
 
                 var embedBuilder = new DiscordEmbedBuilder
                 {
-                    Title = "Events Manager - List",
+                    Title = "Events Manager - Search Result",
                     Timestamp = DateTime.Now.AddHours(7),
                     Footer = new DiscordEmbedBuilder.EmbedFooter
                     {
@@ -638,49 +636,75 @@ namespace discordbot.Commands
 
                 try
                 {
-                    if (rowID > 0)
+                    if (isNumber)
                     {
                         using (var db = new EventContext())
                         {
-                            var selectedRow = db.Events.SingleOrDefault(x => x.Id == rowID);
+                            Events rowToRead = null;
 
-                            embedBuilder.Description = $"Showing query result for event ID {rowID}...";
+                            try
+                            {
+                                rowToRead = db.Events.SingleOrDefault(x => x.Id == rowID);
 
-                            string descriptionField = $"Status: {ClientUtilities.ConvertStatusBoolean(selectedRow.Expired)}\nPerson-in-charge: {selectedRow.PersonInCharge}\nDescription: {selectedRow.EventDescription}";
-                            embedBuilder.AddField($"({selectedRow.Id}) {selectedRow.EventName} [{selectedRow.EventDate}]", descriptionField, true);
+                                embedBuilder.Description = $"Showing search result for event ID {Formatter.InlineCode(rowID.ToString())}...";
 
-                            await ctx.Channel.SendMessageAsync(embed: embedBuilder).ConfigureAwait(false);
+                                string descriptionField = $"Status: {ClientUtilities.ConvertStatusBoolean(rowToRead.Expired)}\nPerson-in-charge: {rowToRead.PersonInCharge}\nDescription: {rowToRead.EventDescription}";
+                                embedBuilder.AddField($"({rowToRead.Id}) {rowToRead.EventName} [{rowToRead.EventDate}]", descriptionField, true);
+
+                                await ctx.Channel.SendMessageAsync(embed: embedBuilder).ConfigureAwait(false);
+                            }
+
+                            catch
+                            {
+                                embedBuilder.Description = $"Oops! There are no results for event ID {Formatter.InlineCode(rowID.ToString())}! Have you specified the correct event ID?";
+                                await ctx.Channel.SendMessageAsync(embed: embedBuilder).ConfigureAwait(false);                               
+
+                                return;
+                            }
                         }
                     }
 
-                    else
+                    else if (!isNumber)
                     {
-                        var notifyMessage = await ctx.Channel.SendMessageAsync("Give me a second to process everything...").ConfigureAwait(false);
-                        await ctx.TriggerTypingAsync();
+                        string toSearch = parseOptionalInput.ToLowerInvariant();
 
-                        Task offloadToTask = Task.Run(async () =>
+                        using (var db = new EventContext())
                         {
-                            int eventIndex = 0;
-                            using (var db = new EventContext())
+                            try
                             {
+                                int counter = 0;
                                 foreach (var events in db.Events)
                                 {
-                                    string descriptionField = $"Status: {ClientUtilities.ConvertStatusBoolean(events.Expired)}\nPerson-in-charge: {events.PersonInCharge}\nDescription: {events.EventDescription}";
-                                    embedBuilder.AddField($"({events.Id}) {events.EventName} [{events.EventDate}]", descriptionField, true);
-                                    eventIndex++;
+                                    if (events.EventName.ToLowerInvariant().Contains(toSearch))
+                                    {
+                                        string descriptionField = $"Status: {ClientUtilities.ConvertStatusBoolean(events.Expired)}\nPerson-in-charge: {events.PersonInCharge}\nDescription: {events.EventDescription}";
+                                        embedBuilder.AddField($"({events.Id}) {events.EventName} [{events.EventDate}]", descriptionField, true);
+
+                                        counter++;
+                                    }
                                 }
 
-                                embedBuilder.Description = $"List of all registered events. In total, there are {eventIndex} ({eventIndex.ToWords()}) events.";
+                                if (counter == 0)
+                                {
+                                    embedBuilder.Description = $"Oops! There are no results for event name {Formatter.InlineCode(parseOptionalInput)}! Have you typed the event name correctly?";
+                                }
+
+                                else
+                                {
+                                    embedBuilder.Description = $"Showing {counter} ({counter.ToWords()}) query result for event name {Formatter.InlineCode(parseOptionalInput)}...";
+                                }
+
+                                await ctx.Channel.SendMessageAsync(embed: embedBuilder).ConfigureAwait(false);
                             }
 
-                            if (eventIndex == 0)
+                            catch
                             {
-                                embedBuilder.Description = "There are no events to list.";
-                            }
+                                embedBuilder.Description = $"Oops! There are no results for event name {Formatter.InlineCode(parseOptionalInput)}! Did you typed the correct event name?";
+                                await ctx.Channel.SendMessageAsync(embed: embedBuilder).ConfigureAwait(false);
 
-                            await notifyMessage.DeleteAsync();
-                            await ctx.Channel.SendMessageAsync(embed: embedBuilder).ConfigureAwait(false);
-                        });
+                                return;
+                            }                           
+                        }
                     }
                 }
 
@@ -690,7 +714,7 @@ namespace discordbot.Commands
 
                     embedBuilder.Title = "Events Manager - Error";
                     embedBuilder.Description = $"An error occured while working with the database.\nException details: {ex.Message}.";
-                    
+
                     await ctx.Channel.SendMessageAsync(embed: embedBuilder).ConfigureAwait(false);
                 }
 
@@ -702,7 +726,50 @@ namespace discordbot.Commands
                     embedBuilder.Description = $"An error occured while working with the database.\nException details: {ex.Message}.";
 
                     await ctx.Channel.SendMessageAsync(embed: embedBuilder).ConfigureAwait(false);
-                }
+                }                             
+            }
+
+            else if (operationSelection == "list")
+            {
+                var embedBuilder = new DiscordEmbedBuilder
+                {
+                    Title = "Events Manager - Listing All Events...",
+                    Timestamp = DateTime.Now.AddHours(7),
+                    Footer = new DiscordEmbedBuilder.EmbedFooter
+                    {
+                        Text = "OSIS Discord Assistant"
+                    }
+                };
+
+                var notifyMessage = await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[EVENTS MANAGER]")} Give me a second to process everything...").ConfigureAwait(false);
+                await ctx.TriggerTypingAsync();
+
+                Task offloadToTask = Task.Run(async () =>
+                {
+                    int eventIndex = 0;
+                    using (var db = new EventContext())
+                    {
+                        foreach (var events in db.Events)
+                        {
+                            string descriptionField = $"Status: {ClientUtilities.ConvertStatusBoolean(events.Expired)}\nPerson-in-charge: {events.PersonInCharge}\nDescription: {events.EventDescription}";
+                            embedBuilder.AddField($"({events.Id}) {events.EventName} [{events.EventDate}]", descriptionField, true);
+                            eventIndex++;
+                        }
+                    }
+
+                    if (eventIndex == 0)
+                    {
+                        embedBuilder.Description = "There are no events to list.";
+                    }
+
+                    else
+                    {
+                        embedBuilder.Description = $"List of all registered events. In total, there are {eventIndex} ({eventIndex.ToWords()}) events.";
+                    }
+
+                    await notifyMessage.DeleteAsync();
+                    await ctx.Channel.SendMessageAsync(embed: embedBuilder).ConfigureAwait(false);
+                });
             }
 
             else
