@@ -255,14 +255,6 @@ namespace discordbot.Commands
         {                    
             if (operationSelection == "update")
             {
-                int? rowID = Convert.ToInt32(optionalInput);
-
-                // Stops executing the remainder of the code if rowID is null.
-                if (rowID == null)
-                {
-                    return;
-                }
-
                 var embedBuilder = new DiscordEmbedBuilder
                 {
                     Timestamp = DateTime.Now,
@@ -276,7 +268,42 @@ namespace discordbot.Commands
                 {                   
                     using (var db = new EventContext())
                     {
-                        bool rowExists = db.Events.Any(x => x.Id == rowID);
+                        bool isNumber = int.TryParse(string.Join(" ", optionalInput), out int rowIDRaw);
+                        bool rowExists = false;
+
+                        int rowID = 0;
+                        string inputEventName = string.Join(" ", optionalInput);
+
+                        if (isNumber)
+                        {
+                            rowExists = db.Events.Any(x => x.Id == rowIDRaw);
+                            rowID = db.Events.SingleOrDefault(x => x.Id == rowIDRaw).Id;
+                        }
+
+                        else if (!isNumber)
+                        {
+                            int counter = 0;
+
+                            foreach (var events in db.Events)
+                            {
+                                if (events.EventName.ToLowerInvariant() == inputEventName.ToLowerInvariant())
+                                {
+                                    rowID = events.Id;
+                                    rowExists = true;
+                                    counter++;
+
+                                    break;
+                                }
+                            }
+
+                            if (counter == 0)
+                            {
+                                string errorMessage = $"{Formatter.Bold("[ERROR]")} An error occured. You must provide the correct ID or name of the event you are updating. Refer to {Formatter.InlineCode("!event list")} or {Formatter.InlineCode("!event search")}.";
+                                await ctx.Channel.SendMessageAsync(errorMessage).ConfigureAwait(false);
+
+                                return;
+                            }
+                        }
 
                         if (rowExists)
                         {
