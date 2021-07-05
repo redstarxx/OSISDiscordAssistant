@@ -47,9 +47,18 @@ namespace discordbot.Commands
 
                     else
                     {
-                        string errorMessage = "**[ERROR]** Invalid reminder target.";
-                        await ctx.RespondAsync(errorMessage).ConfigureAwait(false);
-                        return;
+                        string toCheck = remindTarget.Remove(2);
+                        if (remindTarget.StartsWith("<") && toCheck == "<@")
+                        {
+                            mentionTarget = remindTarget;
+                        }
+
+                        else
+                        {
+                            string errorMessage = "**[ERROR]** Invalid reminder target.";
+                            await ctx.RespondAsync(errorMessage).ConfigureAwait(false);
+                            return;
+                        }
                     }
 
                     break;
@@ -86,6 +95,7 @@ namespace discordbot.Commands
                     youoreveryone = "Seksi Agama members";
                     break;
                 default:
+                    youoreveryone = remindTarget;
                     break;
             }
 
