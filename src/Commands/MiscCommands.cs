@@ -55,10 +55,10 @@ namespace discordbot.Commands
             }
             catch { }
 
-            FileVersionInfo humanizr = FileVersionInfo.GetVersionInfo(Environment.CurrentDirectory + @"\Humanizer.dll");
+            FileVersionInfo humanizr = FileVersionInfo.GetVersionInfo(Environment.CurrentDirectory + @"/Humanizer.dll");
             string hmnzv = $"{humanizr.ProductMajorPart}.{humanizr.ProductMinorPart}.{humanizr.ProductBuildPart}";
 
-            FileVersionInfo efcore = FileVersionInfo.GetVersionInfo(Environment.CurrentDirectory + @"\Microsoft.EntityFrameworkCore.dll");
+            FileVersionInfo efcore = FileVersionInfo.GetVersionInfo(Environment.CurrentDirectory + @"/Microsoft.EntityFrameworkCore.dll");
             string efcv = $"{efcore.ProductMajorPart}.{efcore.ProductMinorPart}.{efcore.ProductBuildPart}";
 
             var embedBuilder = new DiscordEmbedBuilder
