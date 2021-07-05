@@ -22,22 +22,15 @@ namespace discordbot.Commands
     class EventCommandsModule : BaseCommandModule
     {
         /// <summary>
-        /// Commands to operate the Events Manager.
+        /// Commands to operate the Events Manager's create or list option.
         /// </summary>
         /// <param name="ctx">The respective context that the command belongs to.</param>
         /// <param name="operationSelection">Operation type to run.</param>
-        /// <param name="rowID">Row number from the events table to update or delete. Optional.</param>
         [Command("event")]
-        public async Task Event(CommandContext ctx, string operationSelection, params string[] optionalInput)
-        {           
+        public async Task EventCreateOrList(CommandContext ctx, string operationSelection)
+        {
             if (operationSelection == "create")
             {
-                // Stops executing the remainder of the code if rowID is not null, since we don't need a rowID to add a new event.
-                if (optionalInput != null)
-                {
-                    return;
-                }
-
                 string eventName = null;
                 string personInCharge = null;
                 string eventDate = null;
@@ -202,7 +195,65 @@ namespace discordbot.Commands
                 });
             }
 
-            else if (operationSelection == "update")
+            else if (operationSelection == "list")
+            {
+                var embedBuilder = new DiscordEmbedBuilder
+                {
+                    Title = "Events Manager - Listing All Events...",
+                    Timestamp = DateTime.Now.AddHours(7),
+                    Footer = new DiscordEmbedBuilder.EmbedFooter
+                    {
+                        Text = "OSIS Discord Assistant"
+                    }
+                };
+
+                var notifyMessage = await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[EVENTS MANAGER]")} Give me a second to process everything...").ConfigureAwait(false);
+                await ctx.TriggerTypingAsync();
+
+                Task offloadToTask = Task.Run(async () =>
+                {
+                    int eventIndex = 0;
+                    using (var db = new EventContext())
+                    {
+                        foreach (var events in db.Events)
+                        {
+                            string descriptionField = $"Status: {ClientUtilities.ConvertStatusBoolean(events.Expired)}\nPerson-in-charge: {events.PersonInCharge}\nDescription: {events.EventDescription}";
+                            embedBuilder.AddField($"({events.Id}) {events.EventName} [{events.EventDate}]", descriptionField, true);
+                            eventIndex++;
+                        }
+                    }
+
+                    if (eventIndex == 0)
+                    {
+                        embedBuilder.Description = "There are no events to list.";
+                    }
+
+                    else
+                    {
+                        embedBuilder.Description = $"List of all registered events. In total, there are {eventIndex} ({eventIndex.ToWords()}) events.";
+                    }
+
+                    await notifyMessage.DeleteAsync();
+                    await ctx.Channel.SendMessageAsync(embed: embedBuilder).ConfigureAwait(false);
+                });
+            }
+
+            else
+            {
+                return;
+            }
+        }
+
+        /// <summary>
+        /// Commands to operate the Events Manager's update or delete or search option.
+        /// </summary>
+        /// <param name="ctx">The respective context that the command belongs to.</param>
+        /// <param name="operationSelection">Operation type to run.</param>
+        /// <param name="optionalInput">Row number or event name from the events table to update or delete or search. Optional.</param>
+        [Command("event")]
+        public async Task Event(CommandContext ctx, string operationSelection, params string[] optionalInput)
+        {                    
+            if (operationSelection == "update")
             {
                 int? rowID = Convert.ToInt32(optionalInput);
 
@@ -728,50 +779,7 @@ namespace discordbot.Commands
                     await ctx.Channel.SendMessageAsync(embed: embedBuilder).ConfigureAwait(false);
                 }                             
             }
-
-            else if (operationSelection == "list")
-            {
-                var embedBuilder = new DiscordEmbedBuilder
-                {
-                    Title = "Events Manager - Listing All Events...",
-                    Timestamp = DateTime.Now.AddHours(7),
-                    Footer = new DiscordEmbedBuilder.EmbedFooter
-                    {
-                        Text = "OSIS Discord Assistant"
-                    }
-                };
-
-                var notifyMessage = await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[EVENTS MANAGER]")} Give me a second to process everything...").ConfigureAwait(false);
-                await ctx.TriggerTypingAsync();
-
-                Task offloadToTask = Task.Run(async () =>
-                {
-                    int eventIndex = 0;
-                    using (var db = new EventContext())
-                    {
-                        foreach (var events in db.Events)
-                        {
-                            string descriptionField = $"Status: {ClientUtilities.ConvertStatusBoolean(events.Expired)}\nPerson-in-charge: {events.PersonInCharge}\nDescription: {events.EventDescription}";
-                            embedBuilder.AddField($"({events.Id}) {events.EventName} [{events.EventDate}]", descriptionField, true);
-                            eventIndex++;
-                        }
-                    }
-
-                    if (eventIndex == 0)
-                    {
-                        embedBuilder.Description = "There are no events to list.";
-                    }
-
-                    else
-                    {
-                        embedBuilder.Description = $"List of all registered events. In total, there are {eventIndex} ({eventIndex.ToWords()}) events.";
-                    }
-
-                    await notifyMessage.DeleteAsync();
-                    await ctx.Channel.SendMessageAsync(embed: embedBuilder).ConfigureAwait(false);
-                });
-            }
-
+           
             else
             {
                 return;
