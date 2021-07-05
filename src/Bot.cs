@@ -442,12 +442,12 @@ namespace discordbot
 
                         if (counter != 0)
                         {
-                            Client.Logger.LogInformation(ERTask, $"It took {elapsedMilliseconds} milliseconds to complete the proposal submission reminder task. Reminded {counter.ToString()} ({counter.ToWords()}) proposal submissions.", DateTime.Now);
+                            Client.Logger.LogInformation(PRTask, $"It took {elapsedMilliseconds} milliseconds to complete the proposal submission reminder task. Reminded {counter.ToString()} ({counter.ToWords()}) proposal submissions.", DateTime.Now);
                         }
 
                         else
                         {
-                            Client.Logger.LogInformation(ERTask, $"It took {elapsedMilliseconds} milliseconds to complete the proposal submission reminder task. No proposal submissions to remind.", DateTime.Now);
+                            Client.Logger.LogInformation(PRTask, $"It took {elapsedMilliseconds} milliseconds to complete the proposal submission reminder task. No proposal submissions to remind.", DateTime.Now);
                         }
 
                         stopwatch.Reset();
@@ -461,7 +461,7 @@ namespace discordbot
                 }
             });
 
-            Client.Logger.LogInformation(ERTask, "Initialized proposal reminders task.", DateTime.Now);
+            Client.Logger.LogInformation(PRTask, "Initialized proposal reminders task.", DateTime.Now);
 
             return Task.CompletedTask;
         }
