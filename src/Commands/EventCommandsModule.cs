@@ -305,6 +305,17 @@ namespace discordbot.Commands
                             }
                         }
 
+                        // Checks whether the selected event is already expired
+                        bool hasExpired = db.Events.SingleOrDefault(x => x.Id == rowID).Expired;
+
+                        if (hasExpired)
+                        {
+                            string errorMessage = $"{Formatter.Bold("[ERROR]")} Oops! You can only update events that has not yet expired.";
+                            await ctx.Channel.SendMessageAsync(errorMessage).ConfigureAwait(false);
+
+                            return;
+                        }
+
                         if (rowExists)
                         {
                             string previousEventName = db.Events.SingleOrDefault(x => x.Id == rowID).EventName;
