@@ -671,7 +671,7 @@ namespace discordbot.Commands
 
             else if (operationSelection == "delete")
             {
-                int? rowID = Convert.ToInt32(optionalInput);
+                int? rowID = Convert.ToInt32(string.Join(" ", optionalInput));
 
                 // Stops executing the remainder of the code if rowID is null.
                 if (rowID == null)
