@@ -81,15 +81,15 @@ namespace discordbot.Commands
                             // If it fails, the event creation is canceled as it would not allow the bot to parse them for event reminders.
                             try
                             {
-                                var cultureInfoID = new CultureInfo("id-ID");
-                                DateTime toConvert = DateTime.Parse(eventDate, cultureInfoID);
+                                var cultureInfoUS = new CultureInfo("en-US");
+                                DateTime toConvert = DateTime.Parse(eventDate, cultureInfoUS);
 
                                 TimeSpan calculateTimeSpan = toConvert - DateTime.Now;
 
-                                if (calculateTimeSpan.Days > 365)
+                                if (calculateTimeSpan.TotalDays > 365)
                                 {
-                                    string errorMessage = "**[ERROR]** Maximum allowed time span is one year (365 days).";
-                                    await ctx.Channel.SendMessageAsync(errorMessage).ConfigureAwait(false);
+                                    string errorMessage = "**[ERROR]** Maximum allowed time span is one year (365 days). Alternatively, include the year of the event as well if you have not.";
+                                    await ctx.RespondAsync(errorMessage).ConfigureAwait(false);
 
                                     return;
                                 }
@@ -103,44 +103,16 @@ namespace discordbot.Commands
                                 }
 
                                 // Set the culture info to store.
-                                eventDateCultureInfo = "id-ID";
+                                eventDateCultureInfo = "en-US";
                             }
 
                             catch
                             {
-                                try
-                                {
-                                    var cultureInfoUS = new CultureInfo("en-US");
-                                    DateTime toConvert = DateTime.Parse(eventDate, cultureInfoUS);
-
-                                    TimeSpan calculateTimeSpan = toConvert - DateTime.Now;
-
-                                    if (calculateTimeSpan.TotalDays > 365)
-                                    {
-                                        string errorMessage = "**[ERROR]** Maximum allowed time span is one year (365 days).";
-                                        await ctx.RespondAsync(errorMessage).ConfigureAwait(false);
-
-                                        return;
-                                    }
-
-                                    if (calculateTimeSpan.Days < 1)
-                                    {
-                                        string errorMessage = "**[ERROR]** Minimum allowed date is one day before the event. Alternatively, include the year of the event as well if you have not.";
-                                        await ctx.Channel.SendMessageAsync(errorMessage).ConfigureAwait(false);
-
-                                        return;
-                                    }
-
-                                    // Set the culture info to store.
-                                    eventDateCultureInfo = "en-US";
-                                }
-
-                                catch
-                                {
-                                    // Notify the user that the provided event date cannot be parsed.
-                                    await ctx.Channel.SendMessageAsync("**[ERROR]** An error occured. Your event date cannot be parsed. Make sure your date and time is written in either Indonesian or English format.").ConfigureAwait(false);
-                                    return;
-                                }
+                                // Notify the user that the provided event date cannot be parsed.
+                                string errorMessage = $"{Formatter.Bold("[ERROR]")} An error occured. Your event date cannot be parsed. Make sure your date and time is written in English. Example: 25 June 2021.";
+                                await ctx.Channel.SendMessageAsync(errorMessage).ConfigureAwait(false);
+                                
+                                return;
                             }
 
                             await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention}, enter your event description for {Formatter.Bold(eventNameResult.Result.Content)}. You have one minute.").ConfigureAwait(false);
@@ -501,54 +473,38 @@ namespace discordbot.Commands
                                         // If it fails, the event creation is canceled as it would not allow the bot to parse them for event reminders.
                                         try
                                         {
-                                            var cultureInfoID = new CultureInfo("id-ID");
-                                            DateTime toConvert = DateTime.Parse(eventDate, cultureInfoID);
+                                            var cultureInfoUS = new CultureInfo("en-US");
+                                            DateTime toConvert = DateTime.Parse(eventDate, cultureInfoUS);
 
                                             TimeSpan calculateTimeSpan = toConvert - DateTime.Now;
 
                                             if (calculateTimeSpan.TotalDays > 365)
                                             {
-                                                string errorMessage = "**[ERROR]** Maximum allowed time span is one year (365 days).";
+                                                string errorMessage = "**[ERROR]** Maximum allowed time span is one year (365 days). Alternatively, include the year of the event as well if you have not.";
                                                 await ctx.RespondAsync(errorMessage).ConfigureAwait(false);
+
                                                 return;
                                             }
 
-                                            else
+                                            if (calculateTimeSpan.Days < 1)
                                             {
-                                                // Set the culture info to store.
-                                                eventDateCultureInfo = "id-ID";
+                                                string errorMessage = "**[ERROR]** Minimum allowed date is one day before the event. Alternatively, include the year of the event as well if you have not.";
+                                                await ctx.Channel.SendMessageAsync(errorMessage).ConfigureAwait(false);
+
+                                                return;
                                             }
+
+                                            // Set the culture info to store.
+                                            eventDateCultureInfo = "en-US";
                                         }
 
                                         catch
                                         {
-                                            try
-                                            {
-                                                var cultureInfoUS = new CultureInfo("en-US");
-                                                DateTime toConvert = DateTime.Parse(eventDate, cultureInfoUS);
+                                            // Notify the user that the provided event date cannot be parsed.
+                                            string errorMessage = $"{Formatter.Bold("[ERROR]")} An error occured. Your event date cannot be parsed. Make sure your date and time is written in English. Example: 25 June 2021.";
+                                            await ctx.Channel.SendMessageAsync(errorMessage).ConfigureAwait(false);
 
-                                                TimeSpan calculateTimeSpan = toConvert - DateTime.Now;
-
-                                                if (calculateTimeSpan.TotalDays > 365)
-                                                {
-                                                    string errorMessage = "**[ERROR]** Maximum allowed time span is one year (365 days).";
-                                                    await ctx.RespondAsync(errorMessage).ConfigureAwait(false);
-                                                    return;
-                                                }
-
-                                                else
-                                                {
-                                                    // Set the culture info to store.
-                                                    eventDateCultureInfo = "en-US";
-                                                }
-                                            }
-
-                                            catch
-                                            {
-                                                // Notify the user that the provided event date cannot be parsed.
-                                                await ctx.Channel.SendMessageAsync("**[ERROR]** An error occured. Your event date cannot be parsed. Make sure your date and time is written in either English or Indonesian format. Example: 15 November 2021 07:00, 25 Juni 2022.").ConfigureAwait(false);
-                                                return;
-                                            }
+                                            return;
                                         }
 
                                         Task offloadToTask = Task.Run(async () =>
