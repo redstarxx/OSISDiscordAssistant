@@ -81,8 +81,8 @@ namespace discordbot.Commands
                             // If it fails, the event creation is canceled as it would not allow the bot to parse them for event reminders.
                             try
                             {
-                                var cultureInfo = new CultureInfo("id-ID");
-                                DateTime toConvert = DateTime.Parse(eventDate, cultureInfo);
+                                var cultureInfoID = new CultureInfo("id-ID");
+                                DateTime toConvert = DateTime.Parse(eventDate, cultureInfoID);
 
                                 TimeSpan calculateTimeSpan = toConvert - DateTime.Now;
 
@@ -90,29 +90,28 @@ namespace discordbot.Commands
                                 {
                                     string errorMessage = "**[ERROR]** Maximum allowed time span is one year (365 days).";
                                     await ctx.Channel.SendMessageAsync(errorMessage).ConfigureAwait(false);
+
                                     return;
                                 }
 
-                                else if (calculateTimeSpan.Days < 1)
+                                if (calculateTimeSpan.Days < 1)
                                 {
                                     string errorMessage = "**[ERROR]** Minimum allowed date is one day before the event. Alternatively, include the year of the event as well if you have not.";
                                     await ctx.Channel.SendMessageAsync(errorMessage).ConfigureAwait(false);
+
                                     return;
                                 }
 
-                                else
-                                {
-                                    // Set the culture info to store.
-                                    eventDateCultureInfo = "id-ID";
-                                }
+                                // Set the culture info to store.
+                                eventDateCultureInfo = "id-ID";
                             }
 
                             catch
                             {
                                 try
                                 {
-                                    var cultureInfo = new CultureInfo("en-US");
-                                    DateTime toConvert = DateTime.Parse(eventDate, cultureInfo);
+                                    var cultureInfoUS = new CultureInfo("en-US");
+                                    DateTime toConvert = DateTime.Parse(eventDate, cultureInfoUS);
 
                                     TimeSpan calculateTimeSpan = toConvert - DateTime.Now;
 
@@ -120,14 +119,20 @@ namespace discordbot.Commands
                                     {
                                         string errorMessage = "**[ERROR]** Maximum allowed time span is one year (365 days).";
                                         await ctx.RespondAsync(errorMessage).ConfigureAwait(false);
+
                                         return;
                                     }
 
-                                    else
+                                    if (calculateTimeSpan.Days < 1)
                                     {
-                                        // Set the culture info to store.
-                                        eventDateCultureInfo = "en-US";
+                                        string errorMessage = "**[ERROR]** Minimum allowed date is one day before the event. Alternatively, include the year of the event as well if you have not.";
+                                        await ctx.Channel.SendMessageAsync(errorMessage).ConfigureAwait(false);
+
+                                        return;
                                     }
+
+                                    // Set the culture info to store.
+                                    eventDateCultureInfo = "en-US";
                                 }
 
                                 catch
