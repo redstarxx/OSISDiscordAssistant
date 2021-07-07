@@ -1,7 +1,8 @@
 # OSIS Discord Assistant
 A Discord bot created for OSIS Sekolah Djuwita Batam, written on top of DSharpPlus. Developed by the Information Technology Division. Events manager, deadline reminder, server policing. All you need for your event planning under one bot.
 
-![build](https://github.com/redstarxx/DiscordBotOSIS/actions/workflows/dotnet.yml/badge.svg)
+[![.NET Core CI](https://github.com/redstarxx/DiscordBotOSIS/actions/workflows/dotnet.yml/badge.svg?branch=main)](https://github.com/redstarxx/DiscordBotOSIS/actions/workflows/dotnet.yml)
+[![Docker Image CI](https://github.com/redstarxx/DiscordBotOSIS/actions/workflows/docker-image.yml/badge.svg)](https://github.com/redstarxx/DiscordBotOSIS/actions/workflows/docker-image.yml)
 
 ## Contributing
 Contributions are only allowed from active members within the student council.
