@@ -647,25 +647,75 @@ namespace discordbot.Commands
 
             else if (operationSelection == "delete")
             {
-                int? rowID = Convert.ToInt32(string.Join(" ", optionalInput));
-
-                // Stops executing the remainder of the code if rowID is null.
-                if (rowID == null)
-                {
-                    return;
-                }
-
                 try
                 {
                     using (var db = new EventContext())
                     {
-                        var rowToDelete = db.Events.SingleOrDefault(x => x.Id == rowID);
-                        var eventNameQuery = db.Events.SingleOrDefault(x => x.Id == rowID).EventName;
+                        bool isNumber = int.TryParse(string.Join(" ", optionalInput), out int rowIDRaw);
+                        bool rowExists = false;
 
-                        if (rowToDelete != null)
+                        int rowID = 0;
+                        string inputEventName = string.Join(" ", optionalInput);
+
+                        if (isNumber)
                         {
-                            db.Remove(rowToDelete);
+                            try
+                            {
+                                rowExists = db.Events.Any(x => x.Id == rowIDRaw);
+                                rowID = db.Events.SingleOrDefault(x => x.Id == rowIDRaw).Id;
+                            }
 
+                            catch
+                            {
+                                string errorMessage = $"{Formatter.Bold("[ERROR]")} An error occured. You must provide the correct ID of the event you are updating. Refer to {Formatter.InlineCode("!event list")} or {Formatter.InlineCode("!event search")}.";
+                                await ctx.Channel.SendMessageAsync(errorMessage).ConfigureAwait(false);
+
+                                return;
+                            }
+                        }
+
+                        else if (!isNumber)
+                        {
+                            int counter = 0;
+
+                            foreach (var events in db.Events)
+                            {
+                                if (events.EventName.ToLowerInvariant() == inputEventName.ToLowerInvariant())
+                                {
+                                    rowID = events.Id;
+                                    rowExists = true;
+                                    counter++;
+
+                                    break;
+                                }
+                            }
+
+                            if (counter == 0)
+                            {
+                                string errorMessage = $"{Formatter.Bold("[ERROR]")} An error occured. You must provide the correct name of the event you are updating. Refer to {Formatter.InlineCode("!event list")} or {Formatter.InlineCode("!event search")}.";
+                                await ctx.Channel.SendMessageAsync(errorMessage).ConfigureAwait(false);
+
+                                return;
+                            }
+                        }
+
+                        // Checks whether the selected event is already expired
+                        bool hasExpired = db.Events.SingleOrDefault(x => x.Id == rowID).Expired;
+
+                        if (hasExpired)
+                        {
+                            string errorMessage = $"{Formatter.Bold("[ERROR]")} Oops! You can only delete events that has not yet expired.";
+                            await ctx.Channel.SendMessageAsync(errorMessage).ConfigureAwait(false);
+
+                            return;
+                        }
+
+                        if (rowExists)
+                        {
+                            var rowToDelete = db.Events.SingleOrDefault(x => x.Id == rowID);
+                            var eventNameQuery = db.Events.SingleOrDefault(x => x.Id == rowID).EventName;
+
+                            db.Remove(rowToDelete);
                             db.SaveChanges();
 
                             await ctx.Channel.SendMessageAsync($"{Formatter.Bold(eventNameQuery.ToString())} (Event ID: {rowID.ToString()}) successfully deleted from Events Manager.").ConfigureAwait(false);
@@ -673,8 +723,8 @@ namespace discordbot.Commands
 
                         else
                         {
-                            await ctx.Channel.SendMessageAsync($"Event ID {Formatter.Bold(rowID.ToString())} does not exist. Make sure you are selecting an event ID from Events Manager - List.").ConfigureAwait(false);
-                        }
+                            return;
+                        }                        
                     }
                 }
 
