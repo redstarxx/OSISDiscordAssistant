@@ -3,6 +3,7 @@ A Discord bot created for OSIS Sekolah Djuwita Batam, written on top of DSharpPl
 
 [![.NET Core CI](https://github.com/redstarxx/DiscordBotOSIS/actions/workflows/dotnet.yml/badge.svg?branch=main)](https://github.com/redstarxx/DiscordBotOSIS/actions/workflows/dotnet.yml)
 [![Docker Image CI](https://github.com/redstarxx/DiscordBotOSIS/actions/workflows/docker-image.yml/badge.svg)](https://github.com/redstarxx/DiscordBotOSIS/actions/workflows/docker-image.yml)
+![Maintainer](https://img.shields.io/badge/maintainer-redstarxx-blue)
 
 ## Contributing
 Contributions are only allowed from active members within the student council.
