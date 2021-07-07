@@ -24,7 +24,7 @@ namespace discordbot.Commands
         [Command("about")]
         public async Task BotInfo(CommandContext ctx)
         {
-            var ccv = Assembly.GetExecutingAssembly().GetName().Version.ToString();
+            var ccv = Assembly.GetExecutingAssembly().GetName().Version.ToString(3);
 
             var dsv = ctx.Client.VersionString;
             var ncv = PlatformServices.Default
