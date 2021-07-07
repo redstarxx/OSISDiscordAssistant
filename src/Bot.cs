@@ -11,8 +11,6 @@ using Microsoft.Extensions.Logging;
 using discordbot.Commands;
 using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.Entities;
-using Npgsql;
-using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Globalization;
 using System.Diagnostics;
@@ -66,7 +64,8 @@ namespace discordbot
             {
                 StringPrefixes = new String[] { configJson.Prefix },
                 EnableMentionPrefix = true,
-                EnableDms = false
+                EnableDms = false,
+                EnableDefaultHelp = false
             };
 
             Commands = Client.UseCommandsNext(commandsConfig);
@@ -77,6 +76,7 @@ namespace discordbot
             Commands.RegisterCommands<AdministrationCommands>();
             Commands.RegisterCommands<ReminderCommandsModule>();
             Commands.RegisterCommands<EventCommandsModule>();
+            Commands.RegisterCommands<HelpCommandsModule>();
 
             // Registers event handlers.
             Commands.CommandExecuted += CommandsNext_CommandExecuted;
