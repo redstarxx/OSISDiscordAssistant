@@ -396,7 +396,8 @@ namespace discordbot.Commands
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
                     Text = "OSIS Discord Assistant"
-                }
+                },
+                Color = DiscordColor.MidnightBlue
             };
 
             await ctx.Message.DeleteAsync();

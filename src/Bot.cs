@@ -121,7 +121,8 @@ namespace discordbot
                     Footer = new DiscordEmbedBuilder.EmbedFooter
                     {
                         Text = "OSIS Discord Assistant"
-                    }
+                    },
+                    Color = DiscordColor.MidnightBlue
                 };
 
                 DiscordMessageBuilder reminderMessageBuilder = new DiscordMessageBuilder
@@ -355,7 +356,8 @@ namespace discordbot
                     Footer = new DiscordEmbedBuilder.EmbedFooter
                     {
                         Text = "OSIS Discord Assistant"
-                    }
+                    },
+                    Color = DiscordColor.MidnightBlue
                 };
 
                 DiscordMessageBuilder reminderMessageBuilder = new DiscordMessageBuilder

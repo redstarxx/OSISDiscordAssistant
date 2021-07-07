@@ -181,7 +181,8 @@ namespace discordbot.Commands
                     Footer = new DiscordEmbedBuilder.EmbedFooter
                     {
                         Text = "OSIS Discord Assistant"
-                    }
+                    },
+                    Color = DiscordColor.MidnightBlue
                 };
 
                 var notifyMessage = await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[EVENTS MANAGER]")} Give me a second to process everything...").ConfigureAwait(false);
@@ -238,7 +239,8 @@ namespace discordbot.Commands
                     Footer = new DiscordEmbedBuilder.EmbedFooter
                     {
                         Text = "OSIS Discord Assistant"
-                    }
+                    },
+                    Color = DiscordColor.MidnightBlue
                 };
 
                 try
@@ -681,7 +683,8 @@ namespace discordbot.Commands
                     Footer = new DiscordEmbedBuilder.EmbedFooter
                     {
                         Text = "OSIS Discord Assistant"
-                    }
+                    },
+                    Color = DiscordColor.MidnightBlue
                 };
 
                 try

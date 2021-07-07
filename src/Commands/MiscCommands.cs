@@ -64,11 +64,12 @@ namespace discordbot.Commands
             var embedBuilder = new DiscordEmbedBuilder
             {
                 Title = "About OSIS Discord Assistant",
-                Description = 
+                Description =
                 string.Concat($"OSIS Discord Assistant is a bot created by RedStar#9271 (<@!322693857760509952>). " +
                 $"This bot is solely developed to assist the student council members of Sekolah Djuwita to carry out its tasks in terms " +
                 $"of event planning, reminders and server administration. Feature extension beyond said purposes fully depends on the council's president " +
-                $"in charge.")
+                $"in charge."),
+                Color = DiscordColor.MidnightBlue
             };
 
             embedBuilder.AddField("Bot Version", Formatter.Bold(ccv), true)
@@ -149,7 +150,8 @@ namespace discordbot.Commands
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
                     Text = "OSIS Discord Assistant"
-                }
+                },
+                Color = DiscordColor.MidnightBlue
             };
 
             embedBuilder.AddField("Discord Tag", ctx.Member.Username + "#" + ctx.Member.Discriminator, true);

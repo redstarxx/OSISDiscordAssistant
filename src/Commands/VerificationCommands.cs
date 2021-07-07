@@ -105,7 +105,8 @@ namespace discordbot.Commands
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
                     Text = "OSIS Discord Assistant"
-                }
+                },
+                Color = DiscordColor.MidnightBlue
             };
 
             DiscordChannel channel = ctx.Guild.GetChannel(841207483648311336);
@@ -146,7 +147,8 @@ namespace discordbot.Commands
                         Footer = new DiscordEmbedBuilder.EmbedFooter
                         {
                             Text = "OSIS Discord Assistant"
-                        }
+                        },
+                        Color = DiscordColor.MidnightBlue
                     };
 
                     await requestEmbed.ModifyAsync(embed: requestAcceptedEmbed.Build()).ConfigureAwait(false);
@@ -171,7 +173,8 @@ namespace discordbot.Commands
                         Footer = new DiscordEmbedBuilder.EmbedFooter
                         {
                             Text = "OSIS Discord Assistant"
-                        }
+                        },
+                        Color = DiscordColor.MidnightBlue
                     };
 
                     await requestEmbed.ModifyAsync(embed: requestDeniedEmbed.Build()).ConfigureAwait(false);
@@ -196,7 +199,8 @@ namespace discordbot.Commands
                     Footer = new DiscordEmbedBuilder.EmbedFooter
                     {
                         Text = "OSIS Discord Assistant"
-                    }
+                    },
+                    Color = DiscordColor.MidnightBlue
                 };
 
                 await requestEmbed.ModifyAsync(embed: timeOutEmbed.Build()).ConfigureAwait(false);
