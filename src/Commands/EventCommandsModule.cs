@@ -216,6 +216,24 @@ namespace discordbot.Commands
                 });
             }
 
+            else if (operationSelection == "update")
+            {
+                string toSend = $"{Formatter.Bold("[SYNTAX]")} !event update [EVENT ID or EVENT NAME]\nExample: {Formatter.InlineCode("!event update LDKS 2021")}";
+                await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
+            }
+
+            else if (operationSelection == "search")
+            {
+                string toSend = $"{Formatter.Bold("[SYNTAX]")} !event search [EVENT ID or EVENT NAME]\nExample: {Formatter.InlineCode("!event search LDKS 2021")}";
+                await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
+            }
+
+            else if (operationSelection == "delete")
+            {
+                string toSend = $"{Formatter.Bold("[SYNTAX]")} !event delete [EVENT ID or EVENT NAME]\nExample: {Formatter.InlineCode("!event delete LDKS 2021")}";
+                await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
+            }
+
             else
             {
                 return;
@@ -786,6 +804,33 @@ namespace discordbot.Commands
             {
                 return;
             }
+        }
+
+        /// <summary>
+        /// Command to view the Events Manager commands and help.
+        /// </summary>
+        [Command("event")]
+        public async Task EventCreateOrList(CommandContext ctx)
+        {
+            var embedBuilder = new DiscordEmbedBuilder
+            {
+                Title = "Events Manager - Overview",
+                Timestamp = DateTime.Now.AddHours(7),
+                Footer = new DiscordEmbedBuilder.EmbedFooter
+                {
+                    Text = "OSIS Discord Assistant"
+                },
+                Color = DiscordColor.MidnightBlue
+            };
+
+            embedBuilder.Description = "Events Manager integrates event planning, proposal submission reminder, and event execution reminder under one command.\n\n" +
+                $"{Formatter.Bold("!event create")} - Create a new event.\n" +
+                $"{Formatter.Bold("!event update")} - Updates an existing event.\n" +
+                $"{Formatter.Bold("!event delete")} - Deletes an event.\n" +
+                $"{Formatter.Bold("!event search")} - Search the database for an event that matches the given event name or ID.\n" +
+                $"{Formatter.Bold("!event list")} - Lists all registered events.\n";
+
+            await ctx.Channel.SendMessageAsync(embed: embedBuilder).ConfigureAwait(false);
         }
 
         [Command("rawdata")]
