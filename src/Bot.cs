@@ -71,9 +71,9 @@ namespace discordbot
             Commands = Client.UseCommandsNext(commandsConfig);
 
             // Registers commands.
-            Commands.RegisterCommands<MiscCommands>();
-            Commands.RegisterCommands<VerificationCommands>();
-            Commands.RegisterCommands<AdministrationCommands>();
+            Commands.RegisterCommands<MiscCommandsModule>();
+            Commands.RegisterCommands<VerificationCommandsModule>();
+            Commands.RegisterCommands<ServerAdministrationCommandsModule>();
             Commands.RegisterCommands<ReminderCommandsModule>();
             Commands.RegisterCommands<EventCommandsModule>();
             Commands.RegisterCommands<HelpCommandsModule>();

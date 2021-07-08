@@ -8,7 +8,7 @@ using DSharpPlus.Entities;
 
 namespace discordbot.Commands
 {
-    class AdministrationCommands : BaseCommandModule
+    class ServerAdministrationCommandsModule : BaseCommandModule
     {
         [Command("mute")]
         public async Task Mute(CommandContext ctx, DiscordMember member, params string[] muteReason)

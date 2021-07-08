@@ -11,7 +11,7 @@ using DSharpPlus.Entities;
 
 namespace discordbot.Commands
 {
-    class VerificationCommands : BaseCommandModule
+    class VerificationCommandsModule : BaseCommandModule
     {    
         [Command("overify")]
         public async Task OverrideVerifySingle(CommandContext ctx, DiscordMember member)

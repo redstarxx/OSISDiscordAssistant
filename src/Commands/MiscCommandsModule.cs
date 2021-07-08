@@ -17,7 +17,7 @@ using Microsoft.Extensions.Logging;
 
 namespace discordbot.Commands
 {
-    class MiscCommands : BaseCommandModule
+    class MiscCommandsModule : BaseCommandModule
     {
         DateTime startTime = DateTime.Now;
 
