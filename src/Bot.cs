@@ -54,6 +54,7 @@ namespace discordbot
             Client.Ready += OnClientReady;
             Client.GuildDownloadCompleted += OnGuildDownloadCompleted;
             Client.MessageReactionAdded += OnMessageReactionAdded;
+            Client.GuildMemberAdded += OnGuildMemberAdded;
 
             Client.UseInteractivity(new InteractivityConfiguration
             {
@@ -528,6 +529,17 @@ namespace discordbot
                 $"User '{e.User.Username}#{e.User.Discriminator}' ({e.User.Id}) " +
                 $"added '{e.Emoji}' in #{e.Channel.Name} ({e.Channel.Id})",
                 DateTime.UtcNow.AddHours(7));
+
+            return Task.CompletedTask;
+        }
+
+        private Task OnGuildMemberAdded(object sender, GuildMemberAddEventArgs e)
+        {
+            DiscordChannel welcomeChannel = e.Guild.GetChannel(814450803464732722);
+
+            string toSend = $"selamat datang {e.Member.Mention}! {DiscordEmoji.FromName(Client, ":omculikaku:")}";
+
+            welcomeChannel.SendMessageAsync(toSend).ConfigureAwait(false);
 
             return Task.CompletedTask;
         }
