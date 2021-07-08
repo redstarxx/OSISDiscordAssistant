@@ -50,6 +50,28 @@ namespace discordbot
         }
 
         /// <summary>
+        /// Checks whether the member has the Service Administrator role.
+        /// </summary>
+        /// <param name="userID">User to check for.</param>
+        /// <param name="ctx">CommandContext belonging to the executing command.</param>
+        /// <returns>False if has none of the roles above.</returns>
+        public static bool CheckServiceAdminRole(CommandContext ctx)
+        {
+            var roleList = string.Join(", ", ctx.Member.Roles);
+            if (!roleList.Contains("Service Administrator"))
+            {
+                return false;
+            }
+
+            else if (roleList.Contains("Service Administrator"))
+            {
+                return true;
+            }
+
+            return true;
+        }
+
+        /// <summary>
         /// Checks whether the command user is using the command towards themself.
         /// If true, errorReason is sent as reply.
         /// </summary>

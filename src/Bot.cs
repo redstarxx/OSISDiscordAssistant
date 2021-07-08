@@ -77,6 +77,7 @@ namespace discordbot
             Commands.RegisterCommands<ReminderCommandsModule>();
             Commands.RegisterCommands<EventCommandsModule>();
             Commands.RegisterCommands<HelpCommandsModule>();
+            Commands.RegisterCommands<BotAdministrationCommands>();
 
             // Registers event handlers.
             Commands.CommandExecuted += CommandsNext_CommandExecuted;
@@ -544,7 +545,7 @@ namespace discordbot
             e.Context.Client.Logger.LogError(LogEvent,
                 $"User '{e.Context.User.Username}#{e.Context.User.Discriminator}' ({e.Context.User.Id}) tried to execute '{e.Command?.QualifiedName ?? "<unknown command>"}' "
                 + $"in #{e.Context.Channel.Name} ({e.Context.Channel.Id}) and failed with {e.Exception.GetType()}: {e.Exception.Message}", DateTime.Now);
-            
+
             return Task.CompletedTask;
         }
     }
