@@ -106,32 +106,7 @@ namespace discordbot.Commands
         {
             var profileImageLink = member.GetAvatarUrl(ImageFormat.Png);
             await ctx.Channel.SendMessageAsync(profileImageLink).ConfigureAwait(false);
-        }
-
-        [Command("datetime")]
-        public async Task CheckDate(CommandContext ctx)
-        {
-            Stopwatch stopwatch = new Stopwatch();
-            stopwatch.Start();
-
-            using (var db = new EventContext())
-            {
-                foreach (var row in db.Events)
-                {
-                    var cultureInfo = new CultureInfo(row.EventDateCultureInfo);
-                    DateTime currentTime = DateTime.Now;
-                    string combineCurrentDateTime = $"{currentTime.ToShortDateString()} {currentTime.ToShortTimeString()}";
-
-                    DateTime toConvert = DateTime.Parse(row.EventDate, cultureInfo);
-                    string combineEventDateTime = $"{toConvert.ToShortDateString()} {toConvert.ToShortTimeString()}";
-
-                    await ctx.Channel.SendMessageAsync($"{combineCurrentDateTime} - {combineEventDateTime}").ConfigureAwait(false);
-                }
-
-                stopwatch.Stop();
-                await ctx.RespondAsync($"It took {stopwatch.ElapsedMilliseconds} ms.").ConfigureAwait(false);
-            }
-        }
+        }        
 
         [Command("slap")]
         public async Task Slap(CommandContext ctx, DiscordMember member)
