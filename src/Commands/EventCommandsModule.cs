@@ -82,9 +82,13 @@ namespace discordbot.Commands
                             try
                             {
                                 var cultureInfoUS = new CultureInfo("en-US");
+
+                                // Add 7 hours ahead because for some reason Linux doesn't pick the user preferred timezone.
+                                DateTime currentTime = DateTime.UtcNow.AddHours(7);
+
                                 DateTime toConvert = DateTime.Parse(eventDate, cultureInfoUS);
 
-                                TimeSpan calculateTimeSpan = toConvert - DateTime.Now;
+                                TimeSpan calculateTimeSpan = toConvert - currentTime;
 
                                 if (calculateTimeSpan.TotalDays > 365)
                                 {
@@ -177,7 +181,7 @@ namespace discordbot.Commands
                 var embedBuilder = new DiscordEmbedBuilder
                 {
                     Title = "Events Manager - Listing All Events...",
-                    Timestamp = DateTime.Now.AddHours(7),
+                    Timestamp = DateTime.UtcNow.AddHours(7),
                     Footer = new DiscordEmbedBuilder.EmbedFooter
                     {
                         Text = "OSIS Discord Assistant"
@@ -253,7 +257,7 @@ namespace discordbot.Commands
             {
                 var embedBuilder = new DiscordEmbedBuilder
                 {
-                    Timestamp = DateTime.Now,
+                    Timestamp = DateTime.UtcNow.AddHours(7),
                     Footer = new DiscordEmbedBuilder.EmbedFooter
                     {
                         Text = "OSIS Discord Assistant"
@@ -390,7 +394,7 @@ namespace discordbot.Commands
 
                                             embedBuilder.Title = $"Events Manager - {previousEventName} Update Details";
                                             embedBuilder.Description = $"{ctx.Member.Mention} has made update(s) to {previousEventName}.\n\n{Formatter.Bold("Changes made:")}\n• Changed event name from {Formatter.InlineCode(previousEventName)} to {Formatter.InlineCode(eventName)}.";
-                                            embedBuilder.Timestamp = DateTime.Now;
+                                            embedBuilder.Timestamp = DateTime.UtcNow.AddHours(7);
 
                                             await ctx.Channel.SendMessageAsync(embed: embedBuilder).ConfigureAwait(false);
                                         });
@@ -449,7 +453,7 @@ namespace discordbot.Commands
 
                                             embedBuilder.Title = $"Events Manager - {previousEventName} Update Details";
                                             embedBuilder.Description = $"{ctx.Member.Mention} has made update(s) to {previousEventName}.\n\n{Formatter.Bold("Changes made:")}\n• Changed person-in-charge (ketua / wakil ketua event) from {Formatter.InlineCode(previousPersonInCharge)} to {Formatter.InlineCode(personInCharge)}.";
-                                            embedBuilder.Timestamp = DateTime.Now;
+                                            embedBuilder.Timestamp = DateTime.UtcNow.AddHours(7);
 
                                             await ctx.Channel.SendMessageAsync(embed: embedBuilder).ConfigureAwait(false);
                                         });                                       
@@ -494,9 +498,13 @@ namespace discordbot.Commands
                                         try
                                         {
                                             var cultureInfoUS = new CultureInfo("en-US");
+
+                                            // Add 7 hours ahead because for some reason Linux doesn't pick the user preferred timezone.
+                                            DateTime currentTime = DateTime.UtcNow.AddHours(7);
+
                                             DateTime toConvert = DateTime.Parse(eventDate, cultureInfoUS);
 
-                                            TimeSpan calculateTimeSpan = toConvert - DateTime.Now;
+                                            TimeSpan calculateTimeSpan = toConvert - currentTime;
 
                                             if (calculateTimeSpan.TotalDays > 365)
                                             {
@@ -547,7 +555,7 @@ namespace discordbot.Commands
 
                                                 embedBuilder.Title = $"Events Manager - {previousEventName} Update Details";
                                                 embedBuilder.Description = $"{ctx.Member.Mention} has made update(s) to {previousEventName}.\n\n{Formatter.Bold("Changes made:")}\n• Changed event date from {Formatter.InlineCode(previousEventDate)} to {Formatter.InlineCode(eventDate)}.";
-                                                embedBuilder.Timestamp = DateTime.Now;
+                                                embedBuilder.Timestamp = DateTime.UtcNow.AddHours(7);
 
                                                 await ctx.Channel.SendMessageAsync(embed: embedBuilder).ConfigureAwait(false);
                                             }
@@ -606,7 +614,7 @@ namespace discordbot.Commands
 
                                                 embedBuilder.Title = $"Events Manager - {previousEventName} Update Details";
                                                 embedBuilder.Description = $"{ctx.Member.Mention} has made update(s) to {previousEventName}.\n\n{Formatter.Bold("Changes made:")}\n• Changed event description from {Formatter.InlineCode(previousEventDescription)} to {Formatter.InlineCode(eventDescription)}.";
-                                                embedBuilder.Timestamp = DateTime.Now;
+                                                embedBuilder.Timestamp = DateTime.UtcNow.AddHours(7);
 
                                                 await ctx.Channel.SendMessageAsync(embed: embedBuilder).ConfigureAwait(false);
                                             }
@@ -747,7 +755,7 @@ namespace discordbot.Commands
                 var embedBuilder = new DiscordEmbedBuilder
                 {
                     Title = "Events Manager - Search Result",
-                    Timestamp = DateTime.Now.AddHours(7),
+                    Timestamp = DateTime.UtcNow.AddHours(7),
                     Footer = new DiscordEmbedBuilder.EmbedFooter
                     {
                         Text = "OSIS Discord Assistant"
@@ -865,7 +873,7 @@ namespace discordbot.Commands
             var embedBuilder = new DiscordEmbedBuilder
             {
                 Title = "Events Manager - Overview",
-                Timestamp = DateTime.Now.AddHours(7),
+                Timestamp = DateTime.UtcNow.AddHours(7),
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
                     Text = "OSIS Discord Assistant"

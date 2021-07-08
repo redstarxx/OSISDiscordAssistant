@@ -18,7 +18,7 @@ namespace discordbot.Commands
             var embedBuilder = new DiscordEmbedBuilder() 
             {
                 Title = "Listing All Commands...",
-                Timestamp = DateTime.Now.AddHours(7),
+                Timestamp = DateTime.UtcNow.AddHours(7),
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
                     Text = "OSIS Discord Assistant"

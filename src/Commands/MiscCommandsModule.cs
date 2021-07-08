@@ -19,7 +19,8 @@ namespace discordbot.Commands
 {
     class MiscCommandsModule : BaseCommandModule
     {
-        DateTime startTime = DateTime.Now;
+        // Add 7 hours ahead because for some reason Linux doesn't pick the user preferred timezone.
+        DateTime startTime = DateTime.UtcNow.AddHours(7);
 
         [Command("about")]
         public async Task BotInfo(CommandContext ctx)
@@ -86,7 +87,7 @@ namespace discordbot.Commands
         [Command("uptime")]
         public async Task Uptime(CommandContext ctx)
         {
-            TimeSpan runtimeOutput = DateTime.Now - startTime;
+            TimeSpan runtimeOutput = DateTime.UtcNow.AddHours(7) - startTime;
             string formatResult = string.Format("Been up for: **{0} days, {1} hours, {2} minutes, {3} seconds** (since "
                 + startTime.ToShortDateString() + " " + startTime.ToShortTimeString() + ")"
                 , runtimeOutput.Days, runtimeOutput.Hours, runtimeOutput.Minutes, runtimeOutput.Seconds);
@@ -121,7 +122,7 @@ namespace discordbot.Commands
             {
                 Title = "Member Information",
                 Description = $"Halo, {ctx.Member.Mention}! Informasi akun anda adalah sebagai berikut:",
-                Timestamp = DateTime.Now.AddHours(7),
+                Timestamp = DateTime.UtcNow.AddHours(7),
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
                     Text = "OSIS Discord Assistant"

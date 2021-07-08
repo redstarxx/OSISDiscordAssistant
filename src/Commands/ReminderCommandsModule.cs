@@ -101,7 +101,7 @@ namespace discordbot.Commands
 
             if (timeSpan.Contains("/"))
             {
-                DateTime currentTime = DateTime.Now;
+                DateTime currentTime = DateTime.UtcNow.AddHours(7);
                 TimeSpan toCalculate;
 
                 try
@@ -392,7 +392,7 @@ namespace discordbot.Commands
                 "\n\n**FORMAT PENGGUNAAN**\n`!remind [NAMA SEKSI / EVERYONE] [TANGGAL / WAKTU UNTUK DIINGATKAN (contoh: 25/06/2021 atau 6j30m)] [APA YANG INGIN DIINGATKAN]`\n" +
                 "**CONTOH**\n`!remind kesenian 12j Upload poster event ke Instagram.`\n" +
                 $"**HASIL**\nOke {ctx.User.Mention}, dalam 12 jam, seksi Kesenian akan diingatkan hal berikut:\n\n Upload poster event ke Instagram.",
-                Timestamp = DateTime.Now.AddHours(7),
+                Timestamp = DateTime.UtcNow.AddHours(7),
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
                     Text = "OSIS Discord Assistant"

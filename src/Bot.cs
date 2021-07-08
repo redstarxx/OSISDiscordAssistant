@@ -83,7 +83,7 @@ namespace discordbot
             Commands.CommandExecuted += CommandsNext_CommandExecuted;
             Commands.CommandErrored += CommandsNext_CommandErrored;
 
-            Client.Logger.LogInformation(LogEvent, "Client is booting up...", DateTime.Now);
+            Client.Logger.LogInformation(LogEvent, "Client is booting up...", DateTime.UtcNow.AddHours(7));
             await Client.ConnectAsync();
             await Task.Delay(-1);
         }
@@ -105,7 +105,7 @@ namespace discordbot
             // Reminders are sent 30 days before or a week before the day of the event.
             ProposalReminders();
 
-            Client.Logger.LogInformation(LogEvent, "Client is ready for tasking.", DateTime.Now);
+            Client.Logger.LogInformation(LogEvent, "Client is ready for tasking.", DateTime.UtcNow.AddHours(7));
 
             return Task.CompletedTask;
         }
@@ -118,7 +118,7 @@ namespace discordbot
 
                 var reminderEmbed = new DiscordEmbedBuilder
                 {
-                    Timestamp = DateTime.Now.AddHours(7),
+                    Timestamp = DateTime.UtcNow.AddHours(7),
                     Footer = new DiscordEmbedBuilder.EmbedFooter
                     {
                         Text = "OSIS Discord Assistant"
@@ -145,7 +145,8 @@ namespace discordbot
                             {
                                 var cultureInfo = new CultureInfo(row.EventDateCultureInfo);
 
-                                DateTime currentDateTime = DateTime.Now;
+                                // Add 7 hours ahead because for some reason Linux doesn't pick the user preferred timezone.
+                                DateTime currentDateTime = DateTime.UtcNow.AddHours(7);
 
                                 DateTime parseEventDateTime = DateTime.Parse(row.EventDate, cultureInfo);
 
@@ -321,12 +322,12 @@ namespace discordbot
 
                         if (counter != 0)
                         {
-                            Client.Logger.LogInformation(ERTask, $"It took {elapsedMilliseconds} milliseconds to complete the minute-by-minute basis events reminder task. Reminded {counter.ToString()} ({counter.ToWords()}) events.", DateTime.Now);
+                            Client.Logger.LogInformation(ERTask, $"It took {elapsedMilliseconds} milliseconds to complete the minute-by-minute basis events reminder task. Reminded {counter.ToString()} ({counter.ToWords()}) events.", DateTime.UtcNow.AddHours(7));
                         }
 
                         else
                         {
-                            Client.Logger.LogInformation(ERTask, $"It took {elapsedMilliseconds} milliseconds to complete the minute-by-minute basis events reminder task. No events to remind.", DateTime.Now);
+                            Client.Logger.LogInformation(ERTask, $"It took {elapsedMilliseconds} milliseconds to complete the minute-by-minute basis events reminder task. No events to remind.", DateTime.UtcNow.AddHours(7));
                         }
 
                         stopwatch.Reset();
@@ -340,7 +341,7 @@ namespace discordbot
                 }
             });
 
-            Client.Logger.LogInformation(ERTask, "Initialized event reminders task.", DateTime.Now);
+            Client.Logger.LogInformation(ERTask, "Initialized event reminders task.", DateTime.UtcNow.AddHours(7));
 
             return Task.CompletedTask;
         }
@@ -353,7 +354,7 @@ namespace discordbot
 
                 var reminderEmbed = new DiscordEmbedBuilder
                 {
-                    Timestamp = DateTime.Now.AddHours(7),
+                    Timestamp = DateTime.UtcNow.AddHours(7),
                     Footer = new DiscordEmbedBuilder.EmbedFooter
                     {
                         Text = "OSIS Discord Assistant"
@@ -380,7 +381,8 @@ namespace discordbot
                             {
                                 var cultureInfo = new CultureInfo(row.EventDateCultureInfo);
 
-                                DateTime currentDateTime = DateTime.Now;
+                                // Add 7 hours ahead because for some reason Linux doesn't pick the user preferred timezone.
+                                DateTime currentDateTime = DateTime.UtcNow.AddHours(7);
 
                                 DateTime parseEventDateTime = DateTime.Parse(row.EventDate, cultureInfo);
 
@@ -445,12 +447,12 @@ namespace discordbot
 
                         if (counter != 0)
                         {
-                            Client.Logger.LogInformation(PRTask, $"It took {elapsedMilliseconds} milliseconds to complete the proposal submission reminder task. Reminded {counter.ToString()} ({counter.ToWords()}) proposal submissions.", DateTime.Now);
+                            Client.Logger.LogInformation(PRTask, $"It took {elapsedMilliseconds} milliseconds to complete the proposal submission reminder task. Reminded {counter.ToString()} ({counter.ToWords()}) proposal submissions.", DateTime.UtcNow.AddHours(7));
                         }
 
                         else
                         {
-                            Client.Logger.LogInformation(PRTask, $"It took {elapsedMilliseconds} milliseconds to complete the proposal submission reminder task. No proposal submissions to remind.", DateTime.Now);
+                            Client.Logger.LogInformation(PRTask, $"It took {elapsedMilliseconds} milliseconds to complete the proposal submission reminder task. No proposal submissions to remind.", DateTime.UtcNow.AddHours(7));
                         }
 
                         stopwatch.Reset();
@@ -464,7 +466,7 @@ namespace discordbot
                 }
             });
 
-            Client.Logger.LogInformation(PRTask, "Initialized proposal reminders task.", DateTime.Now);
+            Client.Logger.LogInformation(PRTask, "Initialized proposal reminders task.", DateTime.UtcNow.AddHours(7));
 
             return Task.CompletedTask;
         }
@@ -525,7 +527,7 @@ namespace discordbot
             Client.Logger.LogInformation(LogEvent,
                 $"User '{e.User.Username}#{e.User.Discriminator}' ({e.User.Id}) " +
                 $"added '{e.Emoji}' in #{e.Channel.Name} ({e.Channel.Id})",
-                DateTime.Now);
+                DateTime.UtcNow.AddHours(7));
 
             return Task.CompletedTask;
         }
@@ -535,7 +537,7 @@ namespace discordbot
             e.Context.Client.Logger.LogInformation(LogEvent,
                 $"User '{e.Context.User.Username}#{e.Context.User.Discriminator}' ({e.Context.User.Id}) " +
                 $"executed '{e.Command.QualifiedName}' in #{e.Context.Channel.Name} ({e.Context.Channel.Id})",
-                DateTime.Now);
+                DateTime.UtcNow.AddHours(7));
 
             return Task.CompletedTask;
         }
@@ -544,7 +546,7 @@ namespace discordbot
         {
             e.Context.Client.Logger.LogError(LogEvent,
                 $"User '{e.Context.User.Username}#{e.Context.User.Discriminator}' ({e.Context.User.Id}) tried to execute '{e.Command?.QualifiedName ?? "<unknown command>"}' "
-                + $"in #{e.Context.Channel.Name} ({e.Context.Channel.Id}) and failed with {e.Exception.GetType()}: {e.Exception.Message}", DateTime.Now);
+                + $"in #{e.Context.Channel.Name} ({e.Context.Channel.Id}) and failed with {e.Exception.GetType()}: {e.Exception.Message}", DateTime.UtcNow.AddHours(7));
 
             return Task.CompletedTask;
         }

@@ -100,8 +100,8 @@ namespace discordbot.Commands
                 Description = $"{ctx.User.Username}#{ctx.User.Discriminator} has submitted a verification request.\n" 
                 + $"**Nama Panggilan:** {string.Join(" ", displayName)}\n **User ID:** {ctx.User.Id}\n **Verification Status:** NOT VERIFIED YET.\n"
                 + "Click the checkmark emoji to approve this request or the crossmark emoji to deny. "
-                + $"This request expires on {DateTime.Now.AddDays(2).AddHours(7)}.",
-                Timestamp = DateTime.Now.AddHours(7),
+                + $"This request expires on {DateTime.UtcNow.AddDays(2).AddHours(7)}.",
+                Timestamp = DateTime.UtcNow.AddHours(7),
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
                     Text = "OSIS Discord Assistant"
@@ -142,8 +142,8 @@ namespace discordbot.Commands
                         Description = $"{ctx.User.Username}#{ctx.User.Discriminator} has submitted a verification request.\n" 
                         + $"**Nama Panggilan:** {string.Join(" ", displayName)}\n **User ID:** {ctx.User.Id}\n **Verification Status:** ACCEPTED.\n"
                         + "Click the checkmark emoji to approve this request or the crossmark emoji to deny. "
-                        + $"This request expires on {DateTime.Now.AddDays(2).AddHours(7)}.",
-                        Timestamp = DateTime.Now.AddHours(7),
+                        + $"This request expires on {DateTime.UtcNow.AddDays(2).AddHours(7)}.",
+                        Timestamp = DateTime.UtcNow.AddHours(7),
                         Footer = new DiscordEmbedBuilder.EmbedFooter
                         {
                             Text = "OSIS Discord Assistant"
@@ -168,8 +168,8 @@ namespace discordbot.Commands
                         Description = $"{ctx.User.Username}#{ctx.User.Discriminator} has submitted a verification request.\n"
                         + $"**Nama Panggilan:** {string.Join(" ", displayName)}\n **User ID:** {ctx.User.Id}\n **Verification Status:** DENIED.\n"
                         + "Click the checkmark emoji to approve this request or the crossmark emoji to deny. "
-                        + $"This request expires on {DateTime.Now.AddDays(2).AddHours(7)}.",
-                        Timestamp = DateTime.Now.AddHours(7),
+                        + $"This request expires on {DateTime.UtcNow.AddDays(2).AddHours(7)}.",
+                        Timestamp = DateTime.UtcNow.AddHours(7),
                         Footer = new DiscordEmbedBuilder.EmbedFooter
                         {
                             Text = "OSIS Discord Assistant"
@@ -194,8 +194,8 @@ namespace discordbot.Commands
                     Description = $"{ctx.User.Username}#{ctx.User.Discriminator} has submitted a verification request.\n"
                 + $"**Nama Panggilan:** {string.Join(" ", displayName)}\n **User ID:** {ctx.User.Id}\n **Verification Status:** EXPIRED.\n"
                 + "Click the checkmark emoji to approve this request or the crossmark emoji to deny. "
-                + $"This request expires on {DateTime.Now.AddDays(2).AddHours(7)}.",
-                    Timestamp = DateTime.Now.AddHours(7),
+                + $"This request expires on {DateTime.UtcNow.AddDays(2).AddHours(7)}.",
+                    Timestamp = DateTime.UtcNow.AddHours(7),
                     Footer = new DiscordEmbedBuilder.EmbedFooter
                     {
                         Text = "OSIS Discord Assistant"

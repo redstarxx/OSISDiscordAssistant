@@ -31,7 +31,7 @@ namespace discordbot.Commands
             Stopwatch stopwatch = new Stopwatch();
 
             await ctx.Channel.SendMessageAsync($"Reconnecting...").ConfigureAwait(false);
-            Bot.Client.Logger.LogWarning(Bot.LogEvent, $"{ctx.Member.Username}#{ctx.Member.Discriminator} ({ctx.User.Id}) initiated a reconnect command.");
+            Bot.Client.Logger.LogWarning(Bot.LogEvent, $"{ctx.Member.Username}#{ctx.Member.Discriminator} ({ctx.User.Id}) initiated a reconnect command.", DateTime.UtcNow.AddHours(7));
 
             stopwatch.Start();
             await ctx.Client.ReconnectAsync(true);
@@ -55,7 +55,7 @@ namespace discordbot.Commands
                 return;
             }
 
-            Bot.Client.Logger.LogWarning(Bot.LogEvent, $"{ctx.Member.Username}#{ctx.Member.Discriminator} ({ctx.User.Id}) initiated a kill command.");
+            Bot.Client.Logger.LogWarning(Bot.LogEvent, $"{ctx.Member.Username}#{ctx.Member.Discriminator} ({ctx.User.Id}) initiated a kill command.", DateTime.UtcNow.AddHours(7));
             await ctx.Channel.SendMessageAsync($"Disconnecting from the gateway...").ConfigureAwait(false);
             Thread.Sleep(TimeSpan.FromSeconds(1));
 
