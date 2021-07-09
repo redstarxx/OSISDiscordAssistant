@@ -79,6 +79,7 @@ namespace discordbot
             Commands.RegisterCommands<EventCommandsModule>();
             Commands.RegisterCommands<HelpCommandsModule>();
             Commands.RegisterCommands<BotAdministrationCommands>();
+            Commands.RegisterCommands<PollCommandsModule>();
 
             // Registers event handlers.
             Commands.CommandExecuted += CommandsNext_CommandExecuted;
