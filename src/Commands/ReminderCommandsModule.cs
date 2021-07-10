@@ -101,7 +101,7 @@ namespace discordbot.Commands
 
             if (timeSpan.Contains("/"))
             {
-                DateTime currentTime = DateTime.UtcNow.AddHours(7);
+                DateTime currentTime = ClientUtilities.GetWesternIndonesianDateTime();
                 TimeSpan toCalculate;
 
                 try

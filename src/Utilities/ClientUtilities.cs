@@ -201,5 +201,16 @@ namespace discordbot
             string connectionString = configJson.ConnectionString;
             return connectionString;
         }
+
+        /// <summary>
+        /// Converts the local DateTime to Western Indonesian Time.
+        /// </summary>
+        /// <returns>GMT +7 DateTime</returns>
+        public static DateTime GetWesternIndonesianDateTime()
+        {
+            DateTime currentTime = DateTime.Now;
+
+            return currentTime;
+        }
     }
 }

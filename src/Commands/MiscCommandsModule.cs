@@ -122,7 +122,7 @@ namespace discordbot.Commands
             {
                 Title = "Member Information",
                 Description = $"Halo, {ctx.Member.Mention}! Informasi akun anda adalah sebagai berikut:",
-                Timestamp = DateTime.UtcNow.AddHours(7),
+                Timestamp = ClientUtilities.GetWesternIndonesianDateTime(),
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
                     Text = "OSIS Discord Assistant"

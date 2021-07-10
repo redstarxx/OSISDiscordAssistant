@@ -26,7 +26,7 @@ namespace discordbot.Commands
                 {
                     Title = $"Poll #{counter}",
                     Description = $"Click an emoji below to vote! This poll expires in {pollDuration.Humanize()}.",
-                    Timestamp = DateTime.UtcNow.AddHours(7),
+                    Timestamp = ClientUtilities.GetWesternIndonesianDateTime(),
                     Footer = new DiscordEmbedBuilder.EmbedFooter
                     {
                         Text = "OSIS Discord Assistant"
@@ -52,7 +52,7 @@ namespace discordbot.Commands
                 var pollResultEmbedBuilder = new DiscordEmbedBuilder
                 {
                     Title = $"Results for Poll #{counter}",
-                    Timestamp = DateTime.UtcNow.AddHours(7),
+                    Timestamp = ClientUtilities.GetWesternIndonesianDateTime(),
                     Footer = new DiscordEmbedBuilder.EmbedFooter
                     {
                         Text = "OSIS Discord Assistant"
