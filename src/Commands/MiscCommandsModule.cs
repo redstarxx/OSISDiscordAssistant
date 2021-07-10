@@ -112,7 +112,9 @@ namespace discordbot.Commands
         [Command("slap")]
         public async Task Slap(CommandContext ctx, DiscordMember member)
         {
-            await ctx.Channel.SendMessageAsync($"{member.Mention} has been slapped by {ctx.Member.Mention}!");
+            await ctx.Channel.SendMessageAsync("https://tenor.com/view/nope-stupid-slap-in-the-face-phone-gif-15151334").ConfigureAwait(false);
+
+            await ctx.Channel.SendMessageAsync($"{member.Mention} has been slapped by {ctx.Member.Mention}!").ConfigureAwait(false);
         }
 
         [Command("myinfo")]
