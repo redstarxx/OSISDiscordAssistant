@@ -25,7 +25,7 @@ namespace discordbot.Commands
                 var pollEmbedBuilder = new DiscordEmbedBuilder
                 {
                     Title = $"Poll #{counter}",
-                    Description = $"Click an emoji below to vote! This poll expires in {pollDuration.Humanize()}.",
+                    Description = $"Click an emoji below to vote! This poll expires in {pollDuration.Humanize(2)}.",
                     Timestamp = ClientUtilities.GetWesternIndonesianDateTime(),
                     Footer = new DiscordEmbedBuilder.EmbedFooter
                     {
