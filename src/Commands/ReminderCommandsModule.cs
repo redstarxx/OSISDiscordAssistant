@@ -14,6 +14,7 @@ using System.Reflection;
 using Microsoft.Extensions.PlatformAbstractions;
 using System.IO;
 using System.Globalization;
+using Humanizer;
 
 namespace discordbot.Commands
 {
@@ -247,6 +248,52 @@ namespace discordbot.Commands
                     reminderTask.Start();
                     await ctx.RespondAsync(toSend).ConfigureAwait(false);
                 }
+            }
+
+            else if (timeSpan.Contains(":"))
+            {
+                DateTime currentTime = ClientUtilities.GetWesternIndonesianDateTime();
+
+                var toParse = DateTime.ParseExact(timeSpan, "H:mm", null, DateTimeStyles.None);
+
+                if (currentTime > toParse)
+                {
+                    toParse = toParse.AddDays(1);
+                }
+
+                TimeSpan time = toParse - currentTime;
+
+                var reminderTask = new Task(async () =>
+                {
+                    string reminder = string.Empty;
+                    if (remindTarget == "me")
+                    {
+                        reminder = $"{DiscordEmoji.FromName(ctx.Client, ":alarm_clock:")} {ctx.Member.Mention}, " +
+                        $"you wanted to be reminded of the following: \n\n{string.Join(" ", remindMessage)}";
+                    }
+
+                    else
+                    {
+                        reminder = $"{DiscordEmoji.FromName(ctx.Client, ":alarm_clock:")} {mentionTarget}, " +
+                        $"{ctx.Member.Mention} wanted to remind you of the following: \n\n{string.Join(" ", remindMessage)}";
+                    }
+
+                    long fullDelays = time.Ticks / maxValue.Ticks;
+                    for (int i = 0; i < fullDelays; i++)
+                    {
+                        await Task.Delay(maxValue);
+                        time -= maxValue;
+                    }
+
+                    await Task.Delay(time);
+                    await ctx.Channel.SendMessageAsync(reminder).ConfigureAwait(false);
+                });
+
+                reminderTask.Start();
+
+                string toSend = $"Ok {ctx.Member.Mention}, in {time.Humanize(2)} ({toParse.ToString()}) {youoreveryone} will be reminded of the following:\n\n" + 
+                    $" {string.Join(" ", remindMessage)}";
+                await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
             }
 
             else
