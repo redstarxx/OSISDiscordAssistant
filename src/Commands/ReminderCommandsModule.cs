@@ -291,8 +291,20 @@ namespace discordbot.Commands
 
                 reminderTask.Start();
 
-                string toSend = $"Ok {ctx.Member.Mention}, in {time.Humanize(2)} ({toParse.ToString()}) {youoreveryone} will be reminded of the following:\n\n" + 
+                string toSend = null;
+
+                if (toParse.ToShortDateString() != currentTime.ToShortDateString())
+                {
+                    toSend = $"Ok {ctx.Member.Mention}, tomorrow, in {time.Humanize(2)} ({toParse.ToString()}) {youoreveryone} will be reminded of the following:\n\n" +
                     $" {string.Join(" ", remindMessage)}";
+                }
+
+                else
+                {
+                    toSend = $"Ok {ctx.Member.Mention}, in {time.Humanize(2)} ({toParse.ToString()}) {youoreveryone} will be reminded of the following:\n\n" +
+                    $" {string.Join(" ", remindMessage)}";
+                }
+
                 await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
             }
 
@@ -435,11 +447,11 @@ namespace discordbot.Commands
                 Description = "Bot ini memiliki fitur mengingatkan seksi tertentu atau seluruh anggota OSIS untuk " +
                 "berbagai kepentingan, seperti mengingatkan jadwal rapat atau hitung mundur jumlah hari menuju pelaksanaan event.\n\n" +
                 "Berikut seksi-seksi yang dapat diingatkan oleh bot ini: \n• Inti (Inti OSIS)\n• Kesenian\n• Kewirausahaan\n" +
-                "• IT (Informasi Teknologi)\n• Olahraga\n• Humas\n• Agama \nApabila ingin mengingatkan semua anggota, pilih `everyone`." +
+                "• IT (Informasi Teknologi)\n• Olahraga\n• Humas\n• Agama \nApabila ingin mengingatkan semua anggota, pilih `everyone` atau dengan langsung mention role yang diinginkan." +
                 "\n\n**FORMAT PENGGUNAAN**\n`!remind [NAMA SEKSI / EVERYONE] [TANGGAL / WAKTU UNTUK DIINGATKAN (contoh: 25/06/2021 atau 6j30m)] [APA YANG INGIN DIINGATKAN]`\n" +
-                "**CONTOH**\n`!remind kesenian 12j Upload poster event ke Instagram.`\n" +
+                "**CONTOH**\n`!remind kesenian 12:30 Upload poster event ke Instagram.`\n" +
                 $"**HASIL**\nOke {ctx.User.Mention}, dalam 12 jam, seksi Kesenian akan diingatkan hal berikut:\n\n Upload poster event ke Instagram.",
-                Timestamp = DateTime.UtcNow.AddHours(7),
+                Timestamp = ClientUtilities.GetWesternIndonesianDateTime(),
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
                     Text = "OSIS Discord Assistant"
