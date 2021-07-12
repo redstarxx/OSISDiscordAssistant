@@ -881,8 +881,8 @@ namespace discordbot.Commands
                 Color = DiscordColor.MidnightBlue
             };
 
-            embedBuilder.Description = "Events Manager integrates event planning, proposal submission reminder, and event execution reminder under one command.\n\n" +
-                $"{Formatter.Bold("!event create")} - Create a new event.\n" +
+            embedBuilder.Description = "Events Manager integrates event planning, proposal submission reminder, and event execution reminder under one bot.\n\n" +
+                $"{Formatter.Bold("!event create")} - Creates a new event.\n" +
                 $"{Formatter.Bold("!event update")} - Updates an existing event.\n" +
                 $"{Formatter.Bold("!event delete")} - Deletes an event.\n" +
                 $"{Formatter.Bold("!event search")} - Search the database for an event that matches the given event name or ID.\n" +
