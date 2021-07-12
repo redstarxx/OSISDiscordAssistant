@@ -227,13 +227,13 @@ namespace discordbot.Commands
             await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
         }
 
-        //[Command("requestverify")]
-        //public async Task RequestVerifyHelp(CommandContext ctx)
-        //{
-        //    string toSend =
-        //        "**[SYNTAX]** !requestverify [NAMA PANGGILAN]\n"
-        //        + "Note: Fill in the parameters in sync with above otherwise the bot cannot process your request.";
-        //    await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
-        //}
+        [Command("requestverify")]
+        public async Task RequestVerifyHelp(CommandContext ctx)
+        {
+            string toSend =
+                "**[SYNTAX]** !requestverify [NAMA PANGGILAN]\n"
+                + "Note: Fill in the parameters in sync with above otherwise the bot cannot process your request.";
+            await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
+        }
     }
 }
