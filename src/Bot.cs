@@ -55,6 +55,7 @@ namespace discordbot
             Client.GuildDownloadCompleted += OnGuildDownloadCompleted;
             Client.MessageReactionAdded += OnMessageReactionAdded;
             Client.GuildMemberAdded += OnGuildMemberAdded;
+            Client.MessageCreated += OnMessageCreated;
 
             Client.UseInteractivity(new InteractivityConfiguration
             {
@@ -520,6 +521,23 @@ namespace discordbot
                     await Task.Delay(TimeSpan.FromMinutes(2));
                 }
             });
+
+            return Task.CompletedTask;
+        }
+
+        private Task OnMessageCreated(DiscordClient sender, MessageCreateEventArgs e)
+        {
+            if (e.Channel.IsPrivate && !e.Author.IsCurrent)
+            {
+                Client.Logger.LogInformation(LogEvent, $"User '{e.Author.Username}#{e.Author.Discriminator}' ({e.Author.Id}) sent \"{e.Message.Content}\" through Direct Messages ({e.Channel.Id})", ClientUtilities.GetWesternIndonesianDateTime());
+
+                if (e.Message.Content.StartsWith("!"))
+                {
+                    string toSend = $"{Formatter.Bold("[ERROR]")} Sorry, you can only execute commands in the OSIS Discord server!";
+
+                    e.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
+                }
+            }
 
             return Task.CompletedTask;
         }
