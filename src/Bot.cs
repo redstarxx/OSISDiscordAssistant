@@ -46,7 +46,7 @@ namespace discordbot
                 Token = configJson.Token,
                 TokenType = TokenType.Bot,
                 AutoReconnect = true,
-                MinimumLogLevel = LogLevel.Debug,
+                MinimumLogLevel = LogLevel.Information,
                 Intents = DiscordIntents.All
             };
 
@@ -85,7 +85,7 @@ namespace discordbot
             Commands.CommandExecuted += CommandsNext_CommandExecuted;
             Commands.CommandErrored += CommandsNext_CommandErrored;
 
-            Client.Logger.LogInformation(LogEvent, "Client is booting up...", ClientUtilities.GetWesternIndonesianDateTime());
+            Client.Logger.LogInformation(LogEvent, "Connecting to Discord's Gateway...", ClientUtilities.GetWesternIndonesianDateTime());
             await Client.ConnectAsync();
             await Task.Delay(-1);
         }
