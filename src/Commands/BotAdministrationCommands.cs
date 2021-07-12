@@ -38,7 +38,7 @@ namespace discordbot.Commands
 
             stopwatch.Stop();
 
-            await ctx.Channel.SendMessageAsync($"Successfully reconnected to the gateway without starting a new session. It took {stopwatch.ElapsedMilliseconds} ms.").ConfigureAwait(false);
+            await ctx.Channel.SendMessageAsync($"Successfully reconnected to the gateway with a new session. It took {stopwatch.ElapsedMilliseconds} ms.").ConfigureAwait(false);
         }
 
         [Command("kill")]
