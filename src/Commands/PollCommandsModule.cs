@@ -82,7 +82,15 @@ namespace discordbot.Commands
                 }
 
                 db.SaveChanges();
-            }            
+            }
+        }
+
+        [Command("poll")]
+        public async Task PollHelpAsync(CommandContext ctx)
+        {
+            string toSend = $"{Formatter.Bold("[SYNTAX]")} !poll [DURATION] [EMOJIS]\nExample: !poll 2h :rofl: :weary: :flag_us: :flag_cn:";
+
+            await ctx.Channel.SendMessageAsync(toSend);
         }
     }
 }
