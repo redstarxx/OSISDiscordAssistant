@@ -39,7 +39,7 @@ namespace discordbot.Commands
                 $"{Formatter.Bold("!requestverify")} - Request a verification as a new member to the core council members.\n" +
                 $"{Formatter.Bold("!overify")} - Manually verifies a new member as a council member.\n" +
                 $"{Formatter.Bold("!uptime")} - Displays how long has the bot been running.\n" +
-                $"{Formatter.Bold("!ping")} - Displays the WebSocker connection latency in milliseconds." +
+                $"{Formatter.Bold("!ping")} - Displays the WebSocker connection latency in milliseconds.\n" +
                 $"{Formatter.Bold("!reconnect")} - Reconnects the bot to the Discord's Gateway.\n" +
                 $"{Formatter.Bold("!kill")} - Disconnects the bot from the Discord's Gateway.\n" +
                 $"{Formatter.Bold("!about")} - Shows the bot's information.\n";
