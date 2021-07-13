@@ -18,7 +18,7 @@ namespace discordbot.Commands
             var embedBuilder = new DiscordEmbedBuilder() 
             {
                 Title = "Listing All Commands...",
-                Timestamp = DateTime.UtcNow.AddHours(7),
+                Timestamp = ClientUtilities.GetWesternIndonesianDateTime(),
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
                     Text = "OSIS Discord Assistant"
@@ -31,6 +31,7 @@ namespace discordbot.Commands
                 $"{Formatter.Bold("!myinfo")} - Displays the info that this bot has over you.\n" +
                 $"{Formatter.Bold("!avatar")} - Shows a Discord profile picture of your account or another user.\n" +
                 $"{Formatter.Bold("!slap")} - Slaps the tagged member or role.\n" +
+                $"{Formatter.Bold("!tags")} - Shows created tags.\n" +
                 $"{Formatter.Bold("!setname")} - Sets a new name for yourself or another user.\n" +
                 $"{Formatter.Bold("!kick")} - Kicks a member from this Discord server.\n" +
                 $"{Formatter.Bold("!mute")} - Mutes a member.\n" +
