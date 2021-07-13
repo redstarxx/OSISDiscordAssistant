@@ -174,7 +174,11 @@ namespace discordbot.Commands
                 Color = DiscordColor.MidnightBlue
             };
 
+            string inviteLink = $"{Formatter.Bold("Invite Link:")} https://discord.gg/WC7FRsxFwb";
+
             await targetChannel.SendMessageAsync(embed: informationChannelEmbed.Build()).ConfigureAwait(false);
+
+            await targetChannel.SendMessageAsync(inviteLink).ConfigureAwait(false);
         }
 
         // ----------------------------------------------------------
