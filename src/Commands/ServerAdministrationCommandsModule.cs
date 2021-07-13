@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
@@ -157,6 +158,23 @@ namespace discordbot.Commands
                 string toSend = "**[ERROR]** An error occured. Have you tried to use the command correctly?";
                 await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
             }
+        }
+
+        [Command("sendinfoembed")]
+        public async Task InfoEmbedAsync(CommandContext ctx, ulong targetChannelId)
+        {
+            DiscordChannel targetChannel = await Bot.Client.GetChannelAsync(targetChannelId);
+
+            var informationChannelEmbed = new DiscordEmbedBuilder
+            {
+                Title = "OSIS Sekolah Djuwita Batam - Discord Server",
+                Description = $"Selamat datang di server Discord {Formatter.Bold("OSIS Sekolah Djuwita Batam!")} Akses ke server ini hanya diperbolehkan untuk anggota OSIS aktif.\n\n" +
+                $"Untuk meminta verifikasi akses, ketik {Formatter.InlineCode("!requestverify")} di <#832275177160048711>. Inti OSIS akan memproses permintaan verifikasimu secepatnya. " +
+                $"Sebagai alternatif, anggota Inti OSIS dapat langsung memverifikasi aksesmu dengan {Formatter.InlineCode("!overify")}.",
+                Color = DiscordColor.MidnightBlue
+            };
+
+            await targetChannel.SendMessageAsync(embed: informationChannelEmbed.Build()).ConfigureAwait(false);
         }
 
         // ----------------------------------------------------------
