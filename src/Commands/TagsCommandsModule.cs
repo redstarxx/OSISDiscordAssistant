@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DSharpPlus;
@@ -95,90 +96,94 @@ namespace discordbot.Commands
         [Command("tag")]
         public async Task CreateUpdateDeleteTagsAsync(CommandContext ctx, string operationSelection, string tagName, params string[] tagContent)
         {
-            if (operationSelection == "create")
+            try
             {
-                using (var db = new TagsContext())
+                if (operationSelection == "create")
                 {
-                    bool isExist = db.Tags.Any(x => x.TagName == tagName);
-                    string tagContentToWrite = string.Join(" ", tagContent);
-
-                    if (isExist)
+                    using (var db = new TagsContext())
                     {
-                        string toSend = $"The tag {Formatter.InlineCode(tagName)} already exists!";
-                        await ctx.RespondAsync(toSend).ConfigureAwait(false);
+                        bool isExist = db.Tags.Any(x => x.TagName == tagName);
+                        string tagContentToWrite = string.Join(" ", tagContent);
 
-                        return;
+                        if (isExist)
+                        {
+                            string toSend = $"The tag {Formatter.InlineCode(tagName)} already exists!";
+                            await ctx.RespondAsync(toSend).ConfigureAwait(false);
+
+                            return;
+                        }
+
+                        if (tagContentToWrite.Length == 0)
+                        {
+                            string toSend = $"{Formatter.Bold("[ERROR]")} Tag content cannot be left empty!";
+                            await ctx.RespondAsync(toSend).ConfigureAwait(false);
+
+                            return;
+                        }
+
+                        db.Add(new Tags
+                        {
+                            TagName = tagName,
+                            TagContent = tagContentToWrite
+                        });
+
+                        db.SaveChanges();
+
+                        var thumbsUpEmoji = DiscordEmoji.FromName(ctx.Client, ":thumbsup:");
+
+                        await ctx.RespondAsync(thumbsUpEmoji).ConfigureAwait(false);
                     }
+                }
 
-                    if (tagContentToWrite.Length == 0)
+                else if (operationSelection == "update")
+                {
+                    using (var db = new TagsContext())
                     {
-                        string toSend = $"{Formatter.Bold("[ERROR]")} Tag content cannot be left empty!";
-                        await ctx.RespondAsync(toSend).ConfigureAwait(false);
+                        string tagContentToWrite = string.Join(" ", tagContent);
 
-                        return;
+                        if (tagContentToWrite.Length == 0)
+                        {
+                            string toSend = $"{Formatter.Bold("[ERROR]")} Tag content cannot be left empty!";
+                            await ctx.RespondAsync(toSend).ConfigureAwait(false);
+
+                            return;
+                        }
+
+                        Tags tagToUpdate = null;
+                        tagToUpdate = db.Tags.SingleOrDefault(x => x.TagName == tagName);
+
+                        tagToUpdate.TagContent = string.Join(" ", tagContent);
+
+                        db.SaveChanges();
+
+                        var thumbsUpEmoji = DiscordEmoji.FromName(ctx.Client, ":thumbsup:");
+
+                        await ctx.RespondAsync(thumbsUpEmoji).ConfigureAwait(false);
                     }
+                }
 
-                    db.Add(new Tags
+                else if (operationSelection == "delete")
+                {
+                    using (var db = new TagsContext())
                     {
-                        TagName = tagName,
-                        TagContent = tagContentToWrite
-                    });
+                        Tags tagToDelete = null;
+                        tagToDelete = db.Tags.SingleOrDefault(x => x.TagName == tagName);
 
-                    db.SaveChanges();
+                        db.Remove(tagToDelete);
 
-                    var thumbsUpEmoji = DiscordEmoji.FromName(ctx.Client, ":thumbsup:");
+                        db.SaveChanges();
 
-                    await ctx.RespondAsync(thumbsUpEmoji).ConfigureAwait(false);
+                        var thumbsUpEmoji = DiscordEmoji.FromName(ctx.Client, ":thumbsup:");
+
+                        await ctx.RespondAsync(thumbsUpEmoji).ConfigureAwait(false);
+                    }
                 }
             }
 
-            else if (operationSelection == "update")
+            catch (Exception ex)
             {
-                using (var db = new TagsContext())
-                {
-                    string tagContentToWrite = string.Join(" ", tagContent);
-
-                    if (tagContentToWrite.Length == 0)
-                    {
-                        string toSend = $"{Formatter.Bold("[ERROR]")} Tag content cannot be left empty!";
-                        await ctx.RespondAsync(toSend).ConfigureAwait(false);
-
-                        return;
-                    }
-
-                    Tags tagToUpdate = null;
-                    tagToUpdate = db.Tags.SingleOrDefault(x => x.TagName == tagName);
-
-                    tagToUpdate.TagContent = string.Join(" ", tagContent);
-
-                    db.SaveChanges();
-
-                    var thumbsUpEmoji = DiscordEmoji.FromName(ctx.Client, ":thumbsup:");
-
-                    await ctx.RespondAsync(thumbsUpEmoji).ConfigureAwait(false);
-                }
-            }
-
-            else if (operationSelection == "delete")
-            {
-                using (var db = new TagsContext())
-                {
-                    Tags tagToDelete = null;
-                    tagToDelete = db.Tags.SingleOrDefault(x => x.TagName == tagName);
-
-                    db.Remove(tagToDelete);
-
-                    db.SaveChanges();
-
-                    var thumbsUpEmoji = DiscordEmoji.FromName(ctx.Client, ":thumbsup:");
-
-                    await ctx.RespondAsync(thumbsUpEmoji).ConfigureAwait(false);
-                }
-            }
-
-            else
-            {
-                return;
+                string toSend = $"{Formatter.Bold("[ERROR]")} An error occurred. Did you tried to delete a nonexistent tag?\nError details: {Formatter.InlineCode($"{ex.Message.GetType()}: {ex.Message}")}";
+                await ctx.RespondAsync(toSend).ConfigureAwait(false);
             }
         }
 
