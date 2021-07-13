@@ -254,7 +254,7 @@ namespace discordbot.Commands
             {
                 DateTime currentTime = ClientUtilities.GetWesternIndonesianDateTime();
 
-                var toParse = DateTime.ParseExact(timeSpan, "HH:mm", null, DateTimeStyles.AssumeLocal);
+                var toParse = DateTime.ParseExact(timeSpan, "H:mm", null, DateTimeStyles.None);
 
                 if (currentTime > toParse)
                 {
@@ -262,10 +262,6 @@ namespace discordbot.Commands
                 }
 
                 TimeSpan time = toParse - currentTime;
-
-                // TEMPORARY PATCH
-                // Subtracted by 7 hours because apparently Docker taking UTC time instead of local time is a "feature"
-                time.Subtract(TimeSpan.FromHours(7));
 
                 var reminderTask = new Task(async () =>
                 {
