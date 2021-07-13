@@ -254,7 +254,7 @@ namespace discordbot.Commands
             {
                 DateTime currentTime = ClientUtilities.GetWesternIndonesianDateTime();
 
-                var toParse = DateTime.ParseExact(timeSpan, "H:mm", null, DateTimeStyles.None);
+                var toParse = DateTime.ParseExact(timeSpan, "HH:mm", null, DateTimeStyles.AssumeLocal);
 
                 if (currentTime > toParse)
                 {
