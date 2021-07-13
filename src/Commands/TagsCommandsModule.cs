@@ -11,6 +11,9 @@ namespace discordbot.Commands
 {
     class TagsCommandsModule : BaseCommandModule
     {
+        /// <summary>
+        /// Gets all stored tag names.
+        /// </summary>
         [Command("tags")]
         public async Task GetAllTagsAsync(CommandContext ctx)
         {
@@ -45,6 +48,10 @@ namespace discordbot.Commands
             await ctx.Channel.SendMessageAsync(toSend.ToString()).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Get a specified tag content via the given tag name.
+        /// </summary>
+        /// <param name="tagName">The tag name to get its content.</param>
         [Command("tag")]
         public async Task ShowTagsAsync(CommandContext ctx, string tagName)
         {
@@ -93,6 +100,13 @@ namespace discordbot.Commands
             await ctx.Channel.SendMessageAsync(tagContent.ToString()).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Create, update, or delete a specified tag.
+        /// </summary>
+        /// <param name="operationSelection">Create, update, or delete a tag.</param>
+        /// <param name="tagName">The tag name to create, update, or delete.</param>
+        /// <param name="tagContent">The tag content to create or update.</param>
+        /// <returns></returns>
         [Command("tag")]
         public async Task CreateUpdateDeleteTagsAsync(CommandContext ctx, string operationSelection, string tagName, params string[] tagContent)
         {
