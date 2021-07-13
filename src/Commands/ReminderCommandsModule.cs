@@ -263,6 +263,10 @@ namespace discordbot.Commands
 
                 TimeSpan time = toParse - currentTime;
 
+                // TEMPORARY PATCH
+                // Subtracted by 7 hours because apparently Docker taking UTC time instead of local time is a "feature"
+                time.Subtract(TimeSpan.FromHours(7));
+
                 var reminderTask = new Task(async () =>
                 {
                     string reminder = string.Empty;
