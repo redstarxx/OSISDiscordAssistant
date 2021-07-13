@@ -100,6 +100,7 @@ namespace discordbot.Commands
                 using (var db = new TagsContext())
                 {
                     bool isExist = db.Tags.Any(x => x.TagName == tagName);
+                    string tagContentToWrite = string.Join(" ", tagContent);
 
                     if (isExist)
                     {
@@ -109,10 +110,18 @@ namespace discordbot.Commands
                         return;
                     }
 
+                    if (tagContentToWrite.Length == 0)
+                    {
+                        string toSend = $"{Formatter.Bold("[ERROR]")} Tag content cannot be left empty!";
+                        await ctx.RespondAsync(toSend).ConfigureAwait(false);
+
+                        return;
+                    }
+
                     db.Add(new Tags
                     {
                         TagName = tagName,
-                        TagContent = string.Join(" ", tagContent)
+                        TagContent = tagContentToWrite
                     });
 
                     db.SaveChanges();
@@ -127,6 +136,16 @@ namespace discordbot.Commands
             {
                 using (var db = new TagsContext())
                 {
+                    string tagContentToWrite = string.Join(" ", tagContent);
+
+                    if (tagContentToWrite.Length == 0)
+                    {
+                        string toSend = $"{Formatter.Bold("[ERROR]")} Tag content cannot be left empty!";
+                        await ctx.RespondAsync(toSend).ConfigureAwait(false);
+
+                        return;
+                    }
+
                     Tags tagToUpdate = null;
                     tagToUpdate = db.Tags.SingleOrDefault(x => x.TagName == tagName);
 
