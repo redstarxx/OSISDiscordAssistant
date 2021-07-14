@@ -98,9 +98,9 @@ namespace discordbot.Commands
             {
                 Title = "Verification Request",
                 Description = $"{ctx.User.Username}#{ctx.User.Discriminator} has submitted a verification request.\n" 
-                + $"**Nama Panggilan:** {string.Join(" ", displayName)}\n **User ID:** {ctx.User.Id}\n **Verification Status:** NOT VERIFIED YET.\n"
+                + $"**Nama Panggilan:** {string.Join(" ", displayName)}\n **User ID:** {ctx.User.Id}\n **Verification Status:** WAITING.\n"
                 + "Click the checkmark emoji to approve this request or the crossmark emoji to deny. "
-                + $"This request expires on {ClientUtilities.GetWesternIndonesianDateTime().AddDays(2).AddHours(7)}.",
+                + $"This request expires in two days ({ClientUtilities.GetWesternIndonesianDateTime().AddDays(2)}).",
                 Timestamp = ClientUtilities.GetWesternIndonesianDateTime(),
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
@@ -111,6 +111,9 @@ namespace discordbot.Commands
 
             DiscordChannel channel = ctx.Guild.GetChannel(841207483648311336);
             var requestEmbed = await channel.SendMessageAsync(embed: embedBuilder).ConfigureAwait(false);
+
+            string receiptMessage = $"{ctx.Member.Mention}, your verification request has been sent! Expect a response within the next two days!";
+            await ctx.Channel.SendMessageAsync(receiptMessage).ConfigureAwait(false);
 
             var checkmarkEmoji = DiscordEmoji.FromName(ctx.Client, ":white_check_mark:");
             var crossmarkEmoji = DiscordEmoji.FromName(ctx.Client, ":negative_squared_cross_mark:");
@@ -126,7 +129,7 @@ namespace discordbot.Commands
             var interactivity = ctx.Client.GetInteractivity();
             var reactionResult = await interactivity.WaitForReactionAsync
                 (x => x.Message == requestEmbed && (x.Emoji == checkmarkEmoji || x.Emoji == crossmarkEmoji), 
-                TimeSpan.FromMinutes(2));
+                TimeSpan.FromDays(2));
 
             if (!reactionResult.TimedOut)
             {
@@ -142,7 +145,7 @@ namespace discordbot.Commands
                         Description = $"{ctx.User.Username}#{ctx.User.Discriminator} has submitted a verification request.\n" 
                         + $"**Nama Panggilan:** {string.Join(" ", displayName)}\n **User ID:** {ctx.User.Id}\n **Verification Status:** ACCEPTED.\n"
                         + "Click the checkmark emoji to approve this request or the crossmark emoji to deny. "
-                        + $"This request expires on {ClientUtilities.GetWesternIndonesianDateTime().AddDays(2).AddHours(7)}.",
+                        + $"This request expires in two days ({ClientUtilities.GetWesternIndonesianDateTime().AddDays(2)}).",
                         Timestamp = ClientUtilities.GetWesternIndonesianDateTime(),
                         Footer = new DiscordEmbedBuilder.EmbedFooter
                         {
@@ -155,7 +158,7 @@ namespace discordbot.Commands
 
                     string toSend =
                         $"**[USERINFO]** {ctx.Member.Mention}'s verification request has been approved. " +
-                        "Relevant roles have been assigned.";
+                        "Access role has been assigned.";
                     await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
                 }
 
@@ -168,7 +171,7 @@ namespace discordbot.Commands
                         Description = $"{ctx.User.Username}#{ctx.User.Discriminator} has submitted a verification request.\n"
                         + $"**Nama Panggilan:** {string.Join(" ", displayName)}\n **User ID:** {ctx.User.Id}\n **Verification Status:** DENIED.\n"
                         + "Click the checkmark emoji to approve this request or the crossmark emoji to deny. "
-                        + $"This request expires on {ClientUtilities.GetWesternIndonesianDateTime().AddDays(2).AddHours(7)}.",
+                        + $"This request expires in two days ({ClientUtilities.GetWesternIndonesianDateTime().AddDays(2)}).",
                         Timestamp = ClientUtilities.GetWesternIndonesianDateTime(),
                         Footer = new DiscordEmbedBuilder.EmbedFooter
                         {
@@ -194,7 +197,7 @@ namespace discordbot.Commands
                     Description = $"{ctx.User.Username}#{ctx.User.Discriminator} has submitted a verification request.\n"
                 + $"**Nama Panggilan:** {string.Join(" ", displayName)}\n **User ID:** {ctx.User.Id}\n **Verification Status:** EXPIRED.\n"
                 + "Click the checkmark emoji to approve this request or the crossmark emoji to deny. "
-                + $"This request expires on {ClientUtilities.GetWesternIndonesianDateTime().AddDays(2).AddHours(7)}.",
+                + $"This request expires in two days ({ClientUtilities.GetWesternIndonesianDateTime().AddDays(2)}).",
                     Timestamp = ClientUtilities.GetWesternIndonesianDateTime(),
                     Footer = new DiscordEmbedBuilder.EmbedFooter
                     {
