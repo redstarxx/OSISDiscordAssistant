@@ -87,7 +87,11 @@ namespace discordbot
             Commands.CommandExecuted += CommandsNext_CommandExecuted;
             Commands.CommandErrored += CommandsNext_CommandErrored;
 
-            Client.Logger.LogInformation(LogEvent, "Connecting to Discord's Gateway...", ClientUtilities.GetWesternIndonesianDateTime());
+            // Displays the current version of the bot.
+            Client.Logger.LogInformation(LogEvent, $"DiscordBotOSIS version {ClientUtilities.GetBuildVersion()}", ClientUtilities.GetWesternIndonesianDateTime());
+
+            // Tell that whoever is seeing this that the client is connecting to Discord's gateway.
+            Client.Logger.LogInformation(LogEvent, "Connecting to Discord's gateway...", ClientUtilities.GetWesternIndonesianDateTime());
             await Client.ConnectAsync();
             await Task.Delay(-1);
         }
