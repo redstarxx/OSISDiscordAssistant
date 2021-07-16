@@ -18,9 +18,9 @@ namespace discordbot.Commands
         [Command("poll")]
         public async Task PollAsync(CommandContext ctx, TimeSpan pollDuration, params DiscordEmoji[] emojiOptions)
         {
-            using (var db = new PollCounterContext())
+            using (var db = new CounterContext())
             {
-                int counter = db.PollCounter.SingleOrDefault(x => x.Id == 1).Counter;
+                int counter = db.Counter.SingleOrDefault(x => x.Id == 1).PollCounter;
 
                 var pollEmbedBuilder = new DiscordEmbedBuilder
                 {
@@ -72,13 +72,13 @@ namespace discordbot.Commands
 
                 await ctx.Channel.SendMessageAsync(embed: pollResultEmbedBuilder).ConfigureAwait(false);
 
-                PollCounter rowToUpdate = null;
-                rowToUpdate = db.PollCounter.SingleOrDefault(x => x.Id == 1);
+                Counter rowToUpdate = null;
+                rowToUpdate = db.Counter.SingleOrDefault(x => x.Id == 1);
 
                 if (rowToUpdate != null)
                 {
                     int incrementNumber = counter + 1;
-                    rowToUpdate.Counter = incrementNumber;
+                    rowToUpdate.PollCounter = incrementNumber;
                 }
 
                 db.SaveChanges();
