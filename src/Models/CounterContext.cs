@@ -6,21 +6,21 @@ using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace discordbot
 {
-    public partial class PollCounterContext : DbContext
+    public partial class CounterContext : DbContext
     {
         /// <summary>
         /// Provides a context to conduct database operations on the PollCounter table.
         /// </summary>
-        public PollCounterContext()
+        public CounterContext()
         {
         }
 
-        public PollCounterContext(DbContextOptions<PollCounterContext> options)
+        public CounterContext(DbContextOptions<CounterContext> options)
             : base(options)
         {
         }
 
-        public virtual DbSet<PollCounter> PollCounter { get; set; }
+        public virtual DbSet<Counter> Counter { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -36,16 +36,20 @@ namespace discordbot
             modelBuilder.HasPostgresExtension("adminpack")
                 .HasAnnotation("Relational:Collation", "English_United States.1252");
 
-            modelBuilder.Entity<PollCounter>(entity =>
+            modelBuilder.Entity<Counter>(entity =>
             {
-                entity.ToTable("pollcounter");
+                entity.ToTable("counter");
 
                 entity.Property(e => e.Id)
                     .HasColumnName("id")
                     .HasColumnType("int");
 
-                entity.Property(e => e.Counter)
-                    .HasColumnName("counter")
+                entity.Property(e => e.PollCounter)
+                    .HasColumnName("pollcounter")
+                    .HasColumnType("int");
+
+                entity.Property(e => e.PollCounter)
+                    .HasColumnName("verifycounter")
                     .HasColumnType("int");
             });
 

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace discordbot
 {
-    public class PollCounter
+    public class Counter
     {
         /// <summary>
         /// The ID of the respective row. Do not touch.
@@ -11,8 +11,13 @@ namespace discordbot
         public int Id { get; set; }
 
         /// <summary>
-        /// Event name to get or set.
+        /// Poll counter number to get or set.
         /// </summary>
-        public int Counter { get; set; }
+        public int PollCounter { get; set; }
+
+        /// <summary>
+        /// Verification request counter to get or set.
+        /// </summary>
+        public int VerifyCounter { get; set; }
     }
 }
