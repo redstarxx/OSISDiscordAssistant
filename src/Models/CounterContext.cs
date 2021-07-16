@@ -48,7 +48,7 @@ namespace discordbot
                     .HasColumnName("pollcounter")
                     .HasColumnType("int");
 
-                entity.Property(e => e.PollCounter)
+                entity.Property(e => e.VerifyCounter)
                     .HasColumnName("verifycounter")
                     .HasColumnType("int");
             });
