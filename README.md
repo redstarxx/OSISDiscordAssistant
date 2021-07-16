@@ -20,7 +20,7 @@ You will need to log into your PostgreSQL server via `psql` utility.
 
 Proceed to create a new table: `CREATE TABLE events(id SERIAL PRIMARY KEY, event_name VARCHAR(50), person_in_charge VARCHAR(100), event_date VARCHAR(50), event_date_culture_info VARCHAR(10), event_description VARCHAR(255), proposal_reminded BOOLEAN NOT NULL, previously_reminded BOOLEAN NOT NULL, expired BOOLEAN NOT NULL);` This table will later be used for the Events Manager feature.
 
-Then create another new table: `CREATE TABLE pollcounter (id SERIAL PRIMARY KEY, counter SMALLINT);` Insert number 1 into the counter column: `INSERT INTO pollcounter (counter) VALUES(1);` This table will later be used for the poll command.
+Then create another new table: `CREATE TABLE counter (id SERIAL PRIMARY KEY, pollcounter SMALLINT, verifycounter SMALLINT);` Insert number 1 into the counter column: `INSERT INTO counter (pollcounter, verifycounter) VALUES(1, 1);` This table will later be used to store counter numbers.
 
 Finally, create a new table again: `CREATE TABLE tags (id SERIAL PRIMARY KEY, tag_name VARCHAR(50), tag_content VARCHAR(3000));` This table will later be used for the tags feature.
 
