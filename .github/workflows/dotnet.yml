@@ -4,9 +4,14 @@ on:
   push:
     paths-ignore:
       - '**/README.md'
+      - '**/Dockerfile'
+      - '**/docker-image.yml'
+      
   pull_request:
     paths-ignore:
       - '**/README.md'
+      - '**/Dockerfile'
+      - '**/docker-image.yml'
 
 jobs:
   build:
