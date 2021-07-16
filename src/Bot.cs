@@ -124,6 +124,8 @@ namespace discordbot
             {
                 DiscordChannel eventsChannel = await Client.GetChannelAsync(857589614558314575);
 
+                DiscordChannel errorLogsChannel = await Client.GetChannelAsync(832172186126123029);
+
                 var reminderEmbed = new DiscordEmbedBuilder
                 {
                     Timestamp = ClientUtilities.GetWesternIndonesianDateTime(),
@@ -345,7 +347,7 @@ namespace discordbot
 
                 catch (Exception ex)
                 {
-                    await eventsChannel.SendMessageAsync($"{ex.Message}").ConfigureAwait(false);
+                    await errorLogsChannel.SendMessageAsync($"{ex.Message}").ConfigureAwait(false);
                 }
             });
 
@@ -359,6 +361,8 @@ namespace discordbot
             Task eventReminder = Task.Run(async () =>
             {
                 DiscordChannel eventsChannel = await Client.GetChannelAsync(857589664269729802);
+
+                DiscordChannel errorLogsChannel = await Client.GetChannelAsync(832172186126123029);
 
                 var reminderEmbed = new DiscordEmbedBuilder
                 {
@@ -470,7 +474,7 @@ namespace discordbot
 
                 catch (Exception ex)
                 {
-                    await eventsChannel.SendMessageAsync($"{ex.Message}").ConfigureAwait(false);
+                    await errorLogsChannel.SendMessageAsync($"{ex.Message}").ConfigureAwait(false);
                 }
             });
 
