@@ -126,7 +126,7 @@ namespace discordbot.Commands
                     new DiscordButtonComponent(ButtonStyle.Danger, "decline_button", "DECLINE", false, null)
                 });
 
-                DiscordChannel channel = ctx.Guild.GetChannel(796636593019813889);
+                DiscordChannel channel = ctx.Guild.GetChannel(841207483648311336);
                 var requestEmbed = await channel.SendMessageAsync(builder: messageBuilder).ConfigureAwait(false);
 
                 string receiptMessage = $"{ctx.Member.Mention}, your verification request has been sent! Expect a response within the next two days!";
@@ -142,7 +142,7 @@ namespace discordbot.Commands
                 {
                     if (reactionResult.Result.Id == "accept_button")
                     {
-                        await member.GrantRoleAsync(ctx.Guild.GetRole(864750661157912596));
+                        await member.GrantRoleAsync(ctx.Guild.GetRole(814450965565800498));
                         await member.ModifyAsync(setName => setName.Nickname = requestedName);
 
                         embedBuilder.Description = $"{ctx.User.Username}#{ctx.User.Discriminator} has submitted a verification request.\n"
