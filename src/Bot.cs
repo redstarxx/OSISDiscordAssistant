@@ -88,7 +88,7 @@ namespace discordbot
             Commands.CommandErrored += CommandsNext_CommandErrored;
 
             // Displays the current version of the bot.
-            Client.Logger.LogInformation(LogEvent, $"DiscordBotOSIS version {ClientUtilities.GetBuildVersion()}", ClientUtilities.GetWesternIndonesianDateTime());
+            Client.Logger.LogInformation(LogEvent, $"DiscordBotOSIS v{ClientUtilities.GetBuildVersion()}", ClientUtilities.GetWesternIndonesianDateTime());
 
             // Tell that whoever is seeing this that the client is connecting to Discord's gateway.
             Client.Logger.LogInformation(LogEvent, "Connecting to Discord's gateway...", ClientUtilities.GetWesternIndonesianDateTime());
