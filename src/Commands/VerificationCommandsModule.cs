@@ -132,8 +132,6 @@ namespace discordbot.Commands
                 string receiptMessage = $"{ctx.Member.Mention}, your verification request has been sent! Expect a response within the next two days!";
                 await ctx.Channel.SendMessageAsync(receiptMessage).ConfigureAwait(false);
 
-                Thread.Sleep(TimeSpan.FromSeconds(1));
-
                 DiscordMember member = await ctx.Guild.GetMemberAsync(ctx.User.Id);
 
                 var interactivity = ctx.Client.GetInteractivity();
