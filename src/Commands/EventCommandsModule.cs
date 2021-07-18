@@ -274,7 +274,40 @@ namespace discordbot.Commands
 
             else
             {
-                return;
+                var helpEmoji = DiscordEmoji.FromName(ctx.Client, ":sos:");
+                string toSend = $"{Formatter.Bold("[ERROR]")} The option {Formatter.InlineCode(operationSelection)} does not exist! Type {Formatter.InlineCode("!event")} to list all options. Alternatively, click the emoji below to get help.";
+
+                var errorMessage = await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
+
+                await errorMessage.CreateReactionAsync(helpEmoji).ConfigureAwait(false);
+
+                var interactivity = ctx.Client.GetInteractivity();
+
+                Thread.Sleep(TimeSpan.FromMilliseconds(500));
+                var emojiResult = await interactivity.WaitForReactionAsync(x => x.Message == errorMessage && (x.Emoji == helpEmoji));
+
+                if (emojiResult.Result.Emoji == helpEmoji)
+                {
+                    var embedBuilder = new DiscordEmbedBuilder
+                    {
+                        Title = "Events Manager - Overview",
+                        Timestamp = ClientUtilities.GetWesternIndonesianDateTime(),
+                        Footer = new DiscordEmbedBuilder.EmbedFooter
+                        {
+                            Text = "OSIS Discord Assistant"
+                        },
+                        Color = DiscordColor.MidnightBlue
+                    };
+
+                    embedBuilder.Description = "Events Manager integrates event planning, proposal submission reminder, and event execution reminder under one bot.\n\n" +
+                        $"{Formatter.Bold("!event create")} - Creates a new event.\n" +
+                        $"{Formatter.Bold("!event update")} - Updates an existing event.\n" +
+                        $"{Formatter.Bold("!event delete")} - Deletes an event.\n" +
+                        $"{Formatter.Bold("!event search")} - Search the database for an event that matches the given event name or ID.\n" +
+                        $"{Formatter.Bold("!event list")} - Lists all registered events.\n";
+
+                    await ctx.Channel.SendMessageAsync(embed: embedBuilder).ConfigureAwait(false);
+                }
             }
         }
 
@@ -894,7 +927,40 @@ namespace discordbot.Commands
            
             else
             {
-                return;
+                var helpEmoji = DiscordEmoji.FromName(ctx.Client, ":sos:");
+                string toSend = $"{Formatter.Bold("[ERROR]")} The option {Formatter.InlineCode(operationSelection)} does not exist! Type {Formatter.InlineCode("!event")} to list all options. Alternatively, click the emoji below to get help.";
+
+                var errorMessage = await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
+
+                await errorMessage.CreateReactionAsync(helpEmoji).ConfigureAwait(false);
+
+                var interactivity = ctx.Client.GetInteractivity();
+
+                Thread.Sleep(TimeSpan.FromMilliseconds(500));
+                var emojiResult = await interactivity.WaitForReactionAsync(x => x.Message == errorMessage && (x.Emoji == helpEmoji));
+
+                if (emojiResult.Result.Emoji == helpEmoji)
+                {
+                    var embedBuilder = new DiscordEmbedBuilder
+                    {
+                        Title = "Events Manager - Overview",
+                        Timestamp = ClientUtilities.GetWesternIndonesianDateTime(),
+                        Footer = new DiscordEmbedBuilder.EmbedFooter
+                        {
+                            Text = "OSIS Discord Assistant"
+                        },
+                        Color = DiscordColor.MidnightBlue
+                    };
+
+                    embedBuilder.Description = "Events Manager integrates event planning, proposal submission reminder, and event execution reminder under one bot.\n\n" +
+                        $"{Formatter.Bold("!event create")} - Creates a new event.\n" +
+                        $"{Formatter.Bold("!event update")} - Updates an existing event.\n" +
+                        $"{Formatter.Bold("!event delete")} - Deletes an event.\n" +
+                        $"{Formatter.Bold("!event search")} - Search the database for an event that matches the given event name or ID.\n" +
+                        $"{Formatter.Bold("!event list")} - Lists all registered events.\n";
+
+                    await ctx.Channel.SendMessageAsync(embed: embedBuilder).ConfigureAwait(false);
+                }
             }
         }
 
