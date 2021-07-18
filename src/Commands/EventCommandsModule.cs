@@ -114,12 +114,12 @@ namespace discordbot.Commands
                             {
                                 try
                                 {
-                                    var cultureInfoUS = new CultureInfo("id-ID");
+                                    var cultureInfoID = new CultureInfo("id-ID");
 
                                     // Add 7 hours ahead because for some reason Linux doesn't pick the user preferred timezone.
                                     DateTime currentTime = ClientUtilities.GetWesternIndonesianDateTime();
 
-                                    DateTime toConvert = DateTime.Parse(eventDate, cultureInfoUS);
+                                    DateTime toConvert = DateTime.Parse(eventDate, cultureInfoID);
 
                                     TimeSpan calculateTimeSpan = toConvert - currentTime;
 
@@ -604,11 +604,45 @@ namespace discordbot.Commands
 
                                         catch
                                         {
-                                            // Notify the user that the provided event date cannot be parsed.
-                                            string errorMessage = $"{Formatter.Bold("[ERROR]")} An error occured. Your event date cannot be parsed. Make sure your date and time is written in English. Example: 25 June 2021.";
-                                            await ctx.Channel.SendMessageAsync(errorMessage).ConfigureAwait(false);
+                                            try
+                                            {
+                                                var cultureInfoID = new CultureInfo("id-ID");
 
-                                            return;
+                                                // Add 7 hours ahead because for some reason Linux doesn't pick the user preferred timezone.
+                                                DateTime currentTime = ClientUtilities.GetWesternIndonesianDateTime();
+
+                                                DateTime toConvert = DateTime.Parse(eventDate, cultureInfoID);
+
+                                                TimeSpan calculateTimeSpan = toConvert - currentTime;
+
+                                                if (calculateTimeSpan.TotalDays > 365)
+                                                {
+                                                    string errorMessage = "**[ERROR]** Maximum allowed time span is one year (365 days). Alternatively, include the year of the event as well if you have not.";
+                                                    await ctx.RespondAsync(errorMessage).ConfigureAwait(false);
+
+                                                    return;
+                                                }
+
+                                                if (calculateTimeSpan.Days < 1)
+                                                {
+                                                    string errorMessage = "**[ERROR]** Minimum allowed date is one day before the event. Alternatively, include the year of the event as well if you have not.";
+                                                    await ctx.Channel.SendMessageAsync(errorMessage).ConfigureAwait(false);
+
+                                                    return;
+                                                }
+
+                                                // Set the culture info to store.
+                                                eventDateCultureInfo = "id-ID";
+                                            }
+
+                                            catch
+                                            {
+                                                // Notify the user that the provided event date cannot be parsed.
+                                                string errorMessage = $"{Formatter.Bold("[ERROR]")} An error occured. Your event date cannot be parsed. Make sure your date and time is written in English or Indonesian. Example: 25 June 2021.";
+                                                await ctx.Channel.SendMessageAsync(errorMessage).ConfigureAwait(false);
+
+                                                return;
+                                            }
                                         }
 
                                         Task offloadToTask = Task.Run(async () =>
