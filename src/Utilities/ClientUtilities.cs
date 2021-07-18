@@ -9,6 +9,7 @@ using System.Text.RegularExpressions;
 using System.Globalization;
 using System.IO;
 using Newtonsoft.Json;
+using System.Reflection;
 
 namespace discordbot
 {
@@ -211,6 +212,17 @@ namespace discordbot
             DateTime currentTime = DateTime.Now;
 
             return currentTime;
+        }
+
+        /// <summary>
+        /// Gets the current version of the bot.
+        /// </summary>
+        /// <returns>The version number in major.minor.patch format.</returns>
+        public static string GetBuildVersion()
+        {
+            var ccv = Assembly.GetExecutingAssembly().GetName().Version.ToString(3);
+
+            return ccv;
         }
     }
 }

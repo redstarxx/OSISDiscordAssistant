@@ -103,121 +103,62 @@ namespace discordbot.Commands
             if (timeSpan.Contains("/"))
             {
                 DateTime currentTime = ClientUtilities.GetWesternIndonesianDateTime();
-                TimeSpan toCalculate;
+                DateTime remindTime;
 
                 try
                 {
-                    toCalculate = DateTime.ParseExact(string.Join(" ", timeSpan), "dd/MM/yyyy", CultureInfo.CurrentCulture)
-                        - currentTime;
+                    remindTime = DateTime.ParseExact(string.Join(" ", timeSpan), "dd/MM/yyyy", null, DateTimeStyles.None);
                 }
 
                 catch
                 {
                     try
                     {
-                        toCalculate = DateTime.ParseExact(string.Join(" ", timeSpan), "MM/dd/yyyy", CultureInfo.CurrentCulture)
-                            - currentTime;
+                        remindTime = DateTime.ParseExact(string.Join(" ", timeSpan), "MM/dd/yyyy", null, DateTimeStyles.None);
                     }
 
                     catch
                     {
                         try
                         {
-                            toCalculate = DateTime.ParseExact(string.Join(" ", timeSpan), "dd/MMM/yyyy", CultureInfo.CurrentCulture)
-                                - currentTime;
+                            remindTime = DateTime.ParseExact(string.Join(" ", timeSpan), "dd/MMM/yyyy", null, DateTimeStyles.None);
                         }
 
                         catch
                         {
                             string errorMessage =
-                                "**[ERROR]** An error occured while parsing your date time. Acceptable date time formats are " +
+                                "**[ERROR]** An error occured while parsing your date. Acceptable date formats are " +
                                 "`DD/MM/YYYY`, `MM/DD/YYYY` or `DD/MMM/YYYY`. \nExample: 25/06/2019, 06/25/2019, 25/JUN/2019.";
                             await ctx.RespondAsync(errorMessage).ConfigureAwait(false);
+
                             return;
                         }
                     }
                 }
 
+                TimeSpan toCalculate = remindTime - currentTime;
+
                 // Checks whether the provided time span is not less than 30 seconds.
-                if (toCalculate.TotalSeconds < 29)
+                if (toCalculate.TotalSeconds < 30)
                 {
                     string errorMessage = "**[ERROR]** Minimum allowed time span is 30 seconds.";
                     await ctx.RespondAsync(errorMessage).ConfigureAwait(false);
+
                     return;
                 }
 
                 else
                 {
-                    double remainingMinutes = Math.Floor(toCalculate.TotalSeconds / 60);
-                    double remainingHours = Math.Floor(remainingMinutes / 60);
-                    double remainingDays = Math.Floor(remainingHours / 24);
-
-                    string toSend = string.Empty;
-                    StringBuilder stringBuilder = new StringBuilder(toSend);
-
-                    if (remainingDays > 365)
+                    if (toCalculate.Days > 365)
                     {
                         string errorMessage = "**[ERROR]** Maximum allowed time span is one year.";
                         await ctx.RespondAsync(errorMessage).ConfigureAwait(false);
+
                         return;
                     }
 
-                    if (remainingDays > 0.9)
-                    {
-                        int hoursRemainder = (int)((int)remainingHours - (remainingDays * 24));
-
-                        if (hoursRemainder != 0)
-                        {
-                            toSend = $"Ok {ctx.Member.Mention}, in {remainingDays} day(s) and {hoursRemainder} hour(s) " +
-                                $"{youoreveryone} will be reminded of the following:\n\n {string.Join(" ", remindMessage)}";
-                        }
-
-                        else
-                        {
-                            toSend = $"Ok {ctx.Member.Mention}, in {remainingDays} day(s) " +
-                                $"{youoreveryone} will be reminded of the following:\n\n {string.Join(" ", remindMessage)}";
-                        }
-                    }
-
-                    else if (remainingHours > 0.9)
-                    {
-                        int minutesRemainder = (int)((int)remainingMinutes - (remainingHours * 60));
-
-                        if (minutesRemainder != 0)
-                        {
-                            toSend = $"Ok {ctx.Member.Mention}, in {remainingHours} hour(s) and {minutesRemainder} minute(s) " +
-                                $"{youoreveryone} will be reminded of the following:\n\n {string.Join(" ", remindMessage)}";
-                        }
-
-                        else
-                        {
-                            toSend = $"Ok {ctx.Member.Mention}, in {remainingHours} hour(s) " +
-                                $"{youoreveryone} will be reminded of the following:\n\n {string.Join(" ", remindMessage)}";
-                        }
-                    }
-
-                    else if (remainingMinutes > 0.9)
-                    {
-                        int secondsRemainder = (int)((int)toCalculate.TotalSeconds - (remainingMinutes * 60));
-
-                        if (secondsRemainder != 0)
-                        {
-                            toSend = $"Ok {ctx.Member.Mention}, in {remainingMinutes} minute(s) and {secondsRemainder} second(s) " +
-                                $"{youoreveryone} will be reminded of the following:\n\n {string.Join(" ", remindMessage)}";
-                        }
-
-                        else
-                        {
-                            toSend = $"Ok {ctx.Member.Mention}, in {remainingMinutes} minute(s) " +
-                                $"{youoreveryone} will be reminded of the following:\n\n {string.Join(" ", remindMessage)}";
-                        }
-                    }
-
-                    else if (toCalculate.TotalSeconds < 59)
-                    {
-                        toSend = $"Ok {ctx.Member.Mention}, in {Math.Round(toCalculate.TotalSeconds)} seconds " +
-                            $"{youoreveryone} will be reminded of the following:\n\n {string.Join(" ", remindMessage)}";
-                    }
+                    string toSend = $"Ok {ctx.Member.Mention}, in {toCalculate.Humanize(2)} ({remindTime.ToString()}) " + 
+                        $"{youoreveryone} will be reminded of the following:\n\n {string.Join(" ", remindMessage)}";
 
                     var reminderTask = new Task(async () =>
                     {
@@ -312,88 +253,33 @@ namespace discordbot.Commands
             {
                 try
                 {
-                    TimeSpan remainingSeconds = ClientUtilities.ParseToSeconds(timeSpan);
+                    DateTime currentTime = ClientUtilities.GetWesternIndonesianDateTime();
+
+                    TimeSpan toCalculate = ClientUtilities.ParseToSeconds(timeSpan);
+
+                    DateTime remainingDateTime = currentTime + toCalculate;
 
                     // Checks whether the provided time span is not less than 30 seconds.
-                    if (remainingSeconds.TotalSeconds < 29)
+                    if (toCalculate.TotalSeconds < 30)
                     {
                         string errorMessage = "**[ERROR]** Minimum allowed time span is 30 seconds.";
                         await ctx.RespondAsync(errorMessage).ConfigureAwait(false);
+
                         return;
                     }
 
                     else
                     {
-                        double remainingMinutes = Math.Floor(remainingSeconds.TotalSeconds / 60);
-                        double remainingHours = Math.Floor(remainingMinutes / 60);
-                        double remainingDays = Math.Floor(remainingHours / 24);
-
-                        string toSend = string.Empty;
-                        StringBuilder stringBuilder = new StringBuilder(toSend);
-
-                        if (remainingDays > 365)
+                        if (toCalculate.Days > 365)
                         {
                             string errorMessage = "**[ERROR]** Maximum allowed time span is one year.";
                             await ctx.RespondAsync(errorMessage).ConfigureAwait(false);
+
                             return;
                         }
 
-                        if (remainingDays > 0.9)
-                        {
-                            int hoursRemainder = (int)((int)remainingHours - (remainingDays * 24));
-
-                            if (hoursRemainder != 0)
-                            {
-                                toSend = $"Ok {ctx.Member.Mention}, in {remainingDays} day(s) and {hoursRemainder} hour(s) " +
-                                    $"{youoreveryone} will be reminded of the following:\n\n {string.Join(" ", remindMessage)}";
-                            }
-
-                            else
-                            {
-                                toSend = $"Ok {ctx.Member.Mention}, in {remainingDays} day(s) " +
-                                    $"{youoreveryone} will be reminded of the following:\n\n {string.Join(" ", remindMessage)}";
-                            }
-                        }
-
-                        else if (remainingHours > 0.9)
-                        {
-                            int minutesRemainder = (int)((int)remainingMinutes - (remainingHours * 60));
-
-                            if (minutesRemainder != 0)
-                            {
-                                toSend = $"Ok {ctx.Member.Mention}, in {remainingHours} hour(s) and {minutesRemainder} minute(s) " +
-                                    $"{youoreveryone} will be reminded of the following:\n\n {string.Join(" ", remindMessage)}";
-                            }
-
-                            else
-                            {
-                                toSend = $"Ok {ctx.Member.Mention}, in {remainingHours} hour(s) " +
-                                    $"{youoreveryone} will be reminded of the following:\n\n {string.Join(" ", remindMessage)}";
-                            }
-                        }
-
-                        else if (remainingMinutes > 0.9)
-                        {
-                            int secondsRemainder = (int)((int)remainingSeconds.TotalSeconds - (remainingMinutes * 60));
-
-                            if (secondsRemainder != 0)
-                            {
-                                toSend = $"Ok {ctx.Member.Mention}, in {remainingMinutes} minute(s) and {secondsRemainder} second(s) " +
-                                    $"{youoreveryone} will be reminded of the following:\n\n {string.Join(" ", remindMessage)}";
-                            }
-
-                            else
-                            {
-                                toSend = $"Ok {ctx.Member.Mention}, in {remainingMinutes} minute(s) " +
-                                    $"{youoreveryone} will be reminded of the following:\n\n {string.Join(" ", remindMessage)}";
-                            }
-                        }
-
-                        else if (remainingSeconds.TotalSeconds < 59)
-                        {
-                            toSend = $"Ok {ctx.Member.Mention}, in {Math.Round(remainingSeconds.TotalSeconds)} seconds " +
-                                $"{youoreveryone} will be reminded of the following:\n\n {string.Join(" ", remindMessage)}";
-                        }
+                        string toSend = $"Ok {ctx.Member.Mention}, in {toCalculate.Humanize(2)} ({remainingDateTime.ToString()}) " +
+                            $"{youoreveryone} will be reminded of the following:\n\n {string.Join(" ", remindMessage)}";
 
                         var reminderTask = new Task(async () =>
                         {
@@ -410,14 +296,14 @@ namespace discordbot.Commands
                                 $"{ctx.Member.Mention} wanted to remind you of the following: \n\n{string.Join(" ", remindMessage)}";
                             }
 
-                            long fullDelays = remainingSeconds.Ticks / maxValue.Ticks;
+                            long fullDelays = toCalculate.Ticks / maxValue.Ticks;
                             for (int i = 0; i < fullDelays; i++)
                             {
                                 await Task.Delay(maxValue);
-                                remainingSeconds -= maxValue;
+                                toCalculate -= maxValue;
                             }
 
-                            await Task.Delay(remainingSeconds);
+                            await Task.Delay(toCalculate);
                             await ctx.Channel.SendMessageAsync(reminder).ConfigureAwait(false);
                         });
 

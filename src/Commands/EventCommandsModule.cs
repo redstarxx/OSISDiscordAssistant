@@ -114,12 +114,12 @@ namespace discordbot.Commands
                             {
                                 try
                                 {
-                                    var cultureInfoUS = new CultureInfo("id-ID");
+                                    var cultureInfoID = new CultureInfo("id-ID");
 
                                     // Add 7 hours ahead because for some reason Linux doesn't pick the user preferred timezone.
                                     DateTime currentTime = ClientUtilities.GetWesternIndonesianDateTime();
 
-                                    DateTime toConvert = DateTime.Parse(eventDate, cultureInfoUS);
+                                    DateTime toConvert = DateTime.Parse(eventDate, cultureInfoID);
 
                                     TimeSpan calculateTimeSpan = toConvert - currentTime;
 
@@ -274,7 +274,40 @@ namespace discordbot.Commands
 
             else
             {
-                return;
+                var helpEmoji = DiscordEmoji.FromName(ctx.Client, ":sos:");
+                string toSend = $"{Formatter.Bold("[ERROR]")} The option {Formatter.InlineCode(operationSelection)} does not exist! Type {Formatter.InlineCode("!event")} to list all options. Alternatively, click the emoji below to get help.";
+
+                var errorMessage = await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
+
+                await errorMessage.CreateReactionAsync(helpEmoji).ConfigureAwait(false);
+
+                var interactivity = ctx.Client.GetInteractivity();
+
+                Thread.Sleep(TimeSpan.FromMilliseconds(500));
+                var emojiResult = await interactivity.WaitForReactionAsync(x => x.Message == errorMessage && (x.Emoji == helpEmoji));
+
+                if (emojiResult.Result.Emoji == helpEmoji)
+                {
+                    var embedBuilder = new DiscordEmbedBuilder
+                    {
+                        Title = "Events Manager - Overview",
+                        Timestamp = ClientUtilities.GetWesternIndonesianDateTime(),
+                        Footer = new DiscordEmbedBuilder.EmbedFooter
+                        {
+                            Text = "OSIS Discord Assistant"
+                        },
+                        Color = DiscordColor.MidnightBlue
+                    };
+
+                    embedBuilder.Description = "Events Manager integrates event planning, proposal submission reminder, and event execution reminder under one bot.\n\n" +
+                        $"{Formatter.Bold("!event create")} - Creates a new event.\n" +
+                        $"{Formatter.Bold("!event update")} - Updates an existing event.\n" +
+                        $"{Formatter.Bold("!event delete")} - Deletes an event.\n" +
+                        $"{Formatter.Bold("!event search")} - Search the database for an event that matches the given event name or ID.\n" +
+                        $"{Formatter.Bold("!event list")} - Lists all registered events.\n";
+
+                    await ctx.Channel.SendMessageAsync(embed: embedBuilder).ConfigureAwait(false);
+                }
             }
         }
 
@@ -312,6 +345,15 @@ namespace discordbot.Commands
                         if (isNumber)
                         {
                             rowExists = db.Events.Any(x => x.Id == rowIDRaw);
+
+                            if (!rowExists)
+                            {
+                                string errorMessage = $"{Formatter.Bold("[ERROR]")} An error occured. You must provide the correct ID or name of the event you are updating. Refer to {Formatter.InlineCode("!event list")} or {Formatter.InlineCode("!event search")}.";
+                                await ctx.Channel.SendMessageAsync(errorMessage).ConfigureAwait(false);
+
+                                return;
+                            }
+
                             rowID = db.Events.SingleOrDefault(x => x.Id == rowIDRaw).Id;
                         }
 
@@ -562,11 +604,45 @@ namespace discordbot.Commands
 
                                         catch
                                         {
-                                            // Notify the user that the provided event date cannot be parsed.
-                                            string errorMessage = $"{Formatter.Bold("[ERROR]")} An error occured. Your event date cannot be parsed. Make sure your date and time is written in English. Example: 25 June 2021.";
-                                            await ctx.Channel.SendMessageAsync(errorMessage).ConfigureAwait(false);
+                                            try
+                                            {
+                                                var cultureInfoID = new CultureInfo("id-ID");
 
-                                            return;
+                                                // Add 7 hours ahead because for some reason Linux doesn't pick the user preferred timezone.
+                                                DateTime currentTime = ClientUtilities.GetWesternIndonesianDateTime();
+
+                                                DateTime toConvert = DateTime.Parse(eventDate, cultureInfoID);
+
+                                                TimeSpan calculateTimeSpan = toConvert - currentTime;
+
+                                                if (calculateTimeSpan.TotalDays > 365)
+                                                {
+                                                    string errorMessage = "**[ERROR]** Maximum allowed time span is one year (365 days). Alternatively, include the year of the event as well if you have not.";
+                                                    await ctx.RespondAsync(errorMessage).ConfigureAwait(false);
+
+                                                    return;
+                                                }
+
+                                                if (calculateTimeSpan.Days < 1)
+                                                {
+                                                    string errorMessage = "**[ERROR]** Minimum allowed date is one day before the event. Alternatively, include the year of the event as well if you have not.";
+                                                    await ctx.Channel.SendMessageAsync(errorMessage).ConfigureAwait(false);
+
+                                                    return;
+                                                }
+
+                                                // Set the culture info to store.
+                                                eventDateCultureInfo = "id-ID";
+                                            }
+
+                                            catch
+                                            {
+                                                // Notify the user that the provided event date cannot be parsed.
+                                                string errorMessage = $"{Formatter.Bold("[ERROR]")} An error occured. Your event date cannot be parsed. Make sure your date and time is written in English or Indonesian. Example: 25 June 2021.";
+                                                await ctx.Channel.SendMessageAsync(errorMessage).ConfigureAwait(false);
+
+                                                return;
+                                            }
                                         }
 
                                         Task offloadToTask = Task.Run(async () =>
@@ -894,7 +970,40 @@ namespace discordbot.Commands
            
             else
             {
-                return;
+                var helpEmoji = DiscordEmoji.FromName(ctx.Client, ":sos:");
+                string toSend = $"{Formatter.Bold("[ERROR]")} The option {Formatter.InlineCode(operationSelection)} does not exist! Type {Formatter.InlineCode("!event")} to list all options. Alternatively, click the emoji below to get help.";
+
+                var errorMessage = await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
+
+                await errorMessage.CreateReactionAsync(helpEmoji).ConfigureAwait(false);
+
+                var interactivity = ctx.Client.GetInteractivity();
+
+                Thread.Sleep(TimeSpan.FromMilliseconds(500));
+                var emojiResult = await interactivity.WaitForReactionAsync(x => x.Message == errorMessage && (x.Emoji == helpEmoji));
+
+                if (emojiResult.Result.Emoji == helpEmoji)
+                {
+                    var embedBuilder = new DiscordEmbedBuilder
+                    {
+                        Title = "Events Manager - Overview",
+                        Timestamp = ClientUtilities.GetWesternIndonesianDateTime(),
+                        Footer = new DiscordEmbedBuilder.EmbedFooter
+                        {
+                            Text = "OSIS Discord Assistant"
+                        },
+                        Color = DiscordColor.MidnightBlue
+                    };
+
+                    embedBuilder.Description = "Events Manager integrates event planning, proposal submission reminder, and event execution reminder under one bot.\n\n" +
+                        $"{Formatter.Bold("!event create")} - Creates a new event.\n" +
+                        $"{Formatter.Bold("!event update")} - Updates an existing event.\n" +
+                        $"{Formatter.Bold("!event delete")} - Deletes an event.\n" +
+                        $"{Formatter.Bold("!event search")} - Search the database for an event that matches the given event name or ID.\n" +
+                        $"{Formatter.Bold("!event list")} - Lists all registered events.\n";
+
+                    await ctx.Channel.SendMessageAsync(embed: embedBuilder).ConfigureAwait(false);
+                }
             }
         }
 

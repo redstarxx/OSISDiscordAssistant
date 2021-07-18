@@ -27,7 +27,14 @@ namespace discordbot
             if (!optionsBuilder.IsConfigured)
             {
                 string connectionString = ClientUtilities.GetConnectionString();
-                optionsBuilder.UseNpgsql(connectionString);
+
+                // Retry reconnecting to the database on failure.
+                optionsBuilder.UseNpgsql(connectionString, builder => 
+                {
+                    builder.EnableRetryOnFailure(5, TimeSpan.FromSeconds(30), null);
+                });
+
+                base.OnConfiguring(optionsBuilder);
             }
         }
 
