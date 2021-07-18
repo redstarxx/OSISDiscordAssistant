@@ -53,9 +53,14 @@ namespace discordbot
             Client = new DiscordClient(config);
             Client.Ready += OnClientReady;
             Client.GuildDownloadCompleted += OnGuildDownloadCompleted;
-            Client.MessageReactionAdded += OnMessageReactionAdded;
             Client.GuildMemberAdded += OnGuildMemberAdded;
+            Client.GuildMemberRemoved += OnGuildMemberRemoved;
+            Client.GuildAvailable += OnGuildAvailable;
+            Client.GuildCreated += OnGuildCreated;
+            Client.GuildDeleted += OnGuildDeleted;
             Client.MessageCreated += OnMessageCreated;
+            Client.MessageReactionAdded += OnMessageReactionAdded;
+            Client.SocketErrored += OnSocketErrored;
 
             Client.UseInteractivity(new InteractivityConfiguration
             {
@@ -561,13 +566,54 @@ namespace discordbot
             return Task.CompletedTask;
         }
 
-        private Task OnGuildMemberAdded(object sender, GuildMemberAddEventArgs e)
+        private Task OnGuildMemberAdded(DiscordClient sender, GuildMemberAddEventArgs e)
         {
+            sender.Logger.LogInformation(LogEvent, $"User added: {e.Member.Username}#{e.Member.Discriminator} ({e.Member.Id}) in {e.Guild.Name} ({e.Guild.Id})", DateTime.Now);
+
             DiscordChannel welcomeChannel = e.Guild.GetChannel(814450803464732722);
 
             string toSend = $"selamat datang {e.Member.Mention}! {DiscordEmoji.FromName(Client, ":omculikaku:")}";
 
             welcomeChannel.SendMessageAsync(toSend).ConfigureAwait(false);
+
+            return Task.CompletedTask;
+        }
+
+        private Task OnGuildMemberRemoved(DiscordClient sender, GuildMemberRemoveEventArgs e)
+        {
+            sender.Logger.LogInformation(LogEvent, $"User removed: {e.Member.Username}#{e.Member.Discriminator} ({e.Member.Id}) in {e.Guild.Name} ({e.Guild.Id}).", DateTime.Now);
+
+            return Task.CompletedTask;
+        }
+
+        private Task OnGuildAvailable(DiscordClient sender, GuildCreateEventArgs e)
+        {
+            sender.Logger.LogInformation(LogEvent, $"Guild available: {e.Guild.Name} ({e.Guild.Id})", DateTime.Now);
+
+            return Task.CompletedTask;
+        }
+
+        private Task OnGuildCreated(DiscordClient sender, GuildCreateEventArgs e)
+        {
+            sender.Logger.LogInformation(LogEvent, $"Guild added: {e.Guild.Name} ({e.Guild.Id})", DateTime.Now);
+
+            return Task.CompletedTask;
+        }
+
+        private Task OnGuildDeleted(DiscordClient sender, GuildDeleteEventArgs e)
+        {
+            sender.Logger.LogInformation(LogEvent, $"Guild removed: {e.Guild.Name} ({e.Guild.Id})", DateTime.Now);
+
+            return Task.CompletedTask;
+        }
+
+        private Task OnSocketErrored(DiscordClient sender, SocketErrorEventArgs e)
+        {
+            var ex = e.Exception;
+            while (ex is AggregateException)
+                ex = ex.InnerException;
+
+            sender.Logger.LogCritical(LogEvent, $"Socket threw an exception {ex.GetType()}: {ex.Message}", DateTime.Now);
 
             return Task.CompletedTask;
         }
