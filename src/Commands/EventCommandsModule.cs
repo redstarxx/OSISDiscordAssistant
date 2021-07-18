@@ -345,6 +345,15 @@ namespace discordbot.Commands
                         if (isNumber)
                         {
                             rowExists = db.Events.Any(x => x.Id == rowIDRaw);
+
+                            if (!rowExists)
+                            {
+                                string errorMessage = $"{Formatter.Bold("[ERROR]")} An error occured. You must provide the correct ID or name of the event you are updating. Refer to {Formatter.InlineCode("!event list")} or {Formatter.InlineCode("!event search")}.";
+                                await ctx.Channel.SendMessageAsync(errorMessage).ConfigureAwait(false);
+
+                                return;
+                            }
+
                             rowID = db.Events.SingleOrDefault(x => x.Id == rowIDRaw).Id;
                         }
 
