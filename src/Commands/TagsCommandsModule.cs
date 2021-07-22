@@ -232,7 +232,7 @@ namespace discordbot.Commands
         [Command("tag")]
         public async Task TagHelpAsync(CommandContext ctx)
         {
-            string toSend = $"{Formatter.Bold("[SYNTAX]")} !tag [CREATE/UPDATE/DELETE] [TAGNAME] [TAGCONTENT]";
+            string toSend = $"{Formatter.Bold("[SYNTAX]")} !tag [CREATE/UPDATE/EDIT/DELETE] [TAGNAME] [TAGCONTENT]";
 
             await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
         }
