@@ -7,6 +7,7 @@ using DSharpPlus.CommandsNext;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 using System.Globalization;
+using System.Linq;
 using System.IO;
 using Newtonsoft.Json;
 using System.Reflection;
@@ -16,60 +17,83 @@ namespace discordbot
     public class ClientUtilities
     {
         /// <summary>
-        /// Checks whether the targeted userID has either of the following two roles.
-        /// 823950698189553724 as Service Administrator role ID and 814450825702801421 as Inti OSIS role ID.
-        /// If true, errorReason is sent as reply.
+        /// Checks whether the respective CommandContext has either the Inti OSIS, Administrator or Service Administrator role.
+        /// If true, error message is sent as reply.
         /// </summary>
-        /// <param name="userID">User to check for.</param>
-        /// <param name="ctx">CommandContext belonging to the executing command.</param>
         /// <returns>False if has none of the roles above.</returns>
-        public static async Task<bool> CheckAdminPermissions(ulong userID, CommandContext ctx)
+        public static async Task<bool> CheckAdminPermissions(CommandContext ctx)
         {
-            DiscordMember member = await ctx.Guild.GetMemberAsync(userID);
-            var roleList = string.Join(", ", member.Roles);
-            if (!roleList.Contains("823950698189553724"))
+            // Administrator role ID.
+            ulong adminRoleId = 814450538993156126;
+
+            // Core council (Inti OSIS) role ID.
+            ulong coreCouncilRoleId = 814450825702801421;
+
+            // Role checks below.
+            bool hasServiceAdminRole = CheckServiceAdminRole(ctx);
+
+            bool hasAdminRole = ctx.Member.Roles.Any(x => x.Id == adminRoleId);
+
+            bool hasCoreCouncilRole = ctx.Member.Roles.Any(x => x.Id == coreCouncilRoleId);
+
+            if (!hasServiceAdminRole)
             {
-                if (!roleList.Contains("814450825702801421"))
+                if (!hasAdminRole)
                 {
-                    string errorReason = "**[ERROR]** This command is restricted to administrators only.";
-                    await ctx.Channel.SendMessageAsync(errorReason).ConfigureAwait(false);
-                    return false;
+                    if (!hasCoreCouncilRole)
+                    {
+                        string errorReason = $"{Formatter.Bold("[ERROR]")} This command is restricted to {Formatter.InlineCode("Inti OSIS")} and {Formatter.InlineCode("Administrator")} only.";
+                        await ctx.Channel.SendMessageAsync(errorReason).ConfigureAwait(false);
+
+                        return false;
+                    }
+
+                    else
+                    {
+                        return true;
+                    }
                 }
 
-                else if (roleList.Contains("814450825702801421"))
+                else
                 {
                     return true;
                 }
             }
 
-            else if (roleList.Contains("823950698189553724"))
+            else
             {
                 return true;
             }
-
-            return true;
         }
 
         /// <summary>
         /// Checks whether the member has the Service Administrator role.
         /// </summary>
-        /// <param name="userID">User to check for.</param>
-        /// <param name="ctx">CommandContext belonging to the executing command.</param>
-        /// <returns>False if has none of the roles above.</returns>
+        /// <returns>False if the Service Administrator role is not assigned.</returns>
         public static bool CheckServiceAdminRole(CommandContext ctx)
         {
-            var roleList = string.Join(", ", ctx.Member.Roles);
-            if (!roleList.Contains("Service Administrator"))
-            {
-                return false;
-            }
+            ulong serviceAdminRoleId = 823950698189553724;
 
-            else if (roleList.Contains("Service Administrator"))
-            {
-                return true;
-            }
+            bool isServiceAdmin = false;
 
-            return true;
+            isServiceAdmin = ctx.Member.Roles.Any(x => x.Id == serviceAdminRoleId);
+
+            return isServiceAdmin;
+        }
+
+        /// <summary>
+        /// Checks whether the command invoker has the OSIS role assigned or not.
+        /// </summary>
+        /// <returns>False if the OSIS role is not assigned.</returns>
+        public static bool CheckAccessRole(CommandContext ctx)
+        {
+            ulong accessRoleId = 814450965565800498;
+
+            bool hasAccess = false;
+
+            hasAccess = ctx.Member.Roles.Any(x => x.Id == accessRoleId);
+
+            return hasAccess;
         }
 
         /// <summary>
@@ -77,13 +101,13 @@ namespace discordbot
         /// If true, errorReason is sent as reply.
         /// </summary>
         /// <param name="member">Targeted member for the command execution.</param>
-        /// <param name="ctx">CommandContext belonging to the executing command.</param>
+        /// <param name="ctx">The respective CommandContext.</param>
         /// <returns>True if user is equals targeted user.</returns>
         public static async Task<bool> CheckSelfTargeting(DiscordMember member, CommandContext ctx)
         {
             if (ctx.User.Id == member.Id)
             {
-                string errorReason = "**[ERROR]** You cannot use this command on yourself.";
+                string errorReason = $"{Formatter.Bold("[ERROR]")} You cannot use this command on yourself.";
                 await ctx.Channel.SendMessageAsync(errorReason).ConfigureAwait(false);
                 return true;
             }
@@ -95,7 +119,7 @@ namespace discordbot
         /// Parses a shortened timespan into seconds. Example: "1d16h35m". 
         /// </summary>
         /// <param name="input">String to parse into seconds.</param>
-        /// <returns></returns>
+        /// <returns>TimeSpan in seconds.</returns>
         public static TimeSpan ParseToSeconds(string input)
         {
             var m = Regex.Match(input, @"^((?<days>\d+)d)?((?<hours>\d+)h)?((?<minutes>\d+)m)?((?<seconds>\d+)s)?$", RegexOptions.ExplicitCapture | RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.RightToLeft);
@@ -112,7 +136,7 @@ namespace discordbot
         /// Retrieves the role ID associated with the division name.
         /// </summary>
         /// <param name="divisionName">Name of the division to retrieve its role ID.</param>
-        /// <returns></returns>
+        /// <returns>The role ID of the division name.</returns>
         public static ulong GetRoleID(string divisionName)
         {
             ulong roleID = 0;
