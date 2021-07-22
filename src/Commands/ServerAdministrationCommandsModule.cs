@@ -15,7 +15,7 @@ namespace discordbot.Commands
         public async Task Mute(CommandContext ctx, DiscordMember member, params string[] muteReason)
         {
             // Checks whether the invoker has either of the two roles below.
-            if (!await ClientUtilities.CheckAdminPermissions(ctx.User.Id, ctx))
+            if (!await ClientUtilities.CheckAdminPermissions(ctx))
             {
                 return;
             }
@@ -48,7 +48,7 @@ namespace discordbot.Commands
         public async Task Unmute(CommandContext ctx, DiscordMember member)
         {
             // Checks whether the invoker has either of the two roles below.
-            if (!await ClientUtilities.CheckAdminPermissions(ctx.User.Id, ctx))
+            if (!await ClientUtilities.CheckAdminPermissions(ctx))
             {
                 return;
             }
@@ -72,7 +72,7 @@ namespace discordbot.Commands
         public async Task Kick(CommandContext ctx, DiscordMember member, params string[] kickReason)
         {
             // Checks whether the invoker has either of the two roles below.
-            if (!await ClientUtilities.CheckAdminPermissions(ctx.User.Id, ctx))
+            if (!await ClientUtilities.CheckAdminPermissions(ctx))
             {
                 return;
             }
@@ -189,7 +189,7 @@ namespace discordbot.Commands
         public async Task MuteHelp(CommandContext ctx)
         {
             // Checks whether the invoker has either of the two roles below.
-            if (!await ClientUtilities.CheckAdminPermissions(ctx.User.Id, ctx))
+            if (!await ClientUtilities.CheckAdminPermissions(ctx))
             {
                 return;
             }
@@ -203,7 +203,7 @@ namespace discordbot.Commands
         public async Task UnmuteHelp(CommandContext ctx)
         {
             // Checks whether the invoker has either of the two roles below.
-            if (!await ClientUtilities.CheckAdminPermissions(ctx.User.Id, ctx))
+            if (!await ClientUtilities.CheckAdminPermissions(ctx))
             {
                 return;
             }
@@ -217,7 +217,7 @@ namespace discordbot.Commands
         public async Task KickHelp(CommandContext ctx)
         {
             // Checks whether the invoker has either of the two roles below.
-            if (!await ClientUtilities.CheckAdminPermissions(ctx.User.Id, ctx))
+            if (!await ClientUtilities.CheckAdminPermissions(ctx))
             {
                 return;
             }
