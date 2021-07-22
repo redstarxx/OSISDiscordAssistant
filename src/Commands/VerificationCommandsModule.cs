@@ -19,7 +19,7 @@ namespace discordbot.Commands
         public async Task OverrideVerifySingle(CommandContext ctx, DiscordMember member)
         {
             // Checks whether the invoker has either of the two roles below.
-            if (!await ClientUtilities.CheckAdminPermissions(ctx.User.Id, ctx))
+            if (!await ClientUtilities.CheckAdminPermissions(ctx))
             {
                 return;
             }
@@ -52,7 +52,7 @@ namespace discordbot.Commands
         public async Task OverrideVerifyDouble(CommandContext ctx, DiscordMember member, params string[] displayName)
         {
             // Checks whether the invoker has either of the two roles below.
-            if (!await ClientUtilities.CheckAdminPermissions(ctx.User.Id, ctx))
+            if (!await ClientUtilities.CheckAdminPermissions(ctx))
             {
                 return;
             }
@@ -92,6 +92,16 @@ namespace discordbot.Commands
                 "**[SYNTAX]** !requestverify [NAMA PANGGILAN]\n"
                 + "Note: Fill in the parameters in sync with above otherwise the bot cannot process your request.";
                 await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
+                return;
+            }
+
+            bool hasAccessRole = ClientUtilities.CheckAccessRole(ctx);
+
+            if (hasAccessRole)
+            {
+                string toSend = $"{Formatter.Bold("[ERROR]")} You have already been verified!";
+                await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
+
                 return;
             }
 
@@ -234,7 +244,7 @@ namespace discordbot.Commands
         public async Task OverrideVerifyHelp(CommandContext ctx)
         {
             // Checks whether the invoker has either of the two roles below.
-            await ClientUtilities.CheckAdminPermissions(ctx.User.Id, ctx);
+            await ClientUtilities.CheckAdminPermissions(ctx);
 
             string toSend =
                 "**[SYNTAX]** !overify [USERMENTION] [DISPLAYNAME (optional)]\n"
