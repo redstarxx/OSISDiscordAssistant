@@ -151,7 +151,7 @@ namespace discordbot.Commands
                     }
                 }
 
-                else if (operationSelection == "update")
+                else if (operationSelection == "update" || operationSelection == "edit")
                 {
                     using (var db = new TagsContext())
                     {
@@ -211,7 +211,7 @@ namespace discordbot.Commands
 
                     if (emojiResult.Result.Emoji == helpEmoji)
                     {
-                        string helpMessage = $"{Formatter.Bold("[SYNTAX]")} !tag [CREATE/UPDATE/DELETE] [TAGNAME] [TAGCONTENT]";
+                        string helpMessage = $"{Formatter.Bold("[SYNTAX]")} !tag [CREATE/UPDATE/EDIT/DELETE] [TAGNAME] [TAGCONTENT]";
 
                         await ctx.Channel.SendMessageAsync(helpMessage).ConfigureAwait(false);
                     }
