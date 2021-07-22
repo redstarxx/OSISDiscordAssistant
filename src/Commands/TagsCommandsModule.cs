@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
+using DSharpPlus.Interactivity.Extensions;
 
 namespace discordbot.Commands
 {
@@ -190,6 +192,28 @@ namespace discordbot.Commands
                         var thumbsUpEmoji = DiscordEmoji.FromName(ctx.Client, ":thumbsup:");
 
                         await ctx.RespondAsync(thumbsUpEmoji).ConfigureAwait(false);
+                    }
+                }
+
+                else
+                {
+                    var helpEmoji = DiscordEmoji.FromName(ctx.Client, ":sos:");
+                    string toSend = $"{Formatter.Bold("[ERROR]")} The parameter {Formatter.InlineCode(operationSelection)} is invalid. Type {Formatter.InlineCode("!tag")} to list all options. Alternatively, click the emoji below to get help.";
+
+                    var errorMessage = await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
+
+                    await errorMessage.CreateReactionAsync(helpEmoji).ConfigureAwait(false);
+
+                    var interactivity = ctx.Client.GetInteractivity();
+
+                    Thread.Sleep(TimeSpan.FromMilliseconds(500));
+                    var emojiResult = await interactivity.WaitForReactionAsync(x => x.Message == errorMessage && (x.Emoji == helpEmoji));
+
+                    if (emojiResult.Result.Emoji == helpEmoji)
+                    {
+                        string helpMessage = $"{Formatter.Bold("[SYNTAX]")} !tag [CREATE/UPDATE/DELETE] [TAGNAME] [TAGCONTENT]";
+
+                        await ctx.Channel.SendMessageAsync(helpMessage).ConfigureAwait(false);
                     }
                 }
             }
