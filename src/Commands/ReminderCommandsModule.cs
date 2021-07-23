@@ -26,7 +26,7 @@ namespace discordbot.Commands
         //List<string> activeRemindersDescription = new List<string>();
 
         [Command("remind")]
-        public async Task Reminder(CommandContext ctx, string remindTarget, string timeSpan, params string[] remindMessage)
+        public async Task Reminder(CommandContext ctx, string remindTarget, string timeSpan, string toChannel, params string[] remindMessage)
         {
             // Determines whether the user intends to remind themselves or @everyone.
             // Applies to the following two switch methods below.
@@ -98,6 +98,20 @@ namespace discordbot.Commands
                 default:
                     youoreveryone = remindTarget;
                     break;
+            }
+
+            DiscordChannel targetChannel = null;
+            if (toChannel == "here")
+            {
+                targetChannel = ctx.Channel;
+            }
+
+            else
+            {
+                string getChannelId = string.Join("", toChannel.Where(char.IsDigit));
+                ulong channelId = Convert.ToUInt64(getChannelId);
+
+                targetChannel = await Bot.Client.GetChannelAsync(channelId);
             }
 
             if (timeSpan.Contains("/"))
@@ -183,7 +197,7 @@ namespace discordbot.Commands
                         }
 
                         await Task.Delay(toCalculate);
-                        await ctx.Channel.SendMessageAsync(reminder).ConfigureAwait(false);
+                        await targetChannel.SendMessageAsync(reminder).ConfigureAwait(false);
                     });
 
                     reminderTask.Start();
@@ -227,7 +241,7 @@ namespace discordbot.Commands
                     }
 
                     await Task.Delay(time);
-                    await ctx.Channel.SendMessageAsync(reminder).ConfigureAwait(false);
+                    await targetChannel.SendMessageAsync(reminder).ConfigureAwait(false);
                 });
 
                 reminderTask.Start();
@@ -304,7 +318,7 @@ namespace discordbot.Commands
                             }
 
                             await Task.Delay(toCalculate);
-                            await ctx.Channel.SendMessageAsync(reminder).ConfigureAwait(false);
+                            await targetChannel.SendMessageAsync(reminder).ConfigureAwait(false);
                         });
 
                         reminderTask.Start();
