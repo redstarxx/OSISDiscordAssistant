@@ -36,6 +36,8 @@ namespace discordbot.Commands
             stopwatch.Start();
             await ctx.Client.ReconnectAsync(true);
 
+            Bot.StartStatusUpdater();
+
             stopwatch.Stop();
 
             await ctx.Channel.SendMessageAsync($"Successfully reconnected to the gateway with a new session. It took {stopwatch.ElapsedMilliseconds} ms.").ConfigureAwait(false);
@@ -60,6 +62,8 @@ namespace discordbot.Commands
             Thread.Sleep(TimeSpan.FromSeconds(1));
 
             await ctx.Client.DisconnectAsync();
+
+            Environment.Exit(0);
         }
     }
 }
