@@ -109,7 +109,7 @@ namespace discordbot
         private Task OnGuildDownloadCompleted(object sender, GuildDownloadCompletedEventArgs e)
         {
             // Starts a new Discord status updater task to change the bot's display status every two minutes.
-            StatusUpdater();
+            StartStatusUpdater();
 
             // Starts the events reminder task which queries the events table on a minute-by-minute basis.
             EventReminders();
@@ -488,12 +488,12 @@ namespace discordbot
             return Task.CompletedTask;
         }
 
-        private Task StatusUpdater()
+        public static void StartStatusUpdater()
         {
-            string gradeNumber = "VII";
-
             Task statusUpdater = Task.Run(async () =>
             {
+                string gradeNumber = "VII";
+
                 while (true)
                 {
                     var activity = new DiscordActivity("Grade " + gradeNumber, ActivityType.Watching);
@@ -536,7 +536,7 @@ namespace discordbot
                 }
             });
 
-            return Task.CompletedTask;
+            Client.Logger.LogInformation(PRTask, "Initialized status updater task.", ClientUtilities.GetWesternIndonesianDateTime());
         }
 
         private Task OnMessageCreated(DiscordClient sender, MessageCreateEventArgs e)
