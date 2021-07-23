@@ -32,6 +32,8 @@ namespace discordbot
 
         public static EventId PRTask { get; } = new EventId(3000, "PRTask");
 
+        public static EventId StatusUpdater { get; } = new EventId(4000, "PRTask");
+
         public async Task RunAsync()
         {
             var json = string.Empty;
@@ -536,7 +538,7 @@ namespace discordbot
                 }
             });
 
-            Client.Logger.LogInformation(PRTask, "Initialized status updater task.", ClientUtilities.GetWesternIndonesianDateTime());
+            Client.Logger.LogInformation(StatusUpdater, "Initialized status updater task.", ClientUtilities.GetWesternIndonesianDateTime());
         }
 
         private Task OnMessageCreated(DiscordClient sender, MessageCreateEventArgs e)
