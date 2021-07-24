@@ -26,8 +26,19 @@ namespace discordbot.Commands
         //List<string> activeRemindersDescription = new List<string>();
 
         [Command("remind")]
-        public async Task Reminder(CommandContext ctx, string remindTarget, string timeSpan, string toChannel, params string[] remindMessage)
+        public async Task Reminder(CommandContext ctx, string remindTarget, string timeSpan, string toChannel, params string[] toRemind)
         {
+            // Checks whether the message to remind is empty.
+            string remindMessage = string.Join(" ", toRemind);
+
+            if (remindMessage.Length == 0)
+            {
+                string toSend = $"{Formatter.Bold("[ERROR]")} You cannot remind someone with an empty message.";
+                await ctx.RespondAsync(toSend).ConfigureAwait(false);
+
+                return;
+            }
+
             // Determines whether the user intends to remind themselves or @everyone.
             // Applies to the following two switch methods below.
             string mentionTarget = string.Empty;
