@@ -26,7 +26,7 @@ namespace discordbot.Commands
         //List<string> activeRemindersDescription = new List<string>();
 
         [Command("remind")]
-        public async Task Reminder(CommandContext ctx, string remindTarget, string timeSpan, params string[] remindMessage)
+        public async Task Reminder(CommandContext ctx, string remindTarget, string timeSpan, string toChannel, params string[] remindMessage)
         {
             // Determines whether the user intends to remind themselves or @everyone.
             // Applies to the following two switch methods below.
@@ -99,6 +99,32 @@ namespace discordbot.Commands
                     youoreveryone = remindTarget;
                     break;
             }
+
+            DiscordChannel targetChannel = null;
+
+            try
+            {
+                if (toChannel == "here")
+                {
+                    targetChannel = ctx.Channel;
+                }
+
+                else
+                {
+                    string getChannelId = string.Join("", toChannel.Where(char.IsDigit));
+                    ulong channelId = Convert.ToUInt64(getChannelId);
+
+                    targetChannel = await Bot.Client.GetChannelAsync(channelId);
+                }
+            }
+
+            catch
+            {
+                string toSend = $"{Formatter.Bold("[ERROR]")} You cannot mention a channel that does not exist or that you do not have access to. Make sure you are using the command like this: !remind humas 11:30 <#838652424436449290> Koordinasi proposal dengan KFC.";
+                await ctx.RespondAsync(toSend).ConfigureAwait(false);
+
+                return;
+            }            
 
             if (timeSpan.Contains("/"))
             {
@@ -183,7 +209,7 @@ namespace discordbot.Commands
                         }
 
                         await Task.Delay(toCalculate);
-                        await ctx.Channel.SendMessageAsync(reminder).ConfigureAwait(false);
+                        await targetChannel.SendMessageAsync(reminder).ConfigureAwait(false);
                     });
 
                     reminderTask.Start();
@@ -227,7 +253,7 @@ namespace discordbot.Commands
                     }
 
                     await Task.Delay(time);
-                    await ctx.Channel.SendMessageAsync(reminder).ConfigureAwait(false);
+                    await targetChannel.SendMessageAsync(reminder).ConfigureAwait(false);
                 });
 
                 reminderTask.Start();
@@ -304,7 +330,7 @@ namespace discordbot.Commands
                             }
 
                             await Task.Delay(toCalculate);
-                            await ctx.Channel.SendMessageAsync(reminder).ConfigureAwait(false);
+                            await targetChannel.SendMessageAsync(reminder).ConfigureAwait(false);
                         });
 
                         reminderTask.Start();
@@ -334,8 +360,8 @@ namespace discordbot.Commands
                 "berbagai kepentingan, seperti mengingatkan jadwal rapat atau hitung mundur jumlah hari menuju pelaksanaan event.\n\n" +
                 "Berikut seksi-seksi yang dapat diingatkan oleh bot ini: \n• Inti (Inti OSIS)\n• Kesenian\n• Kewirausahaan\n" +
                 "• IT (Informasi Teknologi)\n• Olahraga\n• Humas\n• Agama \nApabila ingin mengingatkan semua anggota, pilih `everyone` atau dengan langsung mention role yang diinginkan." +
-                "\n\n**FORMAT PENGGUNAAN**\n`!remind [NAMA SEKSI / EVERYONE] [TANGGAL / WAKTU UNTUK DIINGATKAN (contoh: 25/06/2021 atau 6j30m)] [APA YANG INGIN DIINGATKAN]`\n" +
-                "**CONTOH**\n`!remind kesenian 12:30 Upload poster event ke Instagram.`\n" +
+                "\n\n**FORMAT PENGGUNAAN**\n`!remind [NAMA SEKSI / EVERYONE] [TANGGAL / WAKTU UNTUK DIINGATKAN (contoh: 25/06/2021 atau 6j30m atau 12:30)] [CHANNEL] [APA YANG INGIN DIINGATKAN]`\n" +
+                "**CONTOH**\n`!remind kesenian 12:30 here Upload poster event ke Instagram.`\n" +
                 $"**HASIL**\nOke {ctx.User.Mention}, dalam 12 jam, seksi Kesenian akan diingatkan hal berikut:\n\n Upload poster event ke Instagram.",
                 Timestamp = ClientUtilities.GetWesternIndonesianDateTime(),
                 Footer = new DiscordEmbedBuilder.EmbedFooter
