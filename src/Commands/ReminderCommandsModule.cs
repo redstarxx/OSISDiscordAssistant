@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
@@ -33,8 +34,10 @@ namespace discordbot.Commands
 
             if (remindMessage.Length == 0)
             {
-                string toSend = $"{Formatter.Bold("[ERROR]")} You cannot remind someone with an empty message.";
-                await ctx.RespondAsync(toSend).ConfigureAwait(false);
+                string toSend = $"{Formatter.Bold("[ERROR]")} You cannot remind someone with an empty message. Type {Formatter.InlineCode("!remind")} to get help. Alternatively, click the emoji below to get help.";
+                var errorMessage = await ctx.RespondAsync(toSend).ConfigureAwait(false);
+
+                await SendHelpEmoji(ctx, errorMessage);
 
                 return;
             }
@@ -67,8 +70,11 @@ namespace discordbot.Commands
 
                         else
                         {
-                            string errorMessage = "**[ERROR]** Invalid reminder target.";
-                            await ctx.RespondAsync(errorMessage).ConfigureAwait(false);
+                            string toSend = $"{Formatter.Bold("[ERROR]")} Invalid reminder target. Type {Formatter.InlineCode("!remind")} to get help. Alternatively, click the emoji below to get help.";
+                            var errorMessage = await ctx.RespondAsync(toSend).ConfigureAwait(false);
+
+                            await SendHelpEmoji(ctx, errorMessage);
+
                             return;
                         }
                     }
@@ -364,6 +370,28 @@ namespace discordbot.Commands
         [Command("remind")]
         public async Task Reminder(CommandContext ctx)
         {
+            await SendHelpEmbed (ctx, true);
+        }
+
+        public async Task SendHelpEmoji(CommandContext ctx, DiscordMessage errorMessage)
+        {
+            var helpEmoji = DiscordEmoji.FromName(ctx.Client, ":sos:");
+
+            await errorMessage.CreateReactionAsync(helpEmoji).ConfigureAwait(false);
+
+            var interactivity = ctx.Client.GetInteractivity();
+
+            Thread.Sleep(TimeSpan.FromMilliseconds(500));
+            var emojiResult = await interactivity.WaitForReactionAsync(x => x.Message == errorMessage && (x.Emoji == helpEmoji));
+
+            if (emojiResult.Result.Emoji == helpEmoji)
+            {
+                await SendHelpEmbed(ctx, false);
+            }
+        }
+
+        public async Task SendHelpEmbed(CommandContext ctx, bool removeOriginalMessage)
+        {
             var reminderInfoEmbed = new DiscordEmbedBuilder
             {
                 Title = "OSIS DJUWITA BATAM — REMINDER FEATURE",
@@ -382,7 +410,11 @@ namespace discordbot.Commands
                 Color = DiscordColor.MidnightBlue
             };
 
-            await ctx.Message.DeleteAsync();
+            if (removeOriginalMessage)
+            {
+                await ctx.Message.DeleteAsync();
+            }
+
             await ctx.Member.SendMessageAsync(embed: reminderInfoEmbed).ConfigureAwait(false);
         }
     }
