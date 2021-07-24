@@ -101,18 +101,30 @@ namespace discordbot.Commands
             }
 
             DiscordChannel targetChannel = null;
-            if (toChannel == "here")
+
+            try
             {
-                targetChannel = ctx.Channel;
+                if (toChannel == "here")
+                {
+                    targetChannel = ctx.Channel;
+                }
+
+                else
+                {
+                    string getChannelId = string.Join("", toChannel.Where(char.IsDigit));
+                    ulong channelId = Convert.ToUInt64(getChannelId);
+
+                    targetChannel = await Bot.Client.GetChannelAsync(channelId);
+                }
             }
 
-            else
+            catch
             {
-                string getChannelId = string.Join("", toChannel.Where(char.IsDigit));
-                ulong channelId = Convert.ToUInt64(getChannelId);
+                string toSend = $"{Formatter.Bold("[ERROR]")} You cannot mention a channel that does not exist or that you do not have access to. Make sure you are using the command like this: !remind humas 11:30 <#838652424436449290> Koordinasi proposal dengan KFC.";
+                await ctx.RespondAsync(toSend).ConfigureAwait(false);
 
-                targetChannel = await Bot.Client.GetChannelAsync(channelId);
-            }
+                return;
+            }            
 
             if (timeSpan.Contains("/"))
             {
