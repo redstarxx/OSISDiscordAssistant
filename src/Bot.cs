@@ -32,7 +32,7 @@ namespace discordbot
 
         public static EventId PRTask { get; } = new EventId(3000, "PRTask");
 
-        public static EventId StatusUpdater { get; } = new EventId(4000, "PRTask");
+        public static EventId StatusUpdater { get; } = new EventId(4000, "StatusUpdater");
 
         public async Task RunAsync()
         {
