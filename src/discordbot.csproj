@@ -3,15 +3,15 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp5.0</TargetFramework>
-    <Version>1.2.1</Version>
+    <Version>1.3.0</Version>
     <AssemblyVersion>$(Version)</AssemblyVersion>
     <FileVersion>$(AssemblyVersion)</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DSharpPlus" Version="4.1.0-nightly-00927" />
-    <PackageReference Include="DSharpPlus.CommandsNext" Version="4.1.0-nightly-00927" />
-    <PackageReference Include="DSharpPlus.Interactivity" Version="4.1.0-nightly-00927" />
+    <PackageReference Include="DSharpPlus" Version="4.1.0-nightly-00928" />
+    <PackageReference Include="DSharpPlus.CommandsNext" Version="4.1.0-nightly-00928" />
+    <PackageReference Include="DSharpPlus.Interactivity" Version="4.1.0-nightly-00928" />
     <PackageReference Include="Humanizer" Version="2.11.10" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.5">
       <PrivateAssets>all</PrivateAssets>
