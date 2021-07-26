@@ -534,7 +534,9 @@ namespace discordbot
                         default:
                             break;
                     }
-                    
+
+                    Client.Logger.LogInformation(StatusUpdater, $"Presence updated: {activity.ActivityType} {activity.Name}", DateTime.Now);
+
                     await Task.Delay(TimeSpan.FromMinutes(2));
                 }
             });
