@@ -355,6 +355,12 @@ namespace discordbot
 
                 catch (Exception ex)
                 {
+                    var exception = ex;
+                    while (exception is AggregateException)
+                        exception = exception.InnerException;
+
+                    Client.Logger.LogCritical(ERTask, $"Events reminder task threw an exception: {exception.GetType()}: {exception.Message}", DateTime.Now);
+
                     await errorLogsChannel.SendMessageAsync($"{ex.Message}").ConfigureAwait(false);
                 }
             });
@@ -482,6 +488,12 @@ namespace discordbot
 
                 catch (Exception ex)
                 {
+                    var exception = ex;
+                    while (exception is AggregateException)
+                        exception = exception.InnerException;
+
+                    Client.Logger.LogCritical(PRTask, $"Proposal submission reminder task threw an exception: {exception.GetType()}: {exception.Message}", DateTime.Now);
+
                     await errorLogsChannel.SendMessageAsync($"{ex.Message}").ConfigureAwait(false);
                 }
             });
