@@ -63,6 +63,7 @@ namespace discordbot
             Client.MessageCreated += OnMessageCreated;
             Client.MessageReactionAdded += OnMessageReactionAdded;
             Client.SocketErrored += OnSocketErrored;
+            Client.Heartbeated += OnHeartbeated;
 
             Client.UseInteractivity(new InteractivityConfiguration
             {
@@ -533,7 +534,7 @@ namespace discordbot
                         default:
                             break;
                     }
-
+                    
                     await Task.Delay(TimeSpan.FromMinutes(2));
                 }
             });
@@ -616,6 +617,13 @@ namespace discordbot
                 ex = ex.InnerException;
 
             sender.Logger.LogCritical(LogEvent, $"Socket threw an exception {ex.GetType()}: {ex.Message}", DateTime.Now);
+
+            return Task.CompletedTask;
+        }
+
+        private Task OnHeartbeated(DiscordClient sender, HeartbeatEventArgs e)
+        {
+            sender.Logger.LogInformation(LogEvent, $"Received heartbeat ACK: {e.Ping} ms.", DateTime.Now);
 
             return Task.CompletedTask;
         }
