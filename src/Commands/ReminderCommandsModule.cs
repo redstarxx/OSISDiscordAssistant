@@ -27,7 +27,22 @@ namespace discordbot.Commands
         //List<string> activeRemindersDescription = new List<string>();
 
         [Command("remind")]
-        public async Task Reminder(CommandContext ctx, string remindTarget, string timeSpan, string toChannel, params string[] toRemind)
+        public async Task RemindWithChannel(CommandContext ctx, string remindTarget, string timeSpan, DiscordChannel toChannel, params string[] toRemind)
+        {
+            await CreateReminder(ctx, remindTarget, timeSpan, toChannel, toRemind);
+        }
+
+        [Command("remind")]
+        public async Task RemindWithoutChannel(CommandContext ctx, string remindTarget, string timeSpan, params string[] toRemind)
+        {
+            await CreateReminder(ctx, remindTarget, timeSpan, null, toRemind);
+        }
+
+        /// <summary>
+        /// Creates a reminder which is based from creating a delayed task that sends a message after delaying the task for the specified amount of time.
+        /// </summary>
+        /// <returns>A reminder task that runs in the background.</returns>
+        public async Task CreateReminder(CommandContext ctx, string remindTarget, string timeSpan, DiscordChannel remindChannel = null, params string[] toRemind)
         {
             // Checks whether the message to remind is empty.
             string remindMessage = string.Join(" ", toRemind);
@@ -119,29 +134,15 @@ namespace discordbot.Commands
 
             DiscordChannel targetChannel = null;
 
-            try
+            if (remindChannel == null)
             {
-                if (toChannel == "here")
-                {
-                    targetChannel = ctx.Channel;
-                }
-
-                else
-                {
-                    string getChannelId = string.Join("", toChannel.Where(char.IsDigit));
-                    ulong channelId = Convert.ToUInt64(getChannelId);
-
-                    targetChannel = await Bot.Client.GetChannelAsync(channelId);
-                }
+                targetChannel = ctx.Channel;
             }
 
-            catch
+            else
             {
-                string toSend = $"{Formatter.Bold("[ERROR]")} You cannot mention a channel that does not exist or that you do not have access to. Make sure you are using the command like this: !remind humas 11:30 <#838652424436449290> Koordinasi proposal dengan KFC.";
-                await ctx.RespondAsync(toSend).ConfigureAwait(false);
-
-                return;
-            }            
+                targetChannel = remindChannel;
+            }
 
             if (timeSpan.Contains("/"))
             {
@@ -200,7 +201,7 @@ namespace discordbot.Commands
                         return;
                     }
 
-                    string toSend = $"Ok {ctx.Member.Mention}, in {toCalculate.Humanize(2)} ({remindTime.ToString()}) " + 
+                    string toSend = $"Ok {ctx.Member.Mention}, in {toCalculate.Humanize(2)} ({remindTime.ToString()}) " +
                         $"{youoreveryone} will be reminded of the following:\n\n {string.Join(" ", remindMessage)}";
 
                     var reminderTask = new Task(async () =>
