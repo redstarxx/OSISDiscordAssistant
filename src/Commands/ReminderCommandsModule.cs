@@ -471,8 +471,8 @@ namespace discordbot.Commands
                 "berbagai kepentingan, seperti mengingatkan jadwal rapat atau hitung mundur jumlah hari menuju pelaksanaan event.\n\n" +
                 "Berikut seksi-seksi yang dapat diingatkan oleh bot ini: \n• Inti (Inti OSIS)\n• Kesenian\n• Kewirausahaan\n" +
                 "• IT (Informasi Teknologi)\n• Olahraga\n• Humas\n• Agama \nApabila ingin mengingatkan semua anggota, pilih `everyone` atau dengan langsung mention role yang diinginkan." +
-                "\n\n**FORMAT PENGGUNAAN**\n`!remind [NAMA SEKSI / EVERYONE] [TANGGAL / WAKTU UNTUK DIINGATKAN (contoh: 25/06/2021 atau 6j30m atau 12:30)] [CHANNEL] [APA YANG INGIN DIINGATKAN]`\n" +
-                "**CONTOH**\n`!remind kesenian 12:30 here Upload poster event ke Instagram.`\n" +
+                "\n\n**FORMAT PENGGUNAAN**\n`!remind [NAMA SEKSI / MENTION ROLE / EVERYONE] [TANGGAL / WAKTU UNTUK DIINGATKAN (contoh: 25/06/2021 atau 6j30m atau 12:30)] [CHANNEL (opsional)] [APA YANG INGIN DIINGATKAN]`\n" +
+                "**CONTOH**\n`!remind kesenian 12:30 Upload poster event ke Instagram.`\n" +
                 $"**HASIL**\nOke {ctx.User.Mention}, dalam 12 jam, seksi Kesenian akan diingatkan hal berikut:\n\n Upload poster event ke Instagram.",
                 Timestamp = ClientUtilities.GetWesternIndonesianDateTime(),
                 Footer = new DiscordEmbedBuilder.EmbedFooter
