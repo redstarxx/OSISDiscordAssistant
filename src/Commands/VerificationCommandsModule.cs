@@ -112,10 +112,15 @@ namespace discordbot.Commands
                 string requestedName = string.Join(" ", displayName);
 
                 var messageBuilder = new DiscordMessageBuilder();
-                
+
                 //Sends a verification request to #verification as an embed.
                 var embedBuilder = new DiscordEmbedBuilder
                 {
+                    Author = new DiscordEmbedBuilder.EmbedAuthor
+                    {
+                        Name = $"{ctx.Member.DisplayName}#{ctx.Member.Discriminator}",
+                        IconUrl = ctx.Member.AvatarUrl
+                    },
                     Title = $"Verification Request #{counter}",
                     Description = $"{ctx.User.Username}#{ctx.User.Discriminator} has submitted a verification request.\n"
                         + $"{Formatter.Bold("Nama Panggilan:")} {string.Join(" ", displayName)}\n {Formatter.Bold("User ID:")} {ctx.User.Id}\n {Formatter.Bold("Verification Status:")} WAITING.\n"
