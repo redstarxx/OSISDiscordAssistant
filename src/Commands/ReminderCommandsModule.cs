@@ -23,8 +23,47 @@ namespace discordbot.Commands
     {
         private static readonly TimeSpan maxValue = TimeSpan.FromMilliseconds(int.MaxValue);
 
-        //List<string> activeRemindersName = new List<string>();
-        //List<string> activeRemindersDescription = new List<string>();
+        List<string> activeRemindersName = new List<string>();
+        List<string> activeRemindersDescription = new List<string>();
+
+        [Command("reminders")]
+        public async Task ListActiveReminders(CommandContext ctx)
+        {
+            var activeRemindersEmbed = new DiscordEmbedBuilder
+            {
+                Title = "Listing All Active Reminders...",
+                Timestamp = ClientUtilities.GetWesternIndonesianDateTime(),
+                Footer = new DiscordEmbedBuilder.EmbedFooter
+                {
+                    Text = "OSIS Discord Assistant"
+                },
+                Color = DiscordColor.MidnightBlue
+            };
+
+            int count = 0;
+            string previousName = string.Empty;
+
+            foreach (string name in activeRemindersName)
+            {
+                foreach (string description in activeRemindersDescription)
+                {
+                    if (previousName != name)
+                    {
+                        activeRemindersEmbed.AddField(name, description, true);
+                    }
+
+                    count++;
+                    previousName = name;
+                }
+            }
+
+            if (count == 0)
+            {
+                activeRemindersEmbed.Description = "There are no active reminders so far!";
+            }
+
+            await ctx.Channel.SendMessageAsync(embed: activeRemindersEmbed).ConfigureAwait(false);
+        }
 
         [Command("remind")]
         public async Task RemindWithChannel(CommandContext ctx, string remindTarget, string timeSpan, DiscordChannel toChannel, params string[] toRemind)
@@ -204,6 +243,11 @@ namespace discordbot.Commands
                     string toSend = $"Ok {ctx.Member.Mention}, in {toCalculate.Humanize(2)} ({remindTime.ToString()}) " +
                         $"{youoreveryone} will be reminded of the following:\n\n {string.Join(" ", remindMessage)}";
 
+                    string name = $"• {ctx.Member.DisplayName}#{ctx.Member.Discriminator} - {DateTime.Now}";
+
+                    activeRemindersName.Add($"• {ctx.Member.DisplayName}#{ctx.Member.Discriminator} - {DateTime.Now}");
+                    activeRemindersDescription.Add($"To: {youoreveryone}\nDescription: {remindMessage}\nWhen to remind: {remindTime}");
+
                     var reminderTask = new Task(async () =>
                     {
                         string reminder = string.Empty;
@@ -228,10 +272,16 @@ namespace discordbot.Commands
 
                         await Task.Delay(toCalculate);
                         await targetChannel.SendMessageAsync(reminder).ConfigureAwait(false);
+
+                        int index = activeRemindersName.FindIndex(x => x == name);
+
+                        activeRemindersName.RemoveAt(index);
+                        activeRemindersDescription.RemoveAt(index);
                     });
 
                     reminderTask.Start();
-                    await ctx.RespondAsync(toSend).ConfigureAwait(false);
+
+                    await ctx.RespondAsync(toSend).ConfigureAwait(false);                 
                 }
             }
 
@@ -247,6 +297,11 @@ namespace discordbot.Commands
                 }
 
                 TimeSpan time = toParse - currentTime;
+
+                string name = $"• {ctx.Member.DisplayName}#{ctx.Member.Discriminator} - {DateTime.Now}";
+
+                activeRemindersName.Add($"• {ctx.Member.DisplayName}#{ctx.Member.Discriminator} - {DateTime.Now}");
+                activeRemindersDescription.Add($"To: {youoreveryone}\nDescription: {remindMessage}\nWhen to remind: {toParse}");
 
                 var reminderTask = new Task(async () =>
                 {
@@ -272,6 +327,11 @@ namespace discordbot.Commands
 
                     await Task.Delay(time);
                     await targetChannel.SendMessageAsync(reminder).ConfigureAwait(false);
+
+                    int index = activeRemindersName.FindIndex(x => x == name);
+
+                    activeRemindersName.RemoveAt(index);
+                    activeRemindersDescription.RemoveAt(index);
                 });
 
                 reminderTask.Start();
@@ -325,6 +385,11 @@ namespace discordbot.Commands
                         string toSend = $"Ok {ctx.Member.Mention}, in {toCalculate.Humanize(2)} ({remainingDateTime.ToString()}) " +
                             $"{youoreveryone} will be reminded of the following:\n\n {string.Join(" ", remindMessage)}";
 
+                        string name = $"• {ctx.Member.DisplayName}#{ctx.Member.Discriminator} - {DateTime.Now}";
+
+                        activeRemindersName.Add(name);
+                        activeRemindersDescription.Add($"To: {youoreveryone}\nDescription: {remindMessage}\nWhen to remind: {remainingDateTime}");
+
                         var reminderTask = new Task(async () =>
                         {
                             string reminder = string.Empty;
@@ -349,10 +414,16 @@ namespace discordbot.Commands
 
                             await Task.Delay(toCalculate);
                             await targetChannel.SendMessageAsync(reminder).ConfigureAwait(false);
+
+                            int index = activeRemindersName.FindIndex(x => x == name);
+
+                            activeRemindersName.RemoveAt(index);
+                            activeRemindersDescription.RemoveAt(index);                           
                         });
 
                         reminderTask.Start();
-                        await ctx.RespondAsync(toSend).ConfigureAwait(false);
+
+                        await ctx.RespondAsync(toSend).ConfigureAwait(false);                        
                     }
                 }
 
