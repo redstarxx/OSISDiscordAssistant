@@ -36,6 +36,10 @@ namespace discordbot
 
         public async Task RunAsync()
         {
+            // Displays the current version of the bot.
+            Console.WriteLine($"DiscordBotOSIS v{ClientUtilities.GetBuildVersion()}");
+
+            Console.WriteLine("[1/6] Reading config.json...");
             var json = string.Empty;
             using (var fileString = File.OpenRead("config.json"))
             using (var stringReader = new StreamReader(fileString, new UTF8Encoding(false)))
@@ -43,6 +47,7 @@ namespace discordbot
 
             var configJson = JsonConvert.DeserializeObject<ConfigJson>(json);
 
+            Console.WriteLine("[2/6] Loading up client configuration...");
             var config = new DiscordConfiguration
             {
                 Token = configJson.Token,
@@ -53,6 +58,8 @@ namespace discordbot
             };
 
             Client = new DiscordClient(config);
+
+            Console.WriteLine("[3/6] Registering event handlers...");
             Client.Ready += OnClientReady;
             Client.GuildDownloadCompleted += OnGuildDownloadCompleted;
             Client.GuildMemberAdded += OnGuildMemberAdded;
@@ -70,6 +77,7 @@ namespace discordbot
                 Timeout = TimeSpan.FromDays(7)
             });
 
+            Console.WriteLine("[4/6] Configuring CommandsNext config...");
             var commandsConfig = new CommandsNextConfiguration
             {
                 StringPrefixes = new String[] { configJson.Prefix },
@@ -80,6 +88,7 @@ namespace discordbot
 
             Commands = Client.UseCommandsNext(commandsConfig);
 
+            Console.WriteLine("[5/6] Registering command modules...");
             // Registers commands.
             Commands.RegisterCommands<MiscCommandsModule>();
             Commands.RegisterCommands<VerificationCommandsModule>();
@@ -95,11 +104,9 @@ namespace discordbot
             Commands.CommandExecuted += CommandsNext_CommandExecuted;
             Commands.CommandErrored += CommandsNext_CommandErrored;
 
-            // Displays the current version of the bot.
-            Client.Logger.LogInformation(LogEvent, $"DiscordBotOSIS v{ClientUtilities.GetBuildVersion()}", ClientUtilities.GetWesternIndonesianDateTime());
-
             // Tell that whoever is seeing this that the client is connecting to Discord's gateway.
-            Client.Logger.LogInformation(LogEvent, "Connecting to Discord's gateway...", ClientUtilities.GetWesternIndonesianDateTime());
+            Console.WriteLine("[6/6] Connecting to Discord's gateway...");
+
             await Client.ConnectAsync();
             await Task.Delay(-1);
         }
