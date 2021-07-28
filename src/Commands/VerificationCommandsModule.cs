@@ -248,8 +248,11 @@ namespace discordbot.Commands
         [Command("overify")]
         public async Task OverrideVerifyHelp(CommandContext ctx)
         {
-            // Checks whether the invoker has either of the two roles below.
-            await ClientUtilities.CheckAdminPermissions(ctx);
+            // Checks whether the invoker has the roles required.
+            if (!await ClientUtilities.CheckAdminPermissions(ctx))
+            {
+                return;
+            }
 
             string toSend =
                 "**[SYNTAX]** !overify [USERMENTION] [DISPLAYNAME (optional)]\n"
