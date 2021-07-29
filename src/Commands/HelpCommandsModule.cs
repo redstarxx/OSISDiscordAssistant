@@ -27,7 +27,6 @@ namespace discordbot.Commands
 
             string description = $"{Formatter.Bold("!event")} - Commands to access the Events Manager.\n" +
                 $"{Formatter.Bold("!remind")} - Reminder feature to remind yourself, a specific member or division, or everyone.\n" +
-                $"{Formatter.Bold("!reminders")} - Lists all active reminders.\n" +
                 $"{Formatter.Bold("!poll")} - Creates a poll with a set of specified emojis to choose.\n" +
                 $"{Formatter.Bold("!myinfo")} - Displays the info that this bot has over you.\n" +
                 $"{Formatter.Bold("!avatar")} - Shows a Discord profile picture of your account or another user.\n" +
