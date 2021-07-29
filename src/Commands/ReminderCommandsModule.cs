@@ -31,7 +31,7 @@ namespace discordbot.Commands
         {
             var activeRemindersEmbed = new DiscordEmbedBuilder
             {
-                Title = "Listing All Active Reminders...",
+                Title = "Reminders - Listing All Active Reminders...",
                 Timestamp = ClientUtilities.GetWesternIndonesianDateTime(),
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
@@ -50,9 +50,10 @@ namespace discordbot.Commands
                     if (previousName != name)
                     {
                         activeRemindersEmbed.AddField(name, description, true);
+
+                        count++;
                     }
 
-                    count++;
                     previousName = name;
                 }
             }
@@ -60,6 +61,11 @@ namespace discordbot.Commands
             if (count == 0)
             {
                 activeRemindersEmbed.Description = "There are no active reminders so far!";
+            }
+
+            else
+            {
+                activeRemindersEmbed.Description = $"There are {count} ({count.ToWords()}) active reminders.";
             }
 
             await ctx.Channel.SendMessageAsync(embed: activeRemindersEmbed).ConfigureAwait(false);
