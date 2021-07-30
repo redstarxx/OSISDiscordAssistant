@@ -36,6 +36,10 @@ namespace discordbot
 
         public async Task RunAsync()
         {
+            // Displays the current version of the bot.
+            Console.WriteLine($"DiscordBotOSIS v{ClientUtilities.GetBuildVersion()}");
+
+            Console.WriteLine("[1/8] Reading config.json...");
             var json = string.Empty;
             using (var fileString = File.OpenRead("config.json"))
             using (var stringReader = new StreamReader(fileString, new UTF8Encoding(false)))
@@ -43,6 +47,7 @@ namespace discordbot
 
             var configJson = JsonConvert.DeserializeObject<ConfigJson>(json);
 
+            Console.WriteLine("[2/8] Loading up client configuration...");
             var config = new DiscordConfiguration
             {
                 Token = configJson.Token,
@@ -53,6 +58,8 @@ namespace discordbot
             };
 
             Client = new DiscordClient(config);
+
+            Console.WriteLine("[3/8] Registering client event handlers...");
             Client.Ready += OnClientReady;
             Client.GuildDownloadCompleted += OnGuildDownloadCompleted;
             Client.GuildMemberAdded += OnGuildMemberAdded;
@@ -63,12 +70,15 @@ namespace discordbot
             Client.MessageCreated += OnMessageCreated;
             Client.MessageReactionAdded += OnMessageReactionAdded;
             Client.SocketErrored += OnSocketErrored;
+            Client.Heartbeated += OnHeartbeated;
 
+            Console.WriteLine("[4/8] Loading up interactivity configuration...");
             Client.UseInteractivity(new InteractivityConfiguration
             {
                 Timeout = TimeSpan.FromDays(7)
             });
 
+            Console.WriteLine("[5/8] Loading up CommandsNext configuration...");
             var commandsConfig = new CommandsNextConfiguration
             {
                 StringPrefixes = new String[] { configJson.Prefix },
@@ -79,6 +89,7 @@ namespace discordbot
 
             Commands = Client.UseCommandsNext(commandsConfig);
 
+            Console.WriteLine("[6/8] Registering command modules...");
             // Registers commands.
             Commands.RegisterCommands<MiscCommandsModule>();
             Commands.RegisterCommands<VerificationCommandsModule>();
@@ -90,16 +101,16 @@ namespace discordbot
             Commands.RegisterCommands<PollCommandsModule>();
             Commands.RegisterCommands<TagsCommandsModule>();
 
+            Console.WriteLine("[7/8] Registering CommandsNext event handlers...");
             // Registers event handlers.
             Commands.CommandExecuted += CommandsNext_CommandExecuted;
             Commands.CommandErrored += CommandsNext_CommandErrored;
 
-            // Displays the current version of the bot.
-            Client.Logger.LogInformation(LogEvent, $"DiscordBotOSIS v{ClientUtilities.GetBuildVersion()}", ClientUtilities.GetWesternIndonesianDateTime());
-
             // Tell that whoever is seeing this that the client is connecting to Discord's gateway.
-            Client.Logger.LogInformation(LogEvent, "Connecting to Discord's gateway...", ClientUtilities.GetWesternIndonesianDateTime());
+            Console.WriteLine("[8/8] Connecting to Discord's gateway...\n----------------------------------------");
+
             await Client.ConnectAsync();
+
             await Task.Delay(-1);
         }
 
@@ -354,6 +365,12 @@ namespace discordbot
 
                 catch (Exception ex)
                 {
+                    var exception = ex;
+                    while (exception is AggregateException)
+                        exception = exception.InnerException;
+
+                    Client.Logger.LogCritical(ERTask, $"Events reminder task threw an exception: {exception.GetType()}: {exception.Message}", DateTime.Now);
+
                     await errorLogsChannel.SendMessageAsync($"{ex.Message}").ConfigureAwait(false);
                 }
             });
@@ -481,6 +498,12 @@ namespace discordbot
 
                 catch (Exception ex)
                 {
+                    var exception = ex;
+                    while (exception is AggregateException)
+                        exception = exception.InnerException;
+
+                    Client.Logger.LogCritical(PRTask, $"Proposal submission reminder task threw an exception: {exception.GetType()}: {exception.Message}", DateTime.Now);
+
                     await errorLogsChannel.SendMessageAsync($"{ex.Message}").ConfigureAwait(false);
                 }
             });
@@ -533,6 +556,8 @@ namespace discordbot
                         default:
                             break;
                     }
+
+                    Client.Logger.LogInformation(StatusUpdater, $"Presence updated: {activity.ActivityType} {activity.Name}", DateTime.Now);
 
                     await Task.Delay(TimeSpan.FromMinutes(2));
                 }
@@ -616,6 +641,13 @@ namespace discordbot
                 ex = ex.InnerException;
 
             sender.Logger.LogCritical(LogEvent, $"Socket threw an exception {ex.GetType()}: {ex.Message}", DateTime.Now);
+
+            return Task.CompletedTask;
+        }
+
+        private Task OnHeartbeated(DiscordClient sender, HeartbeatEventArgs e)
+        {
+            sender.Logger.LogInformation(LogEvent, $"Received heartbeat ACK: {e.Ping} ms.", DateTime.Now);
 
             return Task.CompletedTask;
         }
