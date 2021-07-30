@@ -424,7 +424,7 @@ namespace discordbot
 
                                 TimeSpan timeSpan = parseEventDateTime - currentDateTime;
 
-                                if (timeSpan.Days == 30 || timeSpan.Days > 6)
+                                if (timeSpan.Days == 30 || timeSpan.Days > 6 && timeSpan.Days < 30)
                                 {
                                     if (row.ProposalReminded == false)
                                     {
