@@ -107,9 +107,10 @@ namespace discordbot
             Commands.CommandErrored += CommandsNext_CommandErrored;
 
             // Tell that whoever is seeing this that the client is connecting to Discord's gateway.
-            Console.WriteLine("[8/8] Connecting to Discord's gateway...");
+            Console.WriteLine("[8/8] Connecting to Discord's gateway...\n----------------------------------------");
 
             await Client.ConnectAsync();
+
             await Task.Delay(-1);
         }
 
