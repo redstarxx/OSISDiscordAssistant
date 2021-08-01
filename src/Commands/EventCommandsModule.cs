@@ -44,7 +44,33 @@ namespace discordbot.Commands
 
                 if (!eventNameResult.TimedOut)
                 {
+                    // Checks whether the given event name matches with another event that has the exact name as given.
+                    using (var db = new EventContext())
+                    {                       
+                        bool eventNameExists = false;
+
+                        foreach (var events in db.Events)
+                        {
+                            if (events.EventName.ToLowerInvariant() == eventNameResult.Result.Content.ToLowerInvariant())
+                            {
+                                eventNameExists = true;
+
+                                break;
+                            }
+                        }
+
+                        if (eventNameExists)
+                        {
+                            string toSend = $"{Formatter.Bold("[ERROR]")} The event {Formatter.InlineCode(eventNameResult.Result.Content)} already exists! Try again with a different name.";
+
+                            await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
+                            
+                            return;
+                        }
+                    }
+
                     eventName = eventNameResult.Result.Content;
+
                     if (eventName.Length > 50)
                     {
                         await ctx.Channel.SendMessageAsync("**[ERROR]** Maximum character limit of 50 characters exceeded. You must re-run the command to finish.").ConfigureAwait(false);
@@ -438,7 +464,30 @@ namespace discordbot.Commands
 
                                     if (!eventNameResult.TimedOut)
                                     {
+                                        // Checks whether the given event name matches with another event that has the exact name as given.
+                                        bool eventNameExists = false;
+
+                                        foreach (var events in db.Events)
+                                        {
+                                            if (events.EventName.ToLowerInvariant() == eventNameResult.Result.Content.ToLowerInvariant())
+                                            {
+                                                eventNameExists = true;
+
+                                                break;
+                                            }
+                                        }
+
+                                        if (eventNameExists)
+                                        {
+                                            string toSend = $"{Formatter.Bold("[ERROR]")} The event {Formatter.InlineCode(eventNameResult.Result.Content)} already exists! Try again with a different name.";
+
+                                            await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
+
+                                            return;
+                                        }
+
                                         eventName = eventNameResult.Result.Content;
+
                                         if (eventName.Length > 50)
                                         {
                                             await ctx.Channel.SendMessageAsync("**[ERROR]** Operation aborted. Maximum character limit of 50 characters exceeded.").ConfigureAwait(false);
