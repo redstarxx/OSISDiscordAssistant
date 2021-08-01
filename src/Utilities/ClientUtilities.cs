@@ -23,18 +23,12 @@ namespace discordbot
         /// <returns>False if has none of the roles above.</returns>
         public static async Task<bool> CheckAdminPermissions(CommandContext ctx)
         {
-            // Administrator role ID.
-            ulong adminRoleId = 814450538993156126;
-
-            // Core council (Inti OSIS) role ID.
-            ulong coreCouncilRoleId = 814450825702801421;
-
             // Role checks below.
             bool hasServiceAdminRole = CheckServiceAdminRole(ctx);
 
-            bool hasAdminRole = ctx.Member.Roles.Any(x => x.Id == adminRoleId);
+            bool hasAdminRole = ctx.Member.Roles.Any(x => x.Name == "Administrator");
 
-            bool hasCoreCouncilRole = ctx.Member.Roles.Any(x => x.Id == coreCouncilRoleId);
+            bool hasCoreCouncilRole = ctx.Member.Roles.Any(x => x.Name == "Inti OSIS");
 
             if (!hasServiceAdminRole)
             {
@@ -72,11 +66,9 @@ namespace discordbot
         /// <returns>False if the Service Administrator role is not assigned.</returns>
         public static bool CheckServiceAdminRole(CommandContext ctx)
         {
-            ulong serviceAdminRoleId = 823950698189553724;
-
             bool isServiceAdmin = false;
 
-            isServiceAdmin = ctx.Member.Roles.Any(x => x.Id == serviceAdminRoleId);
+            isServiceAdmin = ctx.Member.Roles.Any(x => x.Name == "Service Administrator");
 
             return isServiceAdmin;
         }
@@ -87,11 +79,9 @@ namespace discordbot
         /// <returns>False if the OSIS role is not assigned.</returns>
         public static bool CheckAccessRole(CommandContext ctx)
         {
-            ulong accessRoleId = 814450965565800498;
-
             bool hasAccess = false;
 
-            hasAccess = ctx.Member.Roles.Any(x => x.Id == accessRoleId);
+            hasAccess = ctx.Member.Roles.Any(x => x.Name == "OSIS");
 
             return hasAccess;
         }
