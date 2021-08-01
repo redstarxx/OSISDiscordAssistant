@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using System.Linq;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
@@ -34,8 +35,8 @@ namespace discordbot.Commands
                 return;
             }
 
-            var mutedRole = ctx.Guild.GetRole(832211383281123338);
-            await member.GrantRoleAsync(mutedRole);
+            var mutedRole = ctx.Guild.Roles.SingleOrDefault(x => x.Value.Name == "Muted").Value.Id;
+            await member.GrantRoleAsync(ctx.Guild.GetRole(mutedRole));
             string mutingUser = ctx.Member.DisplayName;
 
             string message =
@@ -59,8 +60,8 @@ namespace discordbot.Commands
                 return;
             }
 
-            var mutedRole = ctx.Guild.GetRole(832211383281123338);
-            await member.RevokeRoleAsync(mutedRole);
+            var mutedRole = ctx.Guild.Roles.SingleOrDefault(x => x.Value.Name == "Muted").Value.Id;
+            await member.RevokeRoleAsync(ctx.Guild.GetRole(mutedRole));
             string unmutingUser = ctx.Member.DisplayName;
 
             string message =
