@@ -18,7 +18,7 @@ namespace discordbot
     {
         /// <summary>
         /// Checks whether the respective CommandContext has either the Inti OSIS, Administrator or Service Administrator role.
-        /// If true, error message is sent as reply.
+        /// If false, error message is sent as reply.
         /// </summary>
         /// <returns>False if has none of the roles above.</returns>
         public static async Task<bool> CheckAdminPermissions(CommandContext ctx)
