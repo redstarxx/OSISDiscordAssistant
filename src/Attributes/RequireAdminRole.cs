@@ -14,41 +14,9 @@ namespace discordbot.Attributes
     {
         public override Task<bool> ExecuteCheckAsync(CommandContext ctx, bool help)
         {
-            bool hasServiceAdminRole = ctx.Member.Roles.Any(x => x.Name == "Service Administrator");
+            bool isAdmin = ctx.Member.Roles.Any(x => x.Name == "Service Administrator") || ctx.Member.Roles.Any(x => x.Name == "Administrator") || ctx.Member.Roles.Any(x => x.Name == "Inti OSIS");
 
-            bool hasAdminRole = ctx.Member.Roles.Any(x => x.Name == "Administrator");
-
-            bool hasCoreCouncilRole = ctx.Member.Roles.Any(x => x.Name == "Inti OSIS");
-
-            bool permissionGranted = false;
-
-            if (!hasServiceAdminRole)
-            {
-                if (!hasAdminRole)
-                {
-                    if (!hasCoreCouncilRole)
-                    {
-                        permissionGranted = false;
-                    }
-
-                    else
-                    {
-                        permissionGranted = true;
-                    }
-                }
-
-                else
-                {
-                    permissionGranted = true;
-                }
-            }
-
-            else
-            {
-                permissionGranted = true;
-            }
-
-            return Task.FromResult(permissionGranted);
+            return Task.FromResult(isAdmin);
         }
     }
 }
