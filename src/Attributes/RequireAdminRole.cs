@@ -17,7 +17,9 @@ namespace discordbot.Attributes
     {
         public override Task<bool> ExecuteCheckAsync(CommandContext ctx, bool help)
         {
-            bool isAdmin = ctx.Member.Roles.Any(x => x.Name == "Service Administrator") || ctx.Member.Roles.Any(x => x.Name == "Administrator") || ctx.Member.Roles.Any(x => x.Name == "Inti OSIS");
+            bool isAdmin = ctx.Member.Roles.Any(x => x.Name == "Service Administrator") || ctx.Member.Roles.Any(x => x.Name == "Administrator") 
+                || ctx.Member.Roles.Any(x => x.Name == "Inti OSIS" || ctx.Member.Roles.Any(x => x.Name == "Panitia") 
+                || ctx.Member.Roles.Any(x => x.Name == "Moderator"));
 
             return Task.FromResult(isAdmin);
         }
