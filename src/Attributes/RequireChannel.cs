@@ -8,16 +8,16 @@ namespace discordbot.Attributes
 {
     public class RequireChannel : CheckBaseAttribute
     {
-        public ulong channel { get; private set; }
+        public static ulong Channel { get; private set; }
 
         public RequireChannel(ulong channelId)
         {
-            channel = channelId;
+            Channel = channelId;
         }
 
         public override Task<bool> ExecuteCheckAsync(CommandContext ctx, bool help)
         {
-            return Task.FromResult(channel == ctx.Channel.Id);
+            return Task.FromResult(Channel == ctx.Channel.Id);
         }
     }
 }
