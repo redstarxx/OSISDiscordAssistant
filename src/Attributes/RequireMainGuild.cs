@@ -9,6 +9,9 @@ using DSharpPlus.CommandsNext.Attributes;
 
 namespace discordbot.Attributes
 {
+    /// <summary>
+    /// Checks whether the command is executed in the OSIS main guild.
+    /// </summary>
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
     public class RequireMainGuild : CheckBaseAttribute
     {

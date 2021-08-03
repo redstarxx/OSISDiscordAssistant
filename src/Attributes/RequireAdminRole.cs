@@ -9,6 +9,9 @@ using DSharpPlus.CommandsNext.Attributes;
 
 namespace discordbot.Attributes
 {
+    /// <summary>
+    /// Checks whether the command invoker has either the Inti OSIS, Administrator or Service Administrator role.
+    /// </summary>
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
     public class RequireAdminRole : CheckBaseAttribute
     {

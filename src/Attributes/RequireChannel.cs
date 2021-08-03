@@ -6,6 +6,9 @@ using DSharpPlus.Entities;
 
 namespace discordbot.Attributes
 {
+    /// <summary>
+    /// Checks whether the command is executed in the channel that is specified in the attribute.
+    /// </summary>
     public class RequireChannel : CheckBaseAttribute
     {
         public static ulong Channel { get; private set; }
