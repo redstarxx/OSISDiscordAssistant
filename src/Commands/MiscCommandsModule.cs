@@ -102,9 +102,11 @@ namespace discordbot.Commands
         }
 
         [Command("avatar")]
-        public async Task AvatarLink(CommandContext ctx, DiscordMember member)
+        public async Task AvatarLink(CommandContext ctx, DiscordMember member = null)
         {
-            var profileImageLink = member.GetAvatarUrl(ImageFormat.Png);
+            DiscordMember memberProfilePicture = member ?? ctx.Member;
+
+            var profileImageLink = memberProfilePicture.GetAvatarUrl(ImageFormat.Png);
             await ctx.Channel.SendMessageAsync(profileImageLink).ConfigureAwait(false);
         }        
 
