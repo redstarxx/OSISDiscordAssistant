@@ -1,19 +1,21 @@
-﻿using DSharpPlus;
-using DSharpPlus.CommandsNext;
-using DSharpPlus.EventArgs;
-using DSharpPlus.Interactivity;
-using System;
+﻿using System;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
-using Newtonsoft.Json;
-using Microsoft.Extensions.Logging;
-using discordbot.Commands;
-using DSharpPlus.Interactivity.Extensions;
-using DSharpPlus.Entities;
 using System.Linq;
 using System.Globalization;
 using System.Diagnostics;
+using Newtonsoft.Json;
+using Microsoft.Extensions.Logging;
+using discordbot.Commands;
+using discordbot.Attributes;
+using DSharpPlus;
+using DSharpPlus.CommandsNext;
+using DSharpPlus.CommandsNext.Exceptions;
+using DSharpPlus.EventArgs;
+using DSharpPlus.Interactivity;
+using DSharpPlus.Interactivity.Extensions;
+using DSharpPlus.Entities;
 using Humanizer;
 
 namespace discordbot
@@ -662,8 +664,39 @@ namespace discordbot
             return Task.CompletedTask;
         }
 
-        private Task CommandsNext_CommandErrored(CommandsNextExtension sender, CommandErrorEventArgs e)
+        private async Task<Task> CommandsNext_CommandErrored(CommandsNextExtension sender, CommandErrorEventArgs e)
         {
+            var failedChecks = ((ChecksFailedException)e.Exception).FailedChecks;
+            foreach (var failedCheck in failedChecks)
+            {
+                if (failedCheck is RequireMainGuild)
+                {
+                    await e.Context.RespondAsync($"{Formatter.Bold("[ERROR]")} This command is only usable in the OSIS Sekolah Djuwita Batam Discord server!\nInvite Link: https://discord.gg/WC7FRsxFwb");
+                }
+
+                else if (failedCheck is RequireAdminRole)
+                {
+                    await e.Context.RespondAsync($"{Formatter.Bold("[ERROR]")} This command is restricted to members with administrator permissions only.");
+                }
+
+                else if (failedCheck is RequireAccessRole)
+                {
+                    await e.Context.RespondAsync($"{Formatter.Bold("[ERROR]")} This command is restricted to members with the {Formatter.InlineCode("OSIS")} role only.");
+                }
+
+                else if (failedCheck is RequireServiceAdminRole)
+                {
+                    await e.Context.RespondAsync($"{Formatter.Bold("[ERROR]")} This command is restricted to members with the {Formatter.InlineCode("Service Administrator")} role only.");
+                }
+
+                else if (failedCheck is RequireChannel)
+                {
+                    DiscordChannel requiredChannel = await e.Context.Client.GetChannelAsync(RequireChannel.Channel);
+
+                    await e.Context.RespondAsync($"{Formatter.Bold("[ERROR]")} This command is only usable in {requiredChannel.Mention}!");
+                }
+            }
+
             e.Context.Client.Logger.LogError(LogEvent,
                 $"User '{e.Context.User.Username}#{e.Context.User.Discriminator}' ({e.Context.User.Id}) tried to execute '{e.Command?.QualifiedName ?? "<unknown command>"}' "
                 + $"in #{e.Context.Channel.Name} ({e.Context.Channel.Id}) and failed with {e.Exception.GetType()}: {e.Exception.Message}", ClientUtilities.GetWesternIndonesianDateTime());

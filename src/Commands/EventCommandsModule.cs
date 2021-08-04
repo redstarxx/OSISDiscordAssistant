@@ -1,21 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Linq;
+using System.Threading;
+using System.Globalization;
 using System.Threading.Tasks;
+using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.Entities;
-using DSharpPlus;
-using System.Globalization;
 using Npgsql;
-using System.Text.RegularExpressions;
-using System.Threading;
 using Humanizer;
-using discordbot;
-using System.Linq;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
+using discordbot.Attributes;
 
 namespace discordbot.Commands
 {
@@ -26,6 +21,7 @@ namespace discordbot.Commands
         /// </summary>
         /// <param name="ctx">The respective context that the command belongs to.</param>
         /// <param name="operationSelection">Operation type to run.</param>
+        [RequireMainGuild, RequireAccessRole]
         [Command("event")]
         public async Task EventCreateOrList(CommandContext ctx, string operationSelection)
         {
@@ -343,6 +339,7 @@ namespace discordbot.Commands
         /// <param name="ctx">The respective context that the command belongs to.</param>
         /// <param name="operationSelection">Operation type to run.</param>
         /// <param name="optionalInput">Row number or event name from the events table to update or delete or search. Optional.</param>
+        [RequireMainGuild, RequireAccessRole]
         [Command("event")]
         public async Task Event(CommandContext ctx, string operationSelection, params string[] optionalInput)
         {                    
@@ -1059,6 +1056,7 @@ namespace discordbot.Commands
         /// <summary>
         /// Command to view the Events Manager commands and help.
         /// </summary>
+        [RequireMainGuild, RequireAccessRole]
         [Command("event")]
         public async Task EventCreateOrList(CommandContext ctx)
         {
