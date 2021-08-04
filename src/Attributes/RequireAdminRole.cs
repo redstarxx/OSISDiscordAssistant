@@ -10,16 +10,23 @@ using DSharpPlus.CommandsNext.Attributes;
 namespace discordbot.Attributes
 {
     /// <summary>
-    /// Checks whether the command invoker has either the Inti OSIS, Administrator or Service Administrator role.
+    /// Checks whether the command invoker has either the Moderator, Panitia, Inti OSIS, Administrator, or Service Administrator role.
     /// </summary>
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
     public class RequireAdminRole : CheckBaseAttribute
     {
         public override Task<bool> ExecuteCheckAsync(CommandContext ctx, bool help)
         {
-            bool isAdmin = ctx.Member.Roles.Any(x => x.Name == "Service Administrator") || ctx.Member.Roles.Any(x => x.Name == "Administrator") 
-                || ctx.Member.Roles.Any(x => x.Name == "Inti OSIS" || ctx.Member.Roles.Any(x => x.Name == "Panitia") 
+            bool isAdmin = false;
+
+            isAdmin = ctx.Member.Roles.Any(x => x.Name == "Service Administrator") || ctx.Member.Roles.Any(x => x.Name == "Administrator")
+                || ctx.Member.Roles.Any(x => x.Name == "Inti OSIS" || ctx.Member.Roles.Any(x => x.Name == "Panitia")
                 || ctx.Member.Roles.Any(x => x.Name == "Moderator"));
+
+            if (!isAdmin)
+            {
+                isAdmin = ctx.Member.Permissions.HasPermission(Permissions.Administrator);
+            }          
 
             return Task.FromResult(isAdmin);
         }
