@@ -1,29 +1,21 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
-using System.Timers;
-using System.Threading;
 using System.Linq;
+using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.Entities;
+using discordbot.Attributes;
 
 namespace discordbot.Commands
 {
     class VerificationCommandsModule : BaseCommandModule
     {    
+        [RequireMainGuild, RequireAdminRole]
         [Command("overify")]
         public async Task OverrideVerifySingle(CommandContext ctx, DiscordMember member)
         {
-            // Checks whether the invoker has either of the two roles below.
-            if (!await ClientUtilities.CheckAdminPermissions(ctx))
-            {
-                return;
-            }
-
             // Checks whether the invoker is manually verifying themself.
             if (await ClientUtilities.CheckSelfTargeting(member, ctx))
             {
@@ -48,15 +40,10 @@ namespace discordbot.Commands
             }
         }
 
+        [RequireMainGuild, RequireAdminRole]
         [Command("overify")]
         public async Task OverrideVerifyDouble(CommandContext ctx, DiscordMember member, params string[] displayName)
         {
-            // Checks whether the invoker has either of the two roles below.
-            if (!await ClientUtilities.CheckAdminPermissions(ctx))
-            {
-                return;
-            }
-
             // Checks whether the invoker is manually verifying themself.
             if (await ClientUtilities.CheckSelfTargeting(member, ctx))
             {
@@ -82,6 +69,7 @@ namespace discordbot.Commands
             }
         }
 
+        [RequireMainGuild, RequireChannel(832275177160048711)]
         [Command("requestverify")]
         public async Task RequestVerifyMain(CommandContext ctx, params string[] displayName)
         {
@@ -245,21 +233,17 @@ namespace discordbot.Commands
         // COMMAND HELPERS BELOW
         // ----------------------------------------------------------
 
+        [RequireMainGuild, RequireAdminRole]
         [Command("overify")]
         public async Task OverrideVerifyHelp(CommandContext ctx)
         {
-            // Checks whether the invoker has the roles required.
-            if (!await ClientUtilities.CheckAdminPermissions(ctx))
-            {
-                return;
-            }
-
             string toSend =
                 "**[SYNTAX]** !overify [USERMENTION] [DISPLAYNAME (optional)]\n"
                 + "Note: Fill in the parameters in sync with above otherwise the bot cannot process your request.";
             await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
         }
 
+        [RequireMainGuild]
         [Command("requestverify")]
         public async Task RequestVerifyHelp(CommandContext ctx)
         {

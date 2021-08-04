@@ -1,26 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Linq;
 using System.Threading.Tasks;
-using System.Linq;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
+using discordbot.Attributes;
 
 namespace discordbot.Commands
 {
     class ServerAdministrationCommandsModule : BaseCommandModule
     {
+        [RequireAdminRole]
         [Command("mute")]
         public async Task Mute(CommandContext ctx, DiscordMember member, params string[] muteReason)
         {
-            // Checks whether the invoker has either of the two roles below.
-            if (!await ClientUtilities.CheckAdminPermissions(ctx))
-            {
-                return;
-            }
-
             // Checks whether the invoker is manually verifying themself.
             if (await ClientUtilities.CheckSelfTargeting(member, ctx))
             {
@@ -45,15 +38,10 @@ namespace discordbot.Commands
             await ctx.Channel.SendMessageAsync(message).ConfigureAwait(false);
         }
 
+        [RequireAdminRole]
         [Command("unmute")]
         public async Task Unmute(CommandContext ctx, DiscordMember member)
         {
-            // Checks whether the invoker has either of the two roles below.
-            if (!await ClientUtilities.CheckAdminPermissions(ctx))
-            {
-                return;
-            }
-
             // Checks whether the invoker is manually verifying themself.
             if (await ClientUtilities.CheckSelfTargeting(member, ctx))
             {
@@ -69,15 +57,10 @@ namespace discordbot.Commands
             await ctx.Channel.SendMessageAsync(message).ConfigureAwait(false);
         }
 
+        [RequireAdminRole]
         [Command("kick")]
         public async Task Kick(CommandContext ctx, DiscordMember member, params string[] kickReason)
         {
-            // Checks whether the invoker has either of the two roles below.
-            if (!await ClientUtilities.CheckAdminPermissions(ctx))
-            {
-                return;
-            }
-
             // Checks whether the invoker is manually verifying themself.
             if (await ClientUtilities.CheckSelfTargeting(member, ctx))
             {
@@ -109,29 +92,17 @@ namespace discordbot.Commands
             }
         }
 
+        [RequireMainGuild, RequireAccessRole]
         [Command("setname")]
         public async Task SetName(CommandContext ctx, DiscordMember member, params string[] newNickname)
         {
-            // Checks whether the invoker possesses the OSIS role.
-            var roleList = string.Join(", ", ctx.Member.Roles);
-            if (!roleList.Contains("OSIS"))
-            {
-                string errorReason = "**[ERROR]** This command is restricted to verified members only.";
-                await ctx.Channel.SendMessageAsync(errorReason).ConfigureAwait(false);
-                return;
-            }
-
             if (ctx.User.Id != member.Id)
             {
-                if (!roleList.Contains("Service Administrator"))
+                bool isAdmin = await ClientUtilities.CheckAdminPermissions(ctx);
+
+                if (!isAdmin)
                 {
-                    if (!roleList.Contains("Inti OSIS"))
-                    {
-                        string errorReason = 
-                            "**[ERROR]** You must possess an administrator level role to change other user's display name.";
-                        await ctx.Channel.SendMessageAsync(errorReason).ConfigureAwait(false);
-                        return;
-                    }
+                    return;
                 }
             }
 
@@ -186,60 +157,37 @@ namespace discordbot.Commands
         // COMMAND HELPERS BELOW
         // ----------------------------------------------------------
 
+        [RequireAdminRole]
         [Command("mute")]
         public async Task MuteHelp(CommandContext ctx)
         {
-            // Checks whether the invoker has either of the two roles below.
-            if (!await ClientUtilities.CheckAdminPermissions(ctx))
-            {
-                return;
-            }
-
             string toSend =
                 "**[SYNTAX]** !mute [USERMENTION] [REASON (optional)]";
             await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
         }
 
+        [RequireAdminRole]
         [Command("unmute")]
         public async Task UnmuteHelp(CommandContext ctx)
         {
-            // Checks whether the invoker has either of the two roles below.
-            if (!await ClientUtilities.CheckAdminPermissions(ctx))
-            {
-                return;
-            }
-
             string toSend =
                 "**[SYNTAX]** !unmute [USERMENTION]";
             await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
         }
 
+        [RequireAdminRole]
         [Command("kick")]
         public async Task KickHelp(CommandContext ctx)
         {
-            // Checks whether the invoker has either of the two roles below.
-            if (!await ClientUtilities.CheckAdminPermissions(ctx))
-            {
-                return;
-            }
-
             string toSend =
                 "**[SYNTAX]** !kick [USERMENTION] [REASON]";
             await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
         }
 
+        [RequireMainGuild, RequireAccessRole]
         [Command("setname")]
         public async Task SetName(CommandContext ctx)
         {
-            // Checks whether the invoker possesses the OSIS role.
-            var roleList = string.Join(", ", ctx.Member.Roles);
-            if (!roleList.Contains("OSIS"))
-            {
-                string errorReason = "**[ERROR]** This command is restricted to verified members only.";
-                await ctx.Channel.SendMessageAsync(errorReason).ConfigureAwait(false);
-                return;
-            }
-
             string toSend = "**[SYNTAX]** !setname [USERMENTION] [NEWNICKNAME]";
             await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
         }
