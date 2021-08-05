@@ -195,6 +195,13 @@ namespace discordbot.Commands
                                 return;
                             }
                         }
+
+                        else
+                        {
+                            await ctx.Channel.SendMessageAsync("**[TIMED OUT]** Event date not entered within given time span. Re-run the command if you still need to create your event.").ConfigureAwait(false);
+                            
+                            return;
+                        }
                     }
 
                     else
