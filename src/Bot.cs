@@ -41,7 +41,8 @@ namespace discordbot
         public async Task RunAsync()
         {
             // Configures Serilog's Logger instance.
-            Log.Logger = new LoggerConfiguration().WriteTo.Console().WriteTo.File($@"{Environment.CurrentDirectory}/logs/clientlogs.txt", LogEventLevel.Verbose, 
+            Log.Logger = new LoggerConfiguration().WriteTo.Console(outputTemplate: "[{Timestamp:dd-MM-yyyy HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}")
+                .WriteTo.File($@"{Environment.CurrentDirectory}/logs/clientlogs-.txt", LogEventLevel.Verbose, 
                 retainedFileCountLimit: null, rollingInterval: RollingInterval.Day, flushToDiskInterval: TimeSpan.FromMinutes(1)).CreateLogger();
 
             var serilogFactory = new LoggerFactory().AddSerilog();
