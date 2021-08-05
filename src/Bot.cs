@@ -16,6 +16,8 @@ using DSharpPlus.EventArgs;
 using DSharpPlus.Interactivity;
 using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.Entities;
+using Serilog;
+using Serilog.Events;
 using Humanizer;
 
 namespace discordbot
@@ -38,6 +40,12 @@ namespace discordbot
 
         public async Task RunAsync()
         {
+            // Configures Serilog's Logger instance.
+            Log.Logger = new LoggerConfiguration().WriteTo.Console().WriteTo.File($@"{Environment.CurrentDirectory}/logs/clientlogs.txt", LogEventLevel.Verbose, 
+                retainedFileCountLimit: null, rollingInterval: RollingInterval.Day, flushToDiskInterval: TimeSpan.FromMinutes(1)).CreateLogger();
+
+            var serilogFactory = new LoggerFactory().AddSerilog();
+
             // Displays the current version of the bot.
             Console.WriteLine($"DiscordBotOSIS v{ClientUtilities.GetBuildVersion()}");
 
@@ -56,7 +64,8 @@ namespace discordbot
                 TokenType = TokenType.Bot,
                 AutoReconnect = true,
                 MinimumLogLevel = LogLevel.Information,
-                Intents = DiscordIntents.All
+                Intents = DiscordIntents.All, 
+                LoggerFactory = serilogFactory
             };
 
             Client = new DiscordClient(config);
