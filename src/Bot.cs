@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using Microsoft.Extensions.Logging;
 using discordbot.Commands;
 using discordbot.Attributes;
+using discordbot.Constants;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Exceptions;
@@ -45,8 +46,8 @@ namespace discordbot
 
             // Configures Serilog's Logger instance.
             Console.WriteLine("[1/9] Configuring logger instance...");
-            Log.Logger = new LoggerConfiguration().WriteTo.Console(outputTemplate: "[{Timestamp:dd-MM-yyyy HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}")
-                .WriteTo.File($@"{Environment.CurrentDirectory}/logs/clientlogs-.txt", LogEventLevel.Verbose, 
+            Log.Logger = new LoggerConfiguration().WriteTo.Console(outputTemplate: StringConstants.LogDateTimeFormat)
+                .WriteTo.File($@"{Environment.CurrentDirectory}/logs/clientlogs-.txt", LogEventLevel.Verbose, outputTemplate: StringConstants.LogDateTimeFormat,
                 retainedFileCountLimit: null, rollingInterval: RollingInterval.Day, flushToDiskInterval: TimeSpan.FromMinutes(1)).CreateLogger();
 
             var serilogFactory = new LoggerFactory().AddSerilog();
