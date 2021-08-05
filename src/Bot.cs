@@ -40,17 +40,18 @@ namespace discordbot
 
         public async Task RunAsync()
         {
+            // Displays the current version of the bot.
+            Console.WriteLine($"DiscordBotOSIS v{ClientUtilities.GetBuildVersion()}");
+
             // Configures Serilog's Logger instance.
+            Console.WriteLine("[1/9] Configuring logger instance...");
             Log.Logger = new LoggerConfiguration().WriteTo.Console(outputTemplate: "[{Timestamp:dd-MM-yyyy HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}")
                 .WriteTo.File($@"{Environment.CurrentDirectory}/logs/clientlogs-.txt", LogEventLevel.Verbose, 
                 retainedFileCountLimit: null, rollingInterval: RollingInterval.Day, flushToDiskInterval: TimeSpan.FromMinutes(1)).CreateLogger();
 
             var serilogFactory = new LoggerFactory().AddSerilog();
 
-            // Displays the current version of the bot.
-            Console.WriteLine($"DiscordBotOSIS v{ClientUtilities.GetBuildVersion()}");
-
-            Console.WriteLine("[1/8] Reading config.json...");
+            Console.WriteLine("[2/9] Reading config.json...");
             var json = string.Empty;
             using (var fileString = File.OpenRead("config.json"))
             using (var stringReader = new StreamReader(fileString, new UTF8Encoding(false)))
@@ -58,7 +59,7 @@ namespace discordbot
 
             var configJson = JsonConvert.DeserializeObject<ConfigJson>(json);
 
-            Console.WriteLine("[2/8] Loading up client configuration...");
+            Console.WriteLine("[3/9] Loading up client configuration...");
             var config = new DiscordConfiguration
             {
                 Token = configJson.Token,
@@ -71,7 +72,7 @@ namespace discordbot
 
             Client = new DiscordClient(config);
 
-            Console.WriteLine("[3/8] Registering client event handlers...");
+            Console.WriteLine("[4/9] Registering client event handlers...");
             Client.Ready += OnClientReady;
             Client.GuildDownloadCompleted += OnGuildDownloadCompleted;
             Client.GuildMemberAdded += OnGuildMemberAdded;
@@ -85,13 +86,13 @@ namespace discordbot
             Client.Heartbeated += OnHeartbeated;
             Client.UnknownEvent += OnUnknownEvent;
 
-            Console.WriteLine("[4/8] Loading up interactivity configuration...");
+            Console.WriteLine("[5/9] Loading up interactivity configuration...");
             Client.UseInteractivity(new InteractivityConfiguration
             {
                 Timeout = TimeSpan.FromDays(7)
             });
 
-            Console.WriteLine("[5/8] Loading up CommandsNext configuration...");
+            Console.WriteLine("[6/9] Loading up CommandsNext configuration...");
             var commandsConfig = new CommandsNextConfiguration
             {
                 StringPrefixes = new String[] { configJson.Prefix },
@@ -102,7 +103,7 @@ namespace discordbot
 
             Commands = Client.UseCommandsNext(commandsConfig);
 
-            Console.WriteLine("[6/8] Registering command modules...");
+            Console.WriteLine("[7/9] Registering command modules...");
             // Registers commands.
             Commands.RegisterCommands<MiscCommandsModule>();
             Commands.RegisterCommands<VerificationCommandsModule>();
@@ -114,13 +115,13 @@ namespace discordbot
             Commands.RegisterCommands<PollCommandsModule>();
             Commands.RegisterCommands<TagsCommandsModule>();
 
-            Console.WriteLine("[7/8] Registering CommandsNext event handlers...");
+            Console.WriteLine("[8/9] Registering CommandsNext event handlers...");
             // Registers event handlers.
             Commands.CommandExecuted += CommandsNext_CommandExecuted;
             Commands.CommandErrored += CommandsNext_CommandErrored;
 
             // Tell that whoever is seeing this that the client is connecting to Discord's gateway.
-            Console.WriteLine("[8/8] Connecting to Discord's gateway...\n----------------------------------------");
+            Console.WriteLine("[9/9] Connecting to Discord's gateway...\n----------------------------------------");
 
             await Client.ConnectAsync();
 
