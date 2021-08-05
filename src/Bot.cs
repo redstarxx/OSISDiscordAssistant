@@ -73,6 +73,7 @@ namespace discordbot
             Client.MessageReactionAdded += OnMessageReactionAdded;
             Client.SocketErrored += OnSocketErrored;
             Client.Heartbeated += OnHeartbeated;
+            Client.UnknownEvent += OnUnknownEvent;
 
             Console.WriteLine("[4/8] Loading up interactivity configuration...");
             Client.UseInteractivity(new InteractivityConfiguration
@@ -650,6 +651,13 @@ namespace discordbot
         private Task OnHeartbeated(DiscordClient sender, HeartbeatEventArgs e)
         {
             sender.Logger.LogInformation(LogEvent, $"Received heartbeat ACK: {e.Ping} ms.", DateTime.Now);
+
+            return Task.CompletedTask;
+        }
+
+        private Task OnUnknownEvent(DiscordClient sender, UnknownEventArgs e)
+        {
+            sender.Logger.LogWarning(LogEvent, $"Received unknown event {e.EventName}, payload:\n{e.Json}", DateTime.Now);
 
             return Task.CompletedTask;
         }
