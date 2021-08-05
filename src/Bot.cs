@@ -353,12 +353,12 @@ namespace discordbot
 
                         if (counter != 0)
                         {
-                            Client.Logger.LogInformation(ERTask, $"It took {elapsedMilliseconds} milliseconds to complete the minute-by-minute basis events reminder task. Reminded {counter.ToString()} ({counter.ToWords()}) events.", ClientUtilities.GetWesternIndonesianDateTime());
+                            Client.Logger.LogInformation(ERTask, $"Completed events reminder task in {elapsedMilliseconds} ms. Reminded {counter} ({counter.ToWords()}) events.", ClientUtilities.GetWesternIndonesianDateTime());
                         }
 
                         else
                         {
-                            Client.Logger.LogInformation(ERTask, $"It took {elapsedMilliseconds} milliseconds to complete the minute-by-minute basis events reminder task. No events to remind.", ClientUtilities.GetWesternIndonesianDateTime());
+                            Client.Logger.LogInformation(ERTask, $"Completed events reminder task in {elapsedMilliseconds} ms. No events to remind.", ClientUtilities.GetWesternIndonesianDateTime());
                         }
 
                         stopwatch.Reset();
@@ -378,7 +378,7 @@ namespace discordbot
                 }
             });
 
-            Client.Logger.LogInformation(ERTask, "Initialized event reminders task.", ClientUtilities.GetWesternIndonesianDateTime());
+            Client.Logger.LogInformation(ERTask, "Initialized events reminder task.", ClientUtilities.GetWesternIndonesianDateTime());
 
             return Task.CompletedTask;
         }
@@ -486,12 +486,12 @@ namespace discordbot
 
                         if (counter != 0)
                         {
-                            Client.Logger.LogInformation(PRTask, $"It took {elapsedMilliseconds} milliseconds to complete the proposal submission reminder task. Reminded {counter.ToString()} ({counter.ToWords()}) proposal submissions.", ClientUtilities.GetWesternIndonesianDateTime());
+                            Client.Logger.LogInformation(PRTask, $"Completed proposal reminder task in {elapsedMilliseconds} ms. Reminded {counter} ({counter.ToWords()}) proposal submissions.", ClientUtilities.GetWesternIndonesianDateTime());
                         }
 
                         else
                         {
-                            Client.Logger.LogInformation(PRTask, $"It took {elapsedMilliseconds} milliseconds to complete the proposal submission reminder task. No proposal submissions to remind.", ClientUtilities.GetWesternIndonesianDateTime());
+                            Client.Logger.LogInformation(PRTask, $"Completed proposal reminder task in {elapsedMilliseconds} ms. No proposal submissions to remind.", ClientUtilities.GetWesternIndonesianDateTime());
                         }
 
                         stopwatch.Reset();
@@ -505,13 +505,13 @@ namespace discordbot
                     while (exception is AggregateException)
                         exception = exception.InnerException;
 
-                    Client.Logger.LogCritical(PRTask, $"Proposal submission reminder task threw an exception: {exception.GetType()}: {exception.Message}", DateTime.Now);
+                    Client.Logger.LogCritical(PRTask, $"Proposal reminder task threw an exception: {exception.GetType()}: {exception.Message}", DateTime.Now);
 
                     await errorLogsChannel.SendMessageAsync($"{ex.Message}").ConfigureAwait(false);
                 }
             });
 
-            Client.Logger.LogInformation(PRTask, "Initialized proposal reminders task.", ClientUtilities.GetWesternIndonesianDateTime());
+            Client.Logger.LogInformation(PRTask, "Initialized proposal reminder task.", ClientUtilities.GetWesternIndonesianDateTime());
 
             return Task.CompletedTask;
         }
