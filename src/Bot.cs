@@ -612,12 +612,6 @@ namespace discordbot
         {
             sender.Logger.LogInformation(LogEvent, $"User added: {e.Member.Username}#{e.Member.Discriminator} ({e.Member.Id}) in {e.Guild.Name} ({e.Guild.Id})", DateTime.Now);
 
-            DiscordChannel welcomeChannel = e.Guild.GetChannel(814450803464732722);
-
-            string toSend = $"selamat datang {e.Member.Mention}! {DiscordEmoji.FromName(Client, ":omculikaku:")}";
-
-            welcomeChannel.SendMessageAsync(toSend).ConfigureAwait(false);
-
             return Task.CompletedTask;
         }
 

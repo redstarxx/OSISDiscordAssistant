@@ -171,6 +171,10 @@ namespace discordbot.Commands
                         }
 
                         db.SaveChanges();
+
+                        DiscordChannel welcomeChannel = ctx.Guild.GetChannel(814450803464732722);
+
+                        await welcomeChannel.SendMessageAsync($"Selamat datang {ctx.Member.Mention}! {DiscordEmoji.FromName(ctx.Client, ":omculikaku:")}").ConfigureAwait(false);
                     }
 
                     else if (reactionResult.Result.Id == "decline_button")
