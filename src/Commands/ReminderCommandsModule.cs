@@ -129,17 +129,7 @@ namespace discordbot.Commands
                     break;
             }
 
-            DiscordChannel targetChannel = null;
-
-            if (remindChannel == null)
-            {
-                targetChannel = ctx.Channel;
-            }
-
-            else
-            {
-                targetChannel = remindChannel;
-            }
+            DiscordChannel targetChannel = remindChannel ?? ctx.Channel;
 
             if (timeSpan.Contains("/"))
             {
