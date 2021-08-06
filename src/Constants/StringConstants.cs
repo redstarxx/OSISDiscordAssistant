@@ -11,5 +11,15 @@
         /// The guild ID of the main OSIS private server.
         /// </summary>
         public const ulong MainGuildId = 814445508583358494;
+
+        /// <summary>
+        /// The channel ID of the events reminder messages channel.
+        /// </summary>
+        public const ulong EventChannel = 857589614558314575;
+
+        /// <summary>
+        /// The channel ID of the proposal submissions reminder messages channel.
+        /// </summary>
+        public const ulong ProposalChannel = 857589664269729802;
     }
 }
