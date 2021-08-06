@@ -155,7 +155,7 @@ namespace discordbot
         {
             Task eventReminder = Task.Run(async () =>
             {
-                DiscordChannel eventsChannel = await Client.GetChannelAsync(857589614558314575);
+                DiscordChannel eventsChannel = await Client.GetChannelAsync(796636593019813889);
 
                 DiscordChannel errorLogsChannel = await Client.GetChannelAsync(832172186126123029);
 
@@ -184,8 +184,14 @@ namespace discordbot
                         stopwatch.Start();
                         using (var db = new EventContext())
                         {
+                            Stopwatch processingStopWatch = new Stopwatch();
+
                             foreach (var row in db.Events)
                             {
+                                processingStopWatch.Start();
+
+                                bool sentReminder = false;
+
                                 var cultureInfo = new CultureInfo(row.EventDateCultureInfo);
 
                                 // Add 7 hours ahead because for some reason Linux doesn't pick the user preferred timezone.
@@ -224,6 +230,8 @@ namespace discordbot
 
                                             dbUpdate.SaveChanges();
                                         }
+
+                                        sentReminder = true;
                                     }
                                 }
 
@@ -256,6 +264,8 @@ namespace discordbot
 
                                             dbUpdate.SaveChanges();
                                         }
+
+                                        sentReminder = true;
                                     }
                                 }
 
@@ -288,6 +298,8 @@ namespace discordbot
 
                                             dbUpdate.SaveChanges();
                                         }
+
+                                        sentReminder = true;
                                     }
                                 }
 
@@ -321,6 +333,8 @@ namespace discordbot
                                             dbUpdate.SaveChanges();
                                         }
                                     }
+
+                                    sentReminder = true;
                                 }
 
                                 if (parseEventDateTime.ToShortDateString() == currentDateTime.ToShortDateString())
@@ -353,8 +367,21 @@ namespace discordbot
 
                                             dbUpdate.SaveChanges();
                                         }
-                                    }                                    
+                                    }
+
+                                    sentReminder = true;
                                 }
+
+                                processingStopWatch.Stop();
+
+                                if (sentReminder)
+                                {
+                                    sentReminder = false;
+
+                                    Client.Logger.LogInformation($"Sent event reminder for '{row.EventName}' (ID: {row.Id}) in {processingStopWatch.ElapsedMilliseconds} ms. Date: {row.EventDate} (culture-info: {row.EventDateCultureInfo}), person-in-charge: {row.PersonInCharge}, proposal_reminded: {row.ProposalReminded}, previously_reminded: {row.PreviouslyReminded}, expired: {row.Expired}");
+                                }
+
+                                processingStopWatch.Reset();
                             }
 
                             await db.DisposeAsync();
@@ -399,7 +426,7 @@ namespace discordbot
         {
             Task eventReminder = Task.Run(async () =>
             {
-                DiscordChannel eventsChannel = await Client.GetChannelAsync(857589664269729802);
+                DiscordChannel eventsChannel = await Client.GetChannelAsync(861513888688373790);
 
                 DiscordChannel errorLogsChannel = await Client.GetChannelAsync(832172186126123029);
 
@@ -428,8 +455,14 @@ namespace discordbot
                         stopwatch.Start();
                         using (var db = new EventContext())
                         {
+                            Stopwatch processingStopWatch = new Stopwatch();
+
                             foreach (var row in db.Events)
                             {
+                                processingStopWatch.Start();
+
+                                bool sentReminder = false;
+
                                 var cultureInfo = new CultureInfo(row.EventDateCultureInfo);
 
                                 // Add 7 hours ahead because for some reason Linux doesn't pick the user preferred timezone.
@@ -467,6 +500,8 @@ namespace discordbot
 
                                             dbUpdate.SaveChanges();
                                         }
+
+                                        sentReminder = true;
                                     }
                                 }
 
@@ -486,8 +521,21 @@ namespace discordbot
 
                                             dbUpdate.SaveChanges();
                                         }
+
+                                        Client.Logger.LogInformation($"Marked '{row.EventName}' (ID: {row.Id}) proposal_reminded as {row.ProposalReminded}.");
                                     }
                                 }
+
+                                processingStopWatch.Stop();
+
+                                if (sentReminder)
+                                {
+                                    sentReminder = false;
+
+                                    Client.Logger.LogInformation($"Sent proposal reminder for '{row.EventName}' (ID: {row.Id}) in {processingStopWatch.ElapsedMilliseconds} ms. Date: {row.EventDate} (culture-info: {row.EventDateCultureInfo}), person-in-charge: {row.PersonInCharge}, proposal_reminded: {row.ProposalReminded}, previously_reminded: {row.PreviouslyReminded}, expired: {row.Expired}");
+                                }
+
+                                processingStopWatch.Reset();
                             }
 
                             await db.DisposeAsync();
