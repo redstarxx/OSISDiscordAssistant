@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
+using discordbot.Constants;
 
 namespace discordbot.Attributes
 {
@@ -17,9 +18,7 @@ namespace discordbot.Attributes
     {
         public override Task<bool> ExecuteCheckAsync(CommandContext ctx, bool help)
         {
-            ulong mainGuildId = 814445508583358494;
-
-            return Task.FromResult(ctx.Guild.Id == mainGuildId);
+            return Task.FromResult(ctx.Guild.Id == StringConstants.MainGuildId);
         }
     }
 }
