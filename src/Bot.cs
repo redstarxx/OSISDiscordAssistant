@@ -155,7 +155,7 @@ namespace discordbot
         {
             Task eventReminder = Task.Run(async () =>
             {
-                DiscordChannel eventsChannel = await Client.GetChannelAsync(796636593019813889);
+                DiscordChannel eventsChannel = await Client.GetChannelAsync(StringConstants.EventChannel);
 
                 DiscordChannel errorLogsChannel = await Client.GetChannelAsync(832172186126123029);
 
@@ -426,7 +426,7 @@ namespace discordbot
         {
             Task eventReminder = Task.Run(async () =>
             {
-                DiscordChannel eventsChannel = await Client.GetChannelAsync(861513888688373790);
+                DiscordChannel eventsChannel = await Client.GetChannelAsync(StringConstants.ProposalChannel);
 
                 DiscordChannel errorLogsChannel = await Client.GetChannelAsync(832172186126123029);
 
