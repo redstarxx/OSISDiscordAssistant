@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
@@ -132,6 +133,21 @@ namespace discordbot.Commands
             }
         }
 
+        [RequireAdminRole]
+        [Command("announce")]
+        public async Task AnnounceAsync(CommandContext ctx, DiscordChannel channel, DiscordRole role, [RemainingText] string announceMessage)
+        {
+            try
+            {
+                await channel.SendMessageAsync($"{Formatter.Bold("[PENGUMUMAN]")} {role.Mention} {announceMessage}");
+            }
+
+            catch (Exception ex)
+            {
+                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} An error occured. Are you trying to send the message to a channel which the bot does not have access?\nException details: {ex.Message}");
+            }
+        }
+
         [Command("sendinfoembed")]
         public async Task InfoEmbedAsync(CommandContext ctx, ulong targetChannelId)
         {
@@ -190,6 +206,13 @@ namespace discordbot.Commands
         {
             string toSend = "**[SYNTAX]** !setname [USERMENTION] [NEWNICKNAME]";
             await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
+        }
+
+        [RequireAdminRole]
+        [Command("announce")]
+        public async Task AnnounceHelpAsync(CommandContext ctx)
+        {
+            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[SYNTAX]")} !announce [CHANNEL] [TAG (role / member to mention)] [MESSAGE]");
         }
     }
 }
