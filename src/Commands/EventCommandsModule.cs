@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Globalization;
 using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
@@ -96,6 +97,20 @@ namespace discordbot.Commands
                             if (eventDate.Length > 50)
                             {
                                 await ctx.Channel.SendMessageAsync("**[ERROR]** Maximum character limit of 50 characters exceeded. You must re-run the command to finish.").ConfigureAwait(false);
+                                return;
+                            }
+
+                            // Checks whether the provided date specifies the year. This assumes that there are no numbers up to 4 digits occuring more than once.
+                            Regex regex = new Regex(@"\d{4}");
+
+                            Match yearExist = regex.Match(eventDate);
+                            if (!yearExist.Success)
+                            {
+                                ulong eventDateMessageId = eventDateResult.Result.Id;
+                                var toReply = await eventDateResult.Result.Channel.GetMessageAsync(eventDateMessageId);
+
+                                await toReply.RespondAsync($"{Formatter.Bold("[ERROR]")} Oops! It looks like you did not include the year of the event. Please add it! (example: 25 Juni 2021).").ConfigureAwait(false);
+
                                 return;
                             }
 
@@ -613,6 +628,20 @@ namespace discordbot.Commands
                                         if (eventDate.Length > 50)
                                         {
                                             await ctx.Channel.SendMessageAsync("**[ERROR]** Operation aborted. Maximum character limit of 50 characters exceeded.").ConfigureAwait(false);
+                                            return;
+                                        }
+
+                                        // Checks whether the provided date specifies the year. This assumes that there are no numbers up to 4 digits occuring more than once.
+                                        Regex regex = new Regex(@"\d{4}");
+
+                                        Match yearExist = regex.Match(eventDate);
+                                        if (!yearExist.Success)
+                                        {
+                                            ulong eventDateMessageId = eventDateResult.Result.Id;
+                                            var toReply = await eventDateResult.Result.Channel.GetMessageAsync(eventDateMessageId);
+
+                                            await toReply.RespondAsync($"{Formatter.Bold("[ERROR]")} Oops! It looks like you did not include the year of the event. Please add it! (example: 25 Juni 2021).").ConfigureAwait(false);
+
                                             return;
                                         }
 
