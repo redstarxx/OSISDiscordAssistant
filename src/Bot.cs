@@ -711,6 +711,8 @@ namespace discordbot
 
         private Task OnUnknownEvent(DiscordClient sender, UnknownEventArgs e)
         {
+            e.Handled = true;
+
             sender.Logger.LogWarning(LogEvent, $"Received unknown event {e.EventName}, payload:\n{e.Json}", DateTime.Now);
 
             return Task.CompletedTask;
