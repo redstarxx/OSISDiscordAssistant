@@ -36,6 +36,7 @@ namespace discordbot.Commands
                 $"{Formatter.Bold("!kick")} - Kicks a member from this Discord server.\n" +
                 $"{Formatter.Bold("!mute")} - Mutes a member.\n" +
                 $"{Formatter.Bold("!unmute")} - Unmutes a member.\n" +
+                $"{Formatter.Bold("!announce")} - Sends an announcement message to a specified channel and role to mention.\n" +
                 $"{Formatter.Bold("!requestverify")} - Request a verification as a new member to the core council members.\n" +
                 $"{Formatter.Bold("!overify")} - Manually verifies a new member as a council member.\n" +
                 $"{Formatter.Bold("!uptime")} - Displays how long has the bot been running.\n" +
