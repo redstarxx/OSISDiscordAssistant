@@ -62,33 +62,24 @@ namespace discordbot.Commands
                 case "me":
                     mentionTarget = ctx.Member.Mention;
                     break;
-                case "everyone":
+                case "@everyone":
                     mentionTarget = "@everyone";
                     break;
                 default:
-                    if (ClientUtilities.GetRoleID(remindTarget) != 0)
+                    string toCheck = remindTarget.Remove(2);
+                    if (remindTarget.StartsWith("<") && toCheck == "<@")
                     {
-                        var divisionalRole = ctx.Guild.GetRole(ClientUtilities.GetRoleID(remindTarget));
-                        mentionTarget = divisionalRole.Mention;
+                        mentionTarget = remindTarget;
                     }
 
                     else
                     {
-                        string toCheck = remindTarget.Remove(2);
-                        if (remindTarget.StartsWith("<") && toCheck == "<@")
-                        {
-                            mentionTarget = remindTarget;
-                        }
+                        string toSend = $"{Formatter.Bold("[ERROR]")} Looks like an invalid reminder target! Type {Formatter.InlineCode("!remind")} to get help. Alternatively, click the emoji below to get help.";
+                        var errorMessage = await ctx.RespondAsync(toSend).ConfigureAwait(false);
 
-                        else
-                        {
-                            string toSend = $"{Formatter.Bold("[ERROR]")} Invalid reminder target. Type {Formatter.InlineCode("!remind")} to get help. Alternatively, click the emoji below to get help.";
-                            var errorMessage = await ctx.RespondAsync(toSend).ConfigureAwait(false);
+                        await SendHelpEmoji(ctx, errorMessage);
 
-                            await SendHelpEmoji(ctx, errorMessage);
-
-                            return;
-                        }
+                        return;
                     }
 
                     break;
@@ -99,30 +90,6 @@ namespace discordbot.Commands
             {
                 case "me":
                     youoreveryone = "you";
-                    break;
-                case "everyone":
-                    youoreveryone = "everyone";
-                    break;
-                case "inti":
-                    youoreveryone = "Inti OSIS members";
-                    break;
-                case "it":
-                    youoreveryone = "Seksi Informasi Teknologi members";
-                    break;
-                case "kesenian":
-                    youoreveryone = "Seksi Kesenian members";
-                    break;
-                case "kewirausahaan":
-                    youoreveryone = "Seksi Kewirausahaan members";
-                    break;
-                case "olahraga":
-                    youoreveryone = "Seksi Olahraga members";
-                    break;
-                case "humas":
-                    youoreveryone = "Seksi Humas members";
-                    break;
-                case "agama":
-                    youoreveryone = "Seksi Agama members";
                     break;
                 default:
                     youoreveryone = remindTarget;
