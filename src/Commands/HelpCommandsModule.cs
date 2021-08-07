@@ -32,17 +32,18 @@ namespace discordbot.Commands
                 $"{Formatter.Bold("!avatar")} - Shows a Discord profile picture of your account or another user.\n" +
                 $"{Formatter.Bold("!slap")} - Slaps the tagged member or role.\n" +
                 $"{Formatter.Bold("!tags")} - Shows created tags.\n" +
+                $"{Formatter.Bold("!tag")} - Creates, updates, deletes, or mention a specified tag.\n" +
                 $"{Formatter.Bold("!setname")} - Sets a new name for yourself or another user.\n" +
                 $"{Formatter.Bold("!kick")} - Kicks a member from this Discord server.\n" +
                 $"{Formatter.Bold("!mute")} - Mutes a member.\n" +
                 $"{Formatter.Bold("!unmute")} - Unmutes a member.\n" +
                 $"{Formatter.Bold("!announce")} - Sends an announcement message to a specified channel and role to mention.\n" +
-                $"{Formatter.Bold("!requestverify")} - Request a verification as a new member to the core council members.\n" +
+                $"{Formatter.Bold("!requestverify")} - Request a verification as a new member to the core council (Inti OSIS) members.\n" +
                 $"{Formatter.Bold("!overify")} - Manually verifies a new member as a council member.\n" +
                 $"{Formatter.Bold("!uptime")} - Displays how long has the bot been running.\n" +
                 $"{Formatter.Bold("!ping")} - Displays the WebSocket connection latency in milliseconds.\n" +
-                $"{Formatter.Bold("!reconnect")} - Reconnects the bot to the Discord's Gateway.\n" +
-                $"{Formatter.Bold("!kill")} - Disconnects the bot from the Discord's Gateway.\n" +
+                $"{Formatter.Bold("!reconnect")} - Reconnects the bot to Discord's gateway.\n" +
+                $"{Formatter.Bold("!kill")} - Disconnects the bot from Discord's gateway.\n" +
                 $"{Formatter.Bold("!about")} - Shows the bot's information.\n";
 
             embedBuilder.WithDescription(description);
