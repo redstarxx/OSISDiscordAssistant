@@ -133,9 +133,29 @@ namespace discordbot.Commands
                 Color = DiscordColor.MidnightBlue
             };
 
+            int roleCount = 0;
+            string roleHeader = "Role";
+            string roleList = "No roles";
+
+            foreach (var roles in ctx.Member.Roles)
+            {
+                if (roleCount is 0)
+                {
+                    roleList = null;
+                }
+
+                string appendRoles = roleList + $" {roles.Mention}";
+                roleList = appendRoles;
+
+                roleCount++;
+            }
+
+            roleHeader = roleCount == 1 ? "Role" : "Roles";
+
             embedBuilder.AddField("Discord Tag", ctx.Member.Username + "#" + ctx.Member.Discriminator, true);
             embedBuilder.AddField("Discord User ID", ctx.Member.Id.ToString(), true);
             embedBuilder.AddField("Server Username", ctx.Member.DisplayName, true);
+            embedBuilder.AddField(roleHeader, roleList, true);
 
             await ctx.Channel.SendMessageAsync(embed: embedBuilder).ConfigureAwait(false);
         }
