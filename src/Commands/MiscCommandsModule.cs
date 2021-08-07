@@ -123,6 +123,11 @@ namespace discordbot.Commands
         {
             var embedBuilder = new DiscordEmbedBuilder
             {
+                Author = new DiscordEmbedBuilder.EmbedAuthor
+                {
+                    Name = $"{ctx.Member.DisplayName}",
+                    IconUrl = ctx.Member.AvatarUrl
+                },
                 Title = "Member Information",
                 Description = $"Halo, {ctx.Member.Mention}! Informasi akun anda adalah sebagai berikut:",
                 Timestamp = ClientUtilities.GetWesternIndonesianDateTime(),
