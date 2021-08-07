@@ -320,8 +320,9 @@ namespace discordbot.Commands
 
                 catch
                 {
-                    string errorMessage = "**[ERROR]** An error occured. Have you tried to use the command correctly?";
-                    await ctx.RespondAsync(errorMessage).ConfigureAwait(false);
+                    var errorMessage = await ctx.RespondAsync($"{Formatter.Bold("[ERROR]")} An error occured. Have you tried to use the command correctly? Type {Formatter.InlineCode("!remind")} to get help. Alternatively, click the emoji below to get help.").ConfigureAwait(false);
+
+                    await SendHelpEmoji(ctx, errorMessage);
                 }
             }
         }
@@ -333,7 +334,7 @@ namespace discordbot.Commands
         [Command("remind")]
         public async Task Reminder(CommandContext ctx)
         {
-            await SendHelpEmbed (ctx, true);
+            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[SYNTAX]")} !remind [TAG ROLE / MEMBER] [TANGGAL / WAKTU UNTUK DIINGATKAN (example: 25/06/2021 or 6j30m or 12:30 or 30m)] [CHANNEL (optional)] [MESSAGE]");
         }
 
         public async Task SendHelpEmoji(CommandContext ctx, DiscordMessage errorMessage)
@@ -349,36 +350,8 @@ namespace discordbot.Commands
 
             if (emojiResult.Result.Emoji == helpEmoji)
             {
-                await SendHelpEmbed(ctx, false);
+                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[SYNTAX]")} !remind [TAG ROLE / MEMBER] [TANGGAL / WAKTU UNTUK DIINGATKAN (example: 25/06/2021 or 6j30m or 12:30 or 30m)] [CHANNEL (optional)] [MESSAGE]");
             }
-        }
-
-        public async Task SendHelpEmbed(CommandContext ctx, bool removeOriginalMessage)
-        {
-            var reminderInfoEmbed = new DiscordEmbedBuilder
-            {
-                Title = "OSIS DJUWITA BATAM — REMINDER FEATURE",
-                Description = "Bot ini memiliki fitur mengingatkan seksi tertentu atau seluruh anggota OSIS untuk " +
-                "berbagai kepentingan, seperti mengingatkan jadwal rapat atau hitung mundur jumlah hari menuju pelaksanaan event.\n\n" +
-                "Berikut seksi-seksi yang dapat diingatkan oleh bot ini: \n• Inti (Inti OSIS)\n• Kesenian\n• Kewirausahaan\n" +
-                "• IT (Informasi Teknologi)\n• Olahraga\n• Humas\n• Agama \nApabila ingin mengingatkan semua anggota, pilih `everyone` atau dengan langsung mention role yang diinginkan." +
-                "\n\n**FORMAT PENGGUNAAN**\n`!remind [NAMA SEKSI / MENTION ROLE / EVERYONE] [TANGGAL / WAKTU UNTUK DIINGATKAN (contoh: 25/06/2021 atau 6j30m atau 12:30)] [CHANNEL (opsional)] [APA YANG INGIN DIINGATKAN]`\n" +
-                "**CONTOH**\n`!remind kesenian 12:30 Upload poster event ke Instagram.`\n" +
-                $"**HASIL**\nOke {ctx.User.Mention}, dalam 12 jam, seksi Kesenian akan diingatkan hal berikut:\n\n Upload poster event ke Instagram.",
-                Timestamp = ClientUtilities.GetWesternIndonesianDateTime(),
-                Footer = new DiscordEmbedBuilder.EmbedFooter
-                {
-                    Text = "OSIS Discord Assistant"
-                },
-                Color = DiscordColor.MidnightBlue
-            };
-
-            if (removeOriginalMessage)
-            {
-                await ctx.Message.DeleteAsync();
-            }
-
-            await ctx.Member.SendMessageAsync(embed: reminderInfoEmbed).ConfigureAwait(false);
-        }
+        }      
     }
 }
