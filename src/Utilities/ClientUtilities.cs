@@ -119,7 +119,11 @@ namespace discordbot
             int ms = m.Groups["minutes"].Success ? int.Parse(m.Groups["minutes"].Value) : 0;
             int ss = m.Groups["seconds"].Success ? int.Parse(m.Groups["seconds"].Value) : 0;
 
-            return TimeSpan.FromSeconds(ds * 86400 + hs * 60 * 60 + ms * 60 + ss);
+            TimeSpan timeSpan = TimeSpan.FromSeconds(ds * 86400 + hs * 60 * 60 + ms * 60 + ss);
+            if (timeSpan.TotalSeconds is 0)
+                throw new ArgumentException("Invalid time span string given.");
+
+            return timeSpan;
         }
 
         /// <summary>
