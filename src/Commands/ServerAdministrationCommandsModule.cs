@@ -151,7 +151,7 @@ namespace discordbot.Commands
         [Command("sendinfoembed")]
         public async Task InfoEmbedAsync(CommandContext ctx, ulong targetChannelId)
         {
-            DiscordChannel targetChannel = await Bot.Client.GetChannelAsync(targetChannelId);
+            DiscordChannel targetChannel = await Bot.Client.GetShard(ctx.Guild.Id).GetChannelAsync(targetChannelId);
 
             var informationChannelEmbed = new DiscordEmbedBuilder
             {
