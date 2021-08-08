@@ -21,5 +21,10 @@
         /// The channel ID of the proposal submissions reminder messages channel.
         /// </summary>
         public const ulong ProposalChannel = 857589664269729802;
+
+        /// <summary>
+        /// The channel ID of the PRTask and ERTask exception logs channel.
+        /// </summary>
+        public const ulong ErrorChannel = 832172186126123029;
     }
 }
