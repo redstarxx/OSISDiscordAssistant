@@ -14,6 +14,7 @@ using discordbot;
 using System.Diagnostics;
 using System.Globalization;
 using Microsoft.Extensions.Logging;
+using System.Threading;
 
 namespace discordbot.Commands
 {
@@ -116,6 +117,32 @@ namespace discordbot.Commands
             await ctx.Channel.SendMessageAsync("https://tenor.com/view/nope-stupid-slap-in-the-face-phone-gif-15151334").ConfigureAwait(false);
 
             await ctx.Channel.SendMessageAsync($"{member.Mention} has been slapped by {ctx.Member.Mention}!").ConfigureAwait(false);
+        }
+
+        [Command("flip")]
+        public async Task FlipAsync(CommandContext ctx)
+        {
+            await ctx.Channel.SendMessageAsync($"Ahok places the coin on his hand and flips it with his thumb. He meticulously watches the coin spinning as it descends from the sky...");
+            await ctx.TriggerTypingAsync();
+
+            Random rng = new Random();
+
+            int num = rng.Next(1000);
+
+            string side = null;
+            if (num % 2 == 0)
+            {
+                side = "tails";
+            }
+
+            else
+            {
+                side = "head";
+            }
+
+            Thread.Sleep(TimeSpan.FromSeconds(2));
+
+            await ctx.Channel.SendMessageAsync($"It lands on {Formatter.Bold(side)}!");
         }
 
         [Command("myinfo")]

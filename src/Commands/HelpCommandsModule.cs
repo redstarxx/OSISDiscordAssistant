@@ -31,6 +31,7 @@ namespace discordbot.Commands
                 $"{Formatter.Bold("!myinfo")} - Displays the info that this bot has over you.\n" +
                 $"{Formatter.Bold("!avatar")} - Shows a Discord profile picture of your account or another user.\n" +
                 $"{Formatter.Bold("!slap")} - Slaps the tagged member or role.\n" +
+                $"{Formatter.Bold("!flip")} - Flips a coin.\n" +
                 $"{Formatter.Bold("!tags")} - Shows created tags.\n" +
                 $"{Formatter.Bold("!tag")} - Creates, updates, deletes, or mention a specified tag.\n" +
                 $"{Formatter.Bold("!setname")} - Sets a new name for yourself or another user.\n" +
