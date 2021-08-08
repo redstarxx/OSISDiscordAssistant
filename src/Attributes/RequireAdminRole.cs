@@ -11,6 +11,7 @@ namespace discordbot.Attributes
 {
     /// <summary>
     /// Checks whether the command invoker has either the Moderator, Panitia, Inti OSIS, Administrator, or Service Administrator role.
+    /// If the user has none of them, then it will check for a role that the member has with administrator permission enabled.
     /// </summary>
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
     public class RequireAdminRole : CheckBaseAttribute
