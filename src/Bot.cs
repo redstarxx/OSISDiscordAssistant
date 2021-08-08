@@ -157,7 +157,7 @@ namespace discordbot
             {
                 DiscordChannel eventsChannel = await Client.GetChannelAsync(StringConstants.EventChannel);
 
-                DiscordChannel errorLogsChannel = await Client.GetChannelAsync(832172186126123029);
+                DiscordChannel errorLogsChannel = await Client.GetChannelAsync(StringConstants.ErrorChannel);
 
                 var reminderEmbed = new DiscordEmbedBuilder
                 {
@@ -428,7 +428,7 @@ namespace discordbot
             {
                 DiscordChannel eventsChannel = await Client.GetChannelAsync(StringConstants.ProposalChannel);
 
-                DiscordChannel errorLogsChannel = await Client.GetChannelAsync(832172186126123029);
+                DiscordChannel errorLogsChannel = await Client.GetChannelAsync(StringConstants.ErrorChannel);
 
                 var reminderEmbed = new DiscordEmbedBuilder
                 {
