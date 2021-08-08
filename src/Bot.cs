@@ -105,7 +105,7 @@ namespace discordbot
 
             Commands = await Client.UseCommandsNextAsync(commandsConfig);
 
-            Console.WriteLine("[7/9] Registering command modules...");
+            Console.WriteLine("[7/9] Registering CommandsNext commands modules...");
             // Registers commands.
             foreach (var cmd in Commands.Values)
             {
@@ -118,11 +118,14 @@ namespace discordbot
                 cmd.RegisterCommands<BotAdministrationCommands>();
                 cmd.RegisterCommands<PollCommandsModule>();
                 cmd.RegisterCommands<TagsCommandsModule>();
+            }
 
-                Console.WriteLine("[8/9] Registering CommandsNext event handlers...");
-                // Registers event handlers.
-                cmd.CommandExecuted += CommandsNext_CommandExecuted;
-                cmd.CommandErrored += CommandsNext_CommandErrored;
+            Console.WriteLine("[8/9] Registering CommandsNext event handlers...");
+            // Registers event handlers.
+            foreach (var hndlr in Commands.Values)
+            {
+                hndlr.CommandExecuted += CommandsNext_CommandExecuted;
+                hndlr.CommandErrored += CommandsNext_CommandErrored;
             }
 
             // Tell that whoever is seeing this that the client is connecting to Discord's gateway.
