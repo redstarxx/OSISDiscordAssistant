@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Globalization;
 using System.Diagnostics;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 using Microsoft.Extensions.Logging;
 using discordbot.Commands;
@@ -25,11 +26,11 @@ namespace discordbot
 {
     public class Bot
     {
-        public static DiscordClient Client { get; private set; }
+        public static DiscordShardedClient Client { get; private set; }
 
         public InteractivityExtension Interactivity { get; private set; }
 
-        public CommandsNextExtension Commands { get; private set; }
+        public IReadOnlyDictionary<int, CommandsNextExtension> Commands;
 
         public static EventId LogEvent { get; } = new EventId(1000, "BotClient");
 
@@ -71,7 +72,7 @@ namespace discordbot
                 LoggerFactory = serilogFactory
             };
 
-            Client = new DiscordClient(config);
+            Client = new DiscordShardedClient(config);
 
             Console.WriteLine("[4/9] Registering client event handlers...");
             Client.Ready += OnClientReady;
@@ -88,7 +89,7 @@ namespace discordbot
             Client.UnknownEvent += OnUnknownEvent;
 
             Console.WriteLine("[5/9] Loading up interactivity configuration...");
-            Client.UseInteractivity(new InteractivityConfiguration
+            await Client.UseInteractivityAsync(new InteractivityConfiguration
             {
                 Timeout = TimeSpan.FromDays(7)
             });
@@ -102,29 +103,35 @@ namespace discordbot
                 EnableDefaultHelp = false
             };
 
-            Commands = Client.UseCommandsNext(commandsConfig);
+            Commands = await Client.UseCommandsNextAsync(commandsConfig);
 
-            Console.WriteLine("[7/9] Registering command modules...");
+            Console.WriteLine("[7/9] Registering CommandsNext commands modules...");
             // Registers commands.
-            Commands.RegisterCommands<MiscCommandsModule>();
-            Commands.RegisterCommands<VerificationCommandsModule>();
-            Commands.RegisterCommands<ServerAdministrationCommandsModule>();
-            Commands.RegisterCommands<ReminderCommandsModule>();
-            Commands.RegisterCommands<EventCommandsModule>();
-            Commands.RegisterCommands<HelpCommandsModule>();
-            Commands.RegisterCommands<BotAdministrationCommands>();
-            Commands.RegisterCommands<PollCommandsModule>();
-            Commands.RegisterCommands<TagsCommandsModule>();
+            foreach (var cmd in Commands.Values)
+            {
+                cmd.RegisterCommands<MiscCommandsModule>();
+                cmd.RegisterCommands<VerificationCommandsModule>();
+                cmd.RegisterCommands<ServerAdministrationCommandsModule>();
+                cmd.RegisterCommands<ReminderCommandsModule>();
+                cmd.RegisterCommands<EventCommandsModule>();
+                cmd.RegisterCommands<HelpCommandsModule>();
+                cmd.RegisterCommands<BotAdministrationCommands>();
+                cmd.RegisterCommands<PollCommandsModule>();
+                cmd.RegisterCommands<TagsCommandsModule>();
+            }
 
             Console.WriteLine("[8/9] Registering CommandsNext event handlers...");
             // Registers event handlers.
-            Commands.CommandExecuted += CommandsNext_CommandExecuted;
-            Commands.CommandErrored += CommandsNext_CommandErrored;
+            foreach (var hndlr in Commands.Values)
+            {
+                hndlr.CommandExecuted += CommandsNext_CommandExecuted;
+                hndlr.CommandErrored += CommandsNext_CommandErrored;
+            }
 
             // Tell that whoever is seeing this that the client is connecting to Discord's gateway.
-            Console.WriteLine("[9/9] Connecting to Discord's gateway...\n----------------------------------------");
+            Console.WriteLine("[9/9] Initializing and connecting all shards...\n----------------------------------------");
 
-            await Client.ConnectAsync();
+            await Client.StartAsync();
 
             await Task.Delay(-1);
         }
@@ -155,9 +162,9 @@ namespace discordbot
         {
             Task eventReminder = Task.Run(async () =>
             {
-                DiscordChannel eventsChannel = await Client.GetChannelAsync(StringConstants.EventChannel);
+                DiscordChannel eventsChannel = await Client.GetShard(StringConstants.MainGuildId).GetChannelAsync(StringConstants.EventChannel);
 
-                DiscordChannel errorLogsChannel = await Client.GetChannelAsync(StringConstants.ErrorChannel);
+                DiscordChannel errorLogsChannel = await Client.GetShard(StringConstants.MainGuildId).GetChannelAsync(StringConstants.ErrorChannel);
 
                 var reminderEmbed = new DiscordEmbedBuilder
                 {
@@ -426,9 +433,9 @@ namespace discordbot
         {
             Task eventReminder = Task.Run(async () =>
             {
-                DiscordChannel eventsChannel = await Client.GetChannelAsync(StringConstants.ProposalChannel);
+                DiscordChannel eventsChannel = await Client.GetShard(StringConstants.MainGuildId).GetChannelAsync(StringConstants.ProposalChannel);
 
-                DiscordChannel errorLogsChannel = await Client.GetChannelAsync(StringConstants.ErrorChannel);
+                DiscordChannel errorLogsChannel = await Client.GetShard(StringConstants.MainGuildId).GetChannelAsync(StringConstants.ErrorChannel);
 
                 var reminderEmbed = new DiscordEmbedBuilder
                 {
