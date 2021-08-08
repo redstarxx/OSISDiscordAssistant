@@ -729,7 +729,7 @@ namespace discordbot
         {
             e.Context.Client.Logger.LogInformation(LogEvent,
                 $"User '{e.Context.User.Username}#{e.Context.User.Discriminator}' ({e.Context.User.Id}) " +
-                $"executed '{e.Command.QualifiedName}' in #{e.Context.Channel.Name} ({e.Context.Channel.Id})",
+                $"executed '{e.Command.QualifiedName}' in #{e.Context.Channel.Name} ({e.Context.Channel.Id}) guild '{e.Context.Guild.Name}' ({e.Context.Guild.Id})",
                 ClientUtilities.GetWesternIndonesianDateTime());
 
             return Task.CompletedTask;
@@ -770,7 +770,7 @@ namespace discordbot
 
             e.Context.Client.Logger.LogError(LogEvent,
                 $"User '{e.Context.User.Username}#{e.Context.User.Discriminator}' ({e.Context.User.Id}) tried to execute '{e.Command?.QualifiedName ?? "<unknown command>"}' "
-                + $"in #{e.Context.Channel.Name} ({e.Context.Channel.Id}) and failed with {e.Exception.GetType()}: {e.Exception.Message}", ClientUtilities.GetWesternIndonesianDateTime());
+                + $"in #{e.Context.Channel.Name} ({e.Context.Channel.Id})  guild '{e.Context.Guild.Name}' ({e.Context.Guild.Id}) and failed with {e.Exception.GetType()}: {e.Exception.Message}", ClientUtilities.GetWesternIndonesianDateTime());
 
             return Task.CompletedTask;
         }
