@@ -69,7 +69,7 @@ namespace discordbot.Commands
                 string.Concat($"OSIS Discord Assistant is a bot created by RedStar#9271 (<@!322693857760509952>). " +
                 $"This bot is solely developed to assist the student council members of Sekolah Djuwita to carry out its tasks in terms " +
                 $"of event planning, reminders and server administration. Feature extension beyond said purposes fully depends on the council's president " +
-                $"in charge.\n\nThis bot is currently servicing {ctx.Client.Guilds.Count} guilds."),
+                $"in charge.\n\nThis shard is currently servicing {ctx.Client.Guilds.Count} guilds."),
                 Color = DiscordColor.MidnightBlue
             };
 
