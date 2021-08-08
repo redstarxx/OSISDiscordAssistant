@@ -48,7 +48,8 @@ namespace discordbot.Commands
 
             Environment.Exit(0);
         }
-
+        
+        // Credits to Emzi0767#1837 for the code.
         [RequireServiceAdminRole]
         [Command("eval")]
         public async Task EvalAsync(CommandContext ctx, [RemainingText] string code)
