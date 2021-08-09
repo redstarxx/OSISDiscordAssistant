@@ -644,7 +644,7 @@ namespace discordbot
 
                 if (e.Message.Content.StartsWith("!"))
                 {
-                    string toSend = $"{Formatter.Bold("[ERROR]")} Sorry, you can only execute commands in the OSIS Discord server!";
+                    string toSend = $"{Formatter.Bold("[ERROR]")} Sorry, you can only execute commands in a guild that the bot is a part of!";
 
                     e.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
                 }
