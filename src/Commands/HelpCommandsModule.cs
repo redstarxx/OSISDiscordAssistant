@@ -44,7 +44,6 @@ namespace discordbot.Commands
                 $"{Formatter.Bold("!uptime")} - Displays how long has the bot been running.\n" +
                 $"{Formatter.Bold("!ping")} - Displays the WebSocket connection latency in milliseconds.\n" +
                 $"{Formatter.Bold("!eval")} - Evaluates a snippet of C# code.\n" +
-                $"{Formatter.Bold("!reconnect")} - Reconnects the bot to Discord's gateway.\n" +
                 $"{Formatter.Bold("!kill")} - Disconnects the bot from Discord's gateway.\n" +
                 $"{Formatter.Bold("!about")} - Shows the bot's information.\n";
 
