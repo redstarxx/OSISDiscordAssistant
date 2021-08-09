@@ -122,7 +122,7 @@ namespace discordbot.Commands
         [Command("flip")]
         public async Task FlipAsync(CommandContext ctx)
         {
-            await ctx.Channel.SendMessageAsync($"Ahok places the coin on his hand and flips it with his thumb. He meticulously watches the coin spinning as it descends from the sky...");
+            await ctx.Channel.SendMessageAsync($"{ctx.Member.DisplayName} places the coin on their thumb and flips it. You meticulously watch the coin spinning as it descends from the sky...");
             await ctx.TriggerTypingAsync();
 
             Random rng = new Random();
