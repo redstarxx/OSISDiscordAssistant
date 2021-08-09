@@ -13,7 +13,7 @@ namespace discordbot.Commands
     {
         [RequireAdminRole]
         [Command("mute")]
-        public async Task Mute(CommandContext ctx, DiscordMember member, params string[] muteReason)
+        public async Task MuteAsync(CommandContext ctx, DiscordMember member, params string[] muteReason)
         {
             // Checks whether the invoker is manually verifying themself.
             if (await ClientUtilities.CheckSelfTargeting(member, ctx))
@@ -41,7 +41,7 @@ namespace discordbot.Commands
 
         [RequireAdminRole]
         [Command("unmute")]
-        public async Task Unmute(CommandContext ctx, DiscordMember member)
+        public async Task UnmuteAsync(CommandContext ctx, DiscordMember member)
         {
             // Checks whether the invoker is manually verifying themself.
             if (await ClientUtilities.CheckSelfTargeting(member, ctx))
@@ -60,7 +60,7 @@ namespace discordbot.Commands
 
         [RequireAdminRole]
         [Command("kick")]
-        public async Task Kick(CommandContext ctx, DiscordMember member, params string[] kickReason)
+        public async Task KickAsync(CommandContext ctx, DiscordMember member, params string[] kickReason)
         {
             // Checks whether the invoker is manually verifying themself.
             if (await ClientUtilities.CheckSelfTargeting(member, ctx))
@@ -95,7 +95,7 @@ namespace discordbot.Commands
 
         [RequireMainGuild, RequireAccessRole]
         [Command("setname")]
-        public async Task SetName(CommandContext ctx, DiscordMember member, params string[] newNickname)
+        public async Task SetNameAsync(CommandContext ctx, DiscordMember member, params string[] newNickname)
         {
             if (ctx.User.Id != member.Id)
             {
@@ -175,7 +175,7 @@ namespace discordbot.Commands
 
         [RequireAdminRole]
         [Command("mute")]
-        public async Task MuteHelp(CommandContext ctx)
+        public async Task MuteHelpAsync(CommandContext ctx)
         {
             string toSend =
                 "**[SYNTAX]** !mute [USERMENTION] [REASON (optional)]";
@@ -184,7 +184,7 @@ namespace discordbot.Commands
 
         [RequireAdminRole]
         [Command("unmute")]
-        public async Task UnmuteHelp(CommandContext ctx)
+        public async Task UnmuteHelpAsync(CommandContext ctx)
         {
             string toSend =
                 "**[SYNTAX]** !unmute [USERMENTION]";
@@ -193,7 +193,7 @@ namespace discordbot.Commands
 
         [RequireAdminRole]
         [Command("kick")]
-        public async Task KickHelp(CommandContext ctx)
+        public async Task KickHelpAsync(CommandContext ctx)
         {
             string toSend =
                 "**[SYNTAX]** !kick [USERMENTION] [REASON]";
@@ -202,7 +202,7 @@ namespace discordbot.Commands
 
         [RequireMainGuild, RequireAccessRole]
         [Command("setname")]
-        public async Task SetName(CommandContext ctx)
+        public async Task SetNameAsync(CommandContext ctx)
         {
             string toSend = "**[SYNTAX]** !setname [USERMENTION] [NEWNICKNAME]";
             await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);

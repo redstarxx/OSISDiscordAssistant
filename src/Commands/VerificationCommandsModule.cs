@@ -14,7 +14,7 @@ namespace discordbot.Commands
     {    
         [RequireMainGuild, RequireAdminRole]
         [Command("overify")]
-        public async Task OverrideVerifySingle(CommandContext ctx, DiscordMember member)
+        public async Task OverifyAsync(CommandContext ctx, DiscordMember member)
         {
             // Checks whether the invoker is manually verifying themself.
             if (await ClientUtilities.CheckSelfTargeting(member, ctx))
@@ -42,7 +42,7 @@ namespace discordbot.Commands
 
         [RequireMainGuild, RequireAdminRole]
         [Command("overify")]
-        public async Task OverrideVerifyDouble(CommandContext ctx, DiscordMember member, params string[] displayName)
+        public async Task OverifyWithNameAsync(CommandContext ctx, DiscordMember member, params string[] displayName)
         {
             // Checks whether the invoker is manually verifying themself.
             if (await ClientUtilities.CheckSelfTargeting(member, ctx))
@@ -71,7 +71,7 @@ namespace discordbot.Commands
 
         [RequireMainGuild, RequireChannel(832275177160048711)]
         [Command("requestverify")]
-        public async Task RequestVerifyMain(CommandContext ctx, params string[] displayName)
+        public async Task RequestVerifyAsync(CommandContext ctx, params string[] displayName)
         {
             // Checks whether the command is executed with a reason.
             if (string.Join(" ", displayName).Length == 0)
@@ -239,7 +239,7 @@ namespace discordbot.Commands
 
         [RequireMainGuild, RequireAdminRole]
         [Command("overify")]
-        public async Task OverrideVerifyHelp(CommandContext ctx)
+        public async Task OverifyHelpAsync(CommandContext ctx)
         {
             string toSend =
                 "**[SYNTAX]** !overify [USERMENTION] [DISPLAYNAME (optional)]\n"
@@ -249,7 +249,7 @@ namespace discordbot.Commands
 
         [RequireMainGuild]
         [Command("requestverify")]
-        public async Task RequestVerifyHelp(CommandContext ctx)
+        public async Task RequestVerifyHelpAsync(CommandContext ctx)
         {
             string toSend =
                 "**[SYNTAX]** !requestverify [NAMA PANGGILAN]\n"

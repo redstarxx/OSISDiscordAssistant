@@ -1,20 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading;
+using System.Globalization;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.Entities;
 using DSharpPlus;
-using DSharpPlus.Net.Models;
-using System.Linq;
-using DSharpPlus.EventArgs;
-using System.Reflection;
-using Microsoft.Extensions.PlatformAbstractions;
-using System.IO;
-using System.Globalization;
 using Humanizer;
 
 namespace discordbot.Commands
@@ -24,22 +16,22 @@ namespace discordbot.Commands
         private static readonly TimeSpan maxValue = TimeSpan.FromMilliseconds(int.MaxValue);
 
         [Command("remind")]
-        public async Task RemindWithChannel(CommandContext ctx, string remindTarget, string timeSpan, DiscordChannel toChannel, params string[] toRemind)
+        public async Task RemindWithChannelAsync(CommandContext ctx, string remindTarget, string timeSpan, DiscordChannel toChannel, params string[] toRemind)
         {
-            await CreateReminder(ctx, remindTarget, timeSpan, toChannel, toRemind);
+            await CreateReminderAsync(ctx, remindTarget, timeSpan, toChannel, toRemind);
         }
 
         [Command("remind")]
-        public async Task RemindWithoutChannel(CommandContext ctx, string remindTarget, string timeSpan, params string[] toRemind)
+        public async Task RemindWithoutChannelAsync(CommandContext ctx, string remindTarget, string timeSpan, params string[] toRemind)
         {
-            await CreateReminder(ctx, remindTarget, timeSpan, null, toRemind);
+            await CreateReminderAsync(ctx, remindTarget, timeSpan, null, toRemind);
         }
 
         /// <summary>
         /// Creates a reminder which is based from creating a delayed task that sends a message after delaying the task for the specified amount of time.
         /// </summary>
         /// <returns>A reminder task that runs in the background.</returns>
-        public async Task CreateReminder(CommandContext ctx, string remindTarget, string timeSpan, DiscordChannel remindChannel = null, params string[] toRemind)
+        public async Task CreateReminderAsync(CommandContext ctx, string remindTarget, string timeSpan, DiscordChannel remindChannel = null, params string[] toRemind)
         {
             // Checks whether the message to remind is empty.
             string remindMessage = string.Join(" ", toRemind);
@@ -332,7 +324,7 @@ namespace discordbot.Commands
         // ----------------------------------------------------------
 
         [Command("remind")]
-        public async Task Reminder(CommandContext ctx)
+        public async Task RemindHelpAsync(CommandContext ctx)
         {
             await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[SYNTAX]")} !remind [TAG ROLE / MEMBER] [TANGGAL / WAKTU UNTUK DIINGATKAN (example: 25/06/2021 or 6j30m or 12:30 or 30m)] [CHANNEL (optional)] [MESSAGE]");
         }

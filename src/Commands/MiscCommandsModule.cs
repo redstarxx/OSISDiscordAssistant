@@ -1,20 +1,17 @@
 ﻿using System;
 using System.Text;
+using System.Diagnostics;
+using System.Threading;
+using System.Linq;
+using System.Reflection;
+using System.IO;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using DSharpPlus;
-using System.Linq;
-using System.Reflection;
 using Microsoft.Extensions.PlatformAbstractions;
-using System.IO;
 using Npgsql;
-using discordbot;
-using System.Diagnostics;
-using System.Globalization;
-using Microsoft.Extensions.Logging;
-using System.Threading;
 
 namespace discordbot.Commands
 {
@@ -24,7 +21,7 @@ namespace discordbot.Commands
         DateTime startTime = DateTime.UtcNow.AddHours(7);
 
         [Command("about")]
-        public async Task BotInfo(CommandContext ctx)
+        public async Task AboutAsync(CommandContext ctx)
         {
             var ccv = Assembly.GetExecutingAssembly().GetName().Version.ToString(3);
 
@@ -85,7 +82,7 @@ namespace discordbot.Commands
         }
      
         [Command("uptime")]
-        public async Task Uptime(CommandContext ctx)
+        public async Task UptimeAsync(CommandContext ctx)
         {
             TimeSpan runtimeOutput = DateTime.UtcNow.AddHours(7) - startTime;
             string formatResult = string.Format("Been up for: **{0} days, {1} hours, {2} minutes, {3} seconds** (since "
@@ -96,14 +93,14 @@ namespace discordbot.Commands
         }
 
         [Command("ping")]
-        public async Task Ping(CommandContext ctx)
+        public async Task PingAsync(CommandContext ctx)
         {
             await ctx.RespondAsync(string.Concat("\u200b", DiscordEmoji.FromName(ctx.Client, ":ping_pong:"), 
                 " WebSocket latency: ", ctx.Client.Ping.ToString("#,##0"), "ms."));
         }
 
         [Command("avatar")]
-        public async Task AvatarLink(CommandContext ctx, DiscordMember member = null)
+        public async Task AvatarAsync(CommandContext ctx, DiscordMember member = null)
         {
             DiscordMember memberProfilePicture = member ?? ctx.Member;
 
@@ -112,7 +109,7 @@ namespace discordbot.Commands
         }        
 
         [Command("slap")]
-        public async Task Slap(CommandContext ctx, DiscordMember member)
+        public async Task SlapAsync(CommandContext ctx, DiscordMember member)
         {
             await ctx.Channel.SendMessageAsync("https://tenor.com/view/nope-stupid-slap-in-the-face-phone-gif-15151334").ConfigureAwait(false);
 
@@ -146,7 +143,7 @@ namespace discordbot.Commands
         }
 
         [Command("myinfo")]
-        public async Task MyInfo(CommandContext ctx)
+        public async Task MyInfoAsync(CommandContext ctx)
         {
             var embedBuilder = new DiscordEmbedBuilder
             {

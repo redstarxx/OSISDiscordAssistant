@@ -147,18 +147,18 @@ namespace discordbot
             StartStatusUpdater();
 
             // Starts the events reminder task which queries the events table on a minute-by-minute basis.
-            EventReminders();
+            StartEventReminders();
 
             // Starts the proposals reminder task which queries the events table on a daily basis.
             // Reminders are sent 30 days before or a week before the day of the event.
-            ProposalReminders();
+            StartProposalReminders();
 
             Client.Logger.LogInformation(LogEvent, "Client is ready for tasking.", ClientUtilities.GetWesternIndonesianDateTime());
 
             return Task.CompletedTask;
         }
 
-        private Task EventReminders()
+        private Task StartEventReminders()
         {
             Task eventReminder = Task.Run(async () =>
             {
@@ -429,11 +429,11 @@ namespace discordbot
             return Task.CompletedTask;
         }
 
-        private Task ProposalReminders()
+        private Task StartProposalReminders()
         {
-            Task eventReminder = Task.Run(async () =>
+            Task proposalReminder = Task.Run(async () =>
             {
-                DiscordChannel eventsChannel = await Client.GetShard(StringConstants.MainGuildId).GetChannelAsync(StringConstants.ProposalChannel);
+                DiscordChannel proposalChannel = await Client.GetShard(StringConstants.MainGuildId).GetChannelAsync(StringConstants.ProposalChannel);
 
                 DiscordChannel errorLogsChannel = await Client.GetShard(StringConstants.MainGuildId).GetChannelAsync(StringConstants.ErrorChannel);
 
@@ -492,7 +492,7 @@ namespace discordbot
                                         reminderMessageBuilder.WithContent(row.PersonInCharge)
                                                               .WithEmbed(embed: reminderEmbed);
 
-                                        await eventsChannel.SendMessageAsync(builder: reminderMessageBuilder);
+                                        await proposalChannel.SendMessageAsync(builder: reminderMessageBuilder);
                                         counter++;
 
                                         using (var dbUpdate = new EventContext())
