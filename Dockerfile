@@ -3,9 +3,9 @@ FROM mcr.microsoft.com/dotnet/sdk:5.0-alpine AS build
 
 WORKDIR /App
 COPY . ./
-RUN dotnet restore ./src/discordbot.csproj
+RUN dotnet restore ./src/OSISDiscordAssistant.csproj
 
-RUN dotnet publish ./src/discordbot.csproj -c Release -o out
+RUN dotnet publish ./src/OSISDiscordAssistant.csproj -c Release -o out
 
 # Run it
 FROM mcr.microsoft.com/dotnet/runtime:5.0-alpine
@@ -24,6 +24,6 @@ ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
 WORKDIR /App
 COPY --from=build /App/out .
 
-RUN chmod +x ./discordbot
+RUN chmod +x ./OSISDiscordAssistant
 
-CMD ["./discordbot"]
+CMD ["./OSISDiscordAssistant"]
