@@ -1,18 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Text;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.CommandsNext;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
-using System.Globalization;
 using System.Linq;
 using System.IO;
 using Newtonsoft.Json;
 using System.Reflection;
 
-namespace discordbot
+namespace OSISDiscordAssistant.Utilities
 {
     public class ClientUtilities
     {

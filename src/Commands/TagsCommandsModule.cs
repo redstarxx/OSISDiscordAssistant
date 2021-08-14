@@ -8,8 +8,9 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using DSharpPlus.Interactivity.Extensions;
+using OSISDiscordAssistant.Models;
 
-namespace discordbot.Commands
+namespace OSISDiscordAssistant.Commands
 {
     class TagsCommandsModule : BaseCommandModule
     {

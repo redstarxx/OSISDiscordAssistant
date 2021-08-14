@@ -5,11 +5,13 @@ using System.Globalization;
 using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.Entities;
-using discordbot.Constants;
+using OSISDiscordAssistant.Utilities;
+using OSISDiscordAssistant.Constants;
+using OSISDiscordAssistant.Models;
 using Microsoft.Extensions.Logging;
 using Humanizer;
 
-namespace discordbot.Services
+namespace OSISDiscordAssistant.Services
 {
     public class BackgroundTasks
     {

@@ -6,9 +6,11 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.Entities;
-using discordbot.Attributes;
+using OSISDiscordAssistant.Models;
+using OSISDiscordAssistant.Attributes;
+using OSISDiscordAssistant.Utilities;
 
-namespace discordbot.Commands
+namespace OSISDiscordAssistant.Commands
 {
     class VerificationCommandsModule : BaseCommandModule
     {    

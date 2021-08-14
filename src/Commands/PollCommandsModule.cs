@@ -9,8 +9,10 @@ using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using DSharpPlus.Interactivity.Extensions;
 using Humanizer;
+using OSISDiscordAssistant.Models;
+using OSISDiscordAssistant.Utilities;
 
-namespace discordbot.Commands
+namespace OSISDiscordAssistant.Commands
 {
     class PollCommandsModule : BaseCommandModule
     {

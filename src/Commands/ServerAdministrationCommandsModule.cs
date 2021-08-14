@@ -5,9 +5,10 @@ using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
-using discordbot.Attributes;
+using OSISDiscordAssistant.Attributes;
+using OSISDiscordAssistant.Utilities;
 
-namespace discordbot.Commands
+namespace OSISDiscordAssistant.Commands
 {
     class ServerAdministrationCommandsModule : BaseCommandModule
     {

@@ -8,8 +8,9 @@ using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.Entities;
 using DSharpPlus;
 using Humanizer;
+using OSISDiscordAssistant.Utilities;
 
-namespace discordbot.Commands
+namespace OSISDiscordAssistant.Commands
 {
     class ReminderCommandsModule : BaseCommandModule
     {

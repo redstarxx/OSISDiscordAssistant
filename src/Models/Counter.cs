@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace discordbot
+﻿namespace OSISDiscordAssistant.Models
 {
     public class Counter
     {

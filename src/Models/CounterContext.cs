@@ -1,10 +1,9 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
+﻿using Microsoft.EntityFrameworkCore;
+using OSISDiscordAssistant.Utilities;
 
 #nullable disable
 
-namespace discordbot
+namespace OSISDiscordAssistant.Models
 {
     public partial class CounterContext : DbContext
     {

@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 
-namespace discordbot.Attributes
+namespace OSISDiscordAssistant.Attributes
 {
     /// <summary>
     /// Checks whether the command invoker has the OSIS role.

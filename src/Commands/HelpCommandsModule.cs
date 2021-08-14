@@ -3,8 +3,9 @@ using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
+using OSISDiscordAssistant.Utilities;
 
-namespace discordbot.Commands
+namespace OSISDiscordAssistant.Commands
 {
     class HelpCommandsModule : BaseCommandModule
     {

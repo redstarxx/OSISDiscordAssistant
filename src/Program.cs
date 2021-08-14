@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace discordbot
+﻿namespace OSISDiscordAssistant
 {
     class Program
     {

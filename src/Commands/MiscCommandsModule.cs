@@ -12,8 +12,9 @@ using DSharpPlus.Entities;
 using DSharpPlus;
 using Microsoft.Extensions.PlatformAbstractions;
 using Npgsql;
+using OSISDiscordAssistant.Utilities;
 
-namespace discordbot.Commands
+namespace OSISDiscordAssistant.Commands
 {
     class MiscCommandsModule : BaseCommandModule
     {

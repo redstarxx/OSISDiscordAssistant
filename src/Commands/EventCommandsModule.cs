@@ -11,9 +11,11 @@ using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.Entities;
 using Npgsql;
 using Humanizer;
-using discordbot.Attributes;
+using OSISDiscordAssistant.Attributes;
+using OSISDiscordAssistant.Models;
+using OSISDiscordAssistant.Utilities;
 
-namespace discordbot.Commands
+namespace OSISDiscordAssistant.Commands
 {
     class EventCommandsModule : BaseCommandModule
     {

@@ -5,10 +5,11 @@ using System.IO;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using Microsoft.Extensions.Logging;
-using discordbot.Commands;
-using discordbot.Attributes;
-using discordbot.Constants;
-using discordbot.Services;
+using OSISDiscordAssistant.Commands;
+using OSISDiscordAssistant.Attributes;
+using OSISDiscordAssistant.Constants;
+using OSISDiscordAssistant.Services;
+using OSISDiscordAssistant.Utilities;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Exceptions;
@@ -19,7 +20,7 @@ using DSharpPlus.Entities;
 using Serilog;
 using Serilog.Events;
 
-namespace discordbot
+namespace OSISDiscordAssistant
 {
     public class Bot
     {

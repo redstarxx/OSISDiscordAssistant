@@ -1,10 +1,10 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
+using OSISDiscordAssistant.Utilities;
 
 #nullable disable
 
-namespace discordbot
+namespace OSISDiscordAssistant.Models
 {
     public partial class EventContext : DbContext
     {

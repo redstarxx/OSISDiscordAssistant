@@ -1,10 +1,8 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
-using DSharpPlus.Entities;
 
-namespace discordbot.Attributes
+namespace OSISDiscordAssistant.Attributes
 {
     /// <summary>
     /// Checks whether the command is executed in the channel that is specified.

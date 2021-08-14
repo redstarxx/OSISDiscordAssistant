@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 
-namespace discordbot.Attributes
+namespace OSISDiscordAssistant.Attributes
 {
     /// <summary>
     /// Checks whether the command invoker has the Service Administrator role.

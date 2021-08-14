@@ -3,7 +3,7 @@ using System.Linq;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
-using discordbot.Attributes;
+using OSISDiscordAssistant.Attributes;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.CommandsNext;
@@ -13,7 +13,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Microsoft.CodeAnalysis.Scripting;
 
-namespace discordbot.Commands
+namespace OSISDiscordAssistant.Commands
 {
     public sealed class BotAdministrationCommands : BaseCommandModule
     {

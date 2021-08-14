@@ -1,4 +1,4 @@
-﻿namespace discordbot.Constants
+﻿namespace OSISDiscordAssistant.Constants
 {
     public static class StringConstants
     {
