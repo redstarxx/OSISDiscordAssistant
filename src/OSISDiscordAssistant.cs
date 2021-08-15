@@ -257,35 +257,55 @@ namespace OSISDiscordAssistant
 
         private async Task<Task> CommandsNext_CommandErrored(CommandsNextExtension sender, CommandErrorEventArgs e)
         {
-            var failedChecks = ((ChecksFailedException)e.Exception).FailedChecks;
-            foreach (var failedCheck in failedChecks)
+            try
             {
-                if (failedCheck is RequireMainGuild)
+                var failedChecks = ((ChecksFailedException)e.Exception).FailedChecks;
+                foreach (var failedCheck in failedChecks)
                 {
-                    await e.Context.RespondAsync($"{Formatter.Bold("[ERROR]")} This command is only usable in the OSIS Sekolah Djuwita Batam Discord server!\nInvite Link: https://discord.gg/WC7FRsxFwb");
-                }
+                    if (failedCheck is RequireMainGuild)
+                    {
+                        await e.Context.RespondAsync($"{Formatter.Bold("[ERROR]")} This command is only usable in the OSIS Sekolah Djuwita Batam Discord server!\nInvite Link: https://discord.gg/WC7FRsxFwb");
+                    }
 
-                else if (failedCheck is RequireAdminRole)
+                    else if (failedCheck is RequireAdminRole)
+                    {
+                        await e.Context.RespondAsync($"{Formatter.Bold("[ERROR]")} This command is restricted to members with administrator permissions only.");
+                    }
+
+                    else if (failedCheck is RequireAccessRole)
+                    {
+                        await e.Context.RespondAsync($"{Formatter.Bold("[ERROR]")} This command is restricted to members with the {Formatter.InlineCode("OSIS")} role only.");
+                    }
+
+                    else if (failedCheck is RequireServiceAdminRole)
+                    {
+                        await e.Context.RespondAsync($"{Formatter.Bold("[ERROR]")} This command is restricted to members with the {Formatter.InlineCode("Service Administrator")} role only.");
+                    }
+
+                    else if (failedCheck is RequireChannel)
+                    {
+                        DiscordChannel requiredChannel = await e.Context.Client.GetChannelAsync(RequireChannel.Channel);
+
+                        await e.Context.RespondAsync($"{Formatter.Bold("[ERROR]")} This command is only usable in {requiredChannel.Mention}!");
+                    }
+                }
+            }
+
+            catch
+            {
+                DiscordEmbedBuilder errorEmbed = new DiscordEmbedBuilder
                 {
-                    await e.Context.RespondAsync($"{Formatter.Bold("[ERROR]")} This command is restricted to members with administrator permissions only.");
-                }
+                    Title = "An error occurred!",
+                    Description = $"Exception details: {Formatter.InlineCode($"{e.Exception.GetType()}: {e.Exception.Message}")}",
+                    Timestamp = ClientUtilities.GetWesternIndonesianDateTime(),
+                    Footer = new DiscordEmbedBuilder.EmbedFooter
+                    {
+                        Text = "OSIS Discord Assistant"
+                    },
+                    Color = DiscordColor.MidnightBlue
+                };
 
-                else if (failedCheck is RequireAccessRole)
-                {
-                    await e.Context.RespondAsync($"{Formatter.Bold("[ERROR]")} This command is restricted to members with the {Formatter.InlineCode("OSIS")} role only.");
-                }
-
-                else if (failedCheck is RequireServiceAdminRole)
-                {
-                    await e.Context.RespondAsync($"{Formatter.Bold("[ERROR]")} This command is restricted to members with the {Formatter.InlineCode("Service Administrator")} role only.");
-                }
-
-                else if (failedCheck is RequireChannel)
-                {
-                    DiscordChannel requiredChannel = await e.Context.Client.GetChannelAsync(RequireChannel.Channel);
-
-                    await e.Context.RespondAsync($"{Formatter.Bold("[ERROR]")} This command is only usable in {requiredChannel.Mention}!");
-                }
+                await e.Context.RespondAsync(embed: errorEmbed.Build());
             }
 
             e.Context.Client.Logger.LogError(LogEvent,
