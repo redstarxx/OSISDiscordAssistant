@@ -81,6 +81,8 @@ namespace OSISDiscordAssistant
             Client.GuildCreated += OnGuildCreated;
             Client.GuildDeleted += OnGuildDeleted;
             Client.MessageCreated += OnMessageCreated;
+            Client.MessageUpdated += OnMessageUpdated;
+            Client.MessageDeleted += OnMessageDeleted;
             Client.MessageReactionAdded += OnMessageReactionAdded;
             Client.SocketErrored += OnSocketErrored;
             Client.Heartbeated += OnHeartbeated;
@@ -98,7 +100,7 @@ namespace OSISDiscordAssistant
                 StringPrefixes = new String[] { configJson.Prefix },
                 EnableMentionPrefix = true,
                 EnableDms = false,
-                EnableDefaultHelp = false
+                EnableDefaultHelp = false,
             };
 
             Commands = await Client.UseCommandsNextAsync(commandsConfig);
@@ -167,6 +169,50 @@ namespace OSISDiscordAssistant
                     string toSend = $"{Formatter.Bold("[ERROR]")} Sorry, you can only execute commands in a guild that the bot is a part of!";
 
                     e.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
+                }
+            }
+
+            return Task.CompletedTask;
+        }
+
+        private Task OnMessageUpdated(DiscordClient sender, MessageUpdateEventArgs e)
+        {
+            sender.Logger.LogInformation(LogEvent,
+                $"User '{e.Message.Author.Username}#{e.Message.Author.Discriminator}' ({e.Message.Author.Id}) " +
+                $"updated message ({e.Message.Id}) in #{e.Channel.Name} ({e.Channel.Id}) guild '{e.Guild.Name}' ({e.Guild.Id})",
+                ClientUtilities.GetWesternIndonesianDateTime());
+
+            if (!string.IsNullOrEmpty(e.Message.Content) || e.Message.Embeds.Count > 0)
+            {
+                if (SharedData.EditedMessages.ContainsKey(e.Channel.Id))
+                {
+                    SharedData.EditedMessages[e.Channel.Id] = e.MessageBefore;
+                }
+                else
+                {
+                    SharedData.EditedMessages.TryAdd(e.Channel.Id, e.MessageBefore);
+                }
+            }
+
+            return Task.CompletedTask;
+        }
+
+        private Task OnMessageDeleted(DiscordClient sender, MessageDeleteEventArgs e)
+        {
+            sender.Logger.LogInformation(LogEvent,
+                $"User '{e.Message.Author.Username}#{e.Message.Author.Discriminator}' ({e.Message.Author.Id}) " +
+                $"deleted message ({e.Message.Id}) in #{e.Channel.Name} ({e.Channel.Id}) guild '{e.Guild.Name}' ({e.Guild.Id})",
+                ClientUtilities.GetWesternIndonesianDateTime());
+
+            if (!string.IsNullOrEmpty(e.Message.Content) || e.Message.Embeds.Count > 0)
+            {
+                if (SharedData.DeletedMessages.ContainsKey(e.Channel.Id))
+                {
+                    SharedData.DeletedMessages[e.Channel.Id] = e.Message;
+                }
+                else
+                {
+                    SharedData.DeletedMessages.TryAdd(e.Channel.Id, e.Message);
                 }
             }
 
