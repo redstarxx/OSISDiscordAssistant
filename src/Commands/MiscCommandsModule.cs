@@ -13,6 +13,7 @@ using DSharpPlus;
 using Microsoft.Extensions.PlatformAbstractions;
 using Npgsql;
 using OSISDiscordAssistant.Utilities;
+using OSISDiscordAssistant.Services;
 
 namespace OSISDiscordAssistant.Commands
 {
@@ -81,7 +82,7 @@ namespace OSISDiscordAssistant.Commands
 
             await ctx.Channel.SendMessageAsync(embed: embedBuilder);
         }
-     
+
         [Command("uptime")]
         public async Task UptimeAsync(CommandContext ctx)
         {
@@ -96,7 +97,7 @@ namespace OSISDiscordAssistant.Commands
         [Command("ping")]
         public async Task PingAsync(CommandContext ctx)
         {
-            await ctx.RespondAsync(string.Concat("\u200b", DiscordEmoji.FromName(ctx.Client, ":ping_pong:"), 
+            await ctx.RespondAsync(string.Concat("\u200b", DiscordEmoji.FromName(ctx.Client, ":ping_pong:"),
                 " WebSocket latency: ", ctx.Client.Ping.ToString("#,##0"), "ms."));
         }
 
@@ -107,7 +108,7 @@ namespace OSISDiscordAssistant.Commands
 
             var profileImageLink = memberProfilePicture.GetAvatarUrl(ImageFormat.Png);
             await ctx.Channel.SendMessageAsync(profileImageLink).ConfigureAwait(false);
-        }        
+        }
 
         [Command("slap")]
         public async Task SlapAsync(CommandContext ctx, DiscordMember member)
@@ -141,6 +142,80 @@ namespace OSISDiscordAssistant.Commands
             Thread.Sleep(TimeSpan.FromSeconds(2));
 
             await ctx.Channel.SendMessageAsync($"It lands on {Formatter.Bold(side)}!");
+        }
+
+        [Command("snipe")]
+        public async Task SnipeAsync(CommandContext ctx)
+        {
+            if (SharedData.DeletedMessages.ContainsKey(ctx.Channel.Id))
+            {
+                var message = SharedData.DeletedMessages[ctx.Channel.Id];
+
+                var messageContent = message.Content;
+
+                if (messageContent.Length > 500)
+                {
+                    messageContent = messageContent.Substring(0, 500) + "...";
+                }
+
+                DiscordEmbedBuilder snipeEmbed = new DiscordEmbedBuilder()
+                {
+                    Author = new DiscordEmbedBuilder.EmbedAuthor
+                    {
+                        Name = $"{message.Author.Username}#{message.Author.Discriminator}",
+                        IconUrl = message.Author.AvatarUrl
+                    },
+                    Timestamp = message.CreationTimestamp
+                };
+
+                if (!string.IsNullOrEmpty(message.Content))
+                {
+                    snipeEmbed.WithDescription(message.Content);
+                }
+
+                await ctx.RespondAsync(embed: snipeEmbed.Build());
+
+                return;
+            }
+
+            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} No message to snipe!");
+        }
+
+        [Command("snipeedit")]
+        public async Task SnipeEditAsync(CommandContext ctx)
+        {
+            if (SharedData.EditedMessages.ContainsKey(ctx.Channel.Id))
+            {
+                var message = SharedData.EditedMessages[ctx.Channel.Id];
+
+                var messageContent = message.Content;
+
+                if (messageContent.Length > 500)
+                {
+                    messageContent = messageContent.Substring(0, 500) + "...";
+                }
+
+                DiscordEmbedBuilder snipeEmbed = new DiscordEmbedBuilder()
+                {
+                    Author = new DiscordEmbedBuilder.EmbedAuthor
+                    {
+                        Name = $"{message.Author.Username}#{message.Author.Discriminator}",
+                        IconUrl = message.Author.AvatarUrl
+                    },
+                    Timestamp = message.EditedTimestamp
+                };
+
+                if (!string.IsNullOrEmpty(message.Content))
+                {
+                    snipeEmbed.WithDescription(message.Content);
+                }
+
+                await ctx.RespondAsync(embed: snipeEmbed.Build());
+
+                return;
+            }
+
+            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} No message to snipe!");
         }
 
         [Command("myinfo")]
