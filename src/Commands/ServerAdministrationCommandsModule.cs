@@ -160,6 +160,8 @@ namespace OSISDiscordAssistant.Commands
                 return;
             }
 
+            reason = reason is null ? reason = "N/A" : reason;
+
             await member.BanAsync(0, reason);
 
             await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[BANNED]")} {member.Username}#{member.Discriminator} has been banned. Reason: {reason}");
@@ -177,6 +179,8 @@ namespace OSISDiscordAssistant.Commands
             }
 
             DiscordGuild guild = ctx.Member.Guild;
+
+            reason = reason is null ? reason = "N/A" : reason;
 
             await member.UnbanAsync(guild, reason);
 
