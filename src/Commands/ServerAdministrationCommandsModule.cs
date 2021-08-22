@@ -149,6 +149,40 @@ namespace OSISDiscordAssistant.Commands
             }
         }
 
+        [RequireAdminRole]
+        [Command("ban")]
+        public async Task BanAsync(CommandContext ctx, DiscordMember member, [RemainingText] string reason)
+        {
+            if (member.Id == ctx.Member.Id)
+            {
+                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} Are you trying to kill yourself?");
+
+                return;
+            }
+
+            await member.BanAsync(0, reason);
+
+            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[BANNED]")} {member.Username}#{member.Discriminator} has been banned. Reason: {reason}");
+        }
+
+        [RequireAdminRole]
+        [Command("unban")]
+        public async Task UnbanAsync(CommandContext ctx, DiscordUser member, [RemainingText] string reason)
+        {
+            if (member.Id == ctx.Member.Id)
+            {
+                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} You cannot unban yourself!");
+
+                return;
+            }
+
+            DiscordGuild guild = ctx.Member.Guild;
+
+            await member.UnbanAsync(guild, reason);
+
+            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[UNBANNED]")} {member.Username}#{member.Discriminator} has been unbanned. Reason: {reason}");
+        }
+
         [Command("sendinfoembed")]
         public async Task InfoEmbedAsync(CommandContext ctx, ulong targetChannelId)
         {
@@ -198,6 +232,22 @@ namespace OSISDiscordAssistant.Commands
         {
             string toSend =
                 "**[SYNTAX]** !kick [USERMENTION] [REASON]";
+            await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
+        }
+
+        [RequireAdminRole]
+        [Command("ban")]
+        public async Task BanHelpAsync(CommandContext ctx)
+        {
+            string toSend = "**[SYNTAX]** !ban [USERMENTION] [REASON]";
+            await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
+        }
+
+        [RequireAdminRole]
+        [Command("unban")]
+        public async Task UnbanHelpAsync(CommandContext ctx)
+        {
+            string toSend = "**[SYNTAX]** !unban [USERID] [REASON]";
             await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
         }
 
