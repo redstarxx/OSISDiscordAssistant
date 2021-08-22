@@ -29,10 +29,14 @@ namespace OSISDiscordAssistant.Commands
                 $"{Formatter.Bold("!avatar")} - Shows a Discord profile picture of your account or another user.\n" +
                 $"{Formatter.Bold("!slap")} - Slaps the tagged member or role.\n" +
                 $"{Formatter.Bold("!flip")} - Flips a coin.\n" +
+                $"{Formatter.Bold("!snipe")} - Snipes a deleted message.\n" +
+                $"{Formatter.Bold("!snipeedit")} - Snipes the original content of an edited message.\n" +
                 $"{Formatter.Bold("!tags")} - Shows created tags.\n" +
                 $"{Formatter.Bold("!tag")} - Creates, updates, deletes, or mention a specified tag.\n" +
                 $"{Formatter.Bold("!setname")} - Sets a new name for yourself or another user.\n" +
                 $"{Formatter.Bold("!kick")} - Kicks a member from this Discord server.\n" +
+                $"{Formatter.Bold("!ban")} - Bans a member from this Discord server.\n" +
+                $"{Formatter.Bold("!unban")} - Unbans a member from this Discord server.\n" +
                 $"{Formatter.Bold("!mute")} - Mutes a member.\n" +
                 $"{Formatter.Bold("!unmute")} - Unmutes a member.\n" +
                 $"{Formatter.Bold("!announce")} - Sends an announcement message to a specified channel and role to mention.\n" +
