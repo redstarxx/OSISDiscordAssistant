@@ -188,6 +188,7 @@ namespace OSISDiscordAssistant
                 {
                     SharedData.EditedMessages[e.Channel.Id] = e.MessageBefore;
                 }
+
                 else
                 {
                     SharedData.EditedMessages.TryAdd(e.Channel.Id, e.MessageBefore);
@@ -210,6 +211,7 @@ namespace OSISDiscordAssistant
                 {
                     SharedData.DeletedMessages[e.Channel.Id] = e.Message;
                 }
+
                 else
                 {
                     SharedData.DeletedMessages.TryAdd(e.Channel.Id, e.Message);

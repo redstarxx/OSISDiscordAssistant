@@ -140,7 +140,9 @@ namespace OSISDiscordAssistant.Commands
         {
             try
             {
-                await channel.SendMessageAsync($"{Formatter.Bold("[PENGUMUMAN]")} {role.Mention} {announceMessage}");
+                announceMessage = announceMessage is not null ? announceMessage : throw new ArgumentException("Announcement message cannot be empty!");
+
+                await channel.SendMessageAsync($"{Formatter.Bold("[ANNOUNCEMENT]")} {role.Mention} {announceMessage}");
             }
 
             catch (Exception ex)
