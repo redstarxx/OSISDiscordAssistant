@@ -317,7 +317,7 @@ namespace OSISDiscordAssistant
 
                     else if (failedCheck is RequireAdminRole)
                     {
-                        await e.Context.RespondAsync($"{Formatter.Bold("[ERROR]")} This command is restricted to members with administrator permissions only.");
+                        await e.Context.RespondAsync($"{Formatter.Bold("[ERROR]")} This command is restricted to members with administrator permissions or server owner only.");
                     }
 
                     else if (failedCheck is RequireAccessRole)

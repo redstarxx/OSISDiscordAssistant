@@ -24,7 +24,7 @@ namespace OSISDiscordAssistant.Attributes
 
             if (!isAdmin)
             {
-                isAdmin = ctx.Member.Permissions.HasPermission(Permissions.Administrator);
+                isAdmin = ctx.Member.Permissions.HasPermission(Permissions.Administrator) || ctx.Member.IsOwner;
             }          
 
             return Task.FromResult(isAdmin);
