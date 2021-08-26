@@ -18,8 +18,13 @@ namespace OSISDiscordAssistant.Services
         /// <summary>
         /// Creates an events reminder task which queries the events table on a minute-by-minute basis and sends a reminder message for the respective event if the event meets the requirement for it to be sent.
         /// </summary>
-        public static Task StartEventReminders()
+        public static void StartEventReminders()
         {
+            if (SharedData.IsEventReminderInitialized)
+            {
+                return;
+            }
+
             Task eventReminder = Task.Run(async () =>
             {
                 DiscordChannel eventsChannel = await Bot.Client.GetShard(StringConstants.MainGuildId).GetChannelAsync(StringConstants.EventChannel);
@@ -284,16 +289,21 @@ namespace OSISDiscordAssistant.Services
                 }
             });
 
-            Bot.Client.Logger.LogInformation(Bot.ERTask, "Initialized events reminder task.", ClientUtilities.GetWesternIndonesianDateTime());
+            SharedData.IsEventReminderInitialized = true;
 
-            return Task.CompletedTask;
+            Bot.Client.Logger.LogInformation(Bot.ERTask, "Initialized events reminder task.", ClientUtilities.GetWesternIndonesianDateTime());
         }
 
         /// <summary>
         /// Creates a proposal submission reminder task which queries the events table on a minute-by-minute basis and sends a reminder message for the respective event if the event meets the requirement for it to be sent.
         /// </summary>
-        public static Task StartProposalReminders()
+        public static void StartProposalReminders()
         {
+            if (SharedData.IsProposalReminderInitialized)
+            {
+                return;
+            }
+
             Task proposalReminder = Task.Run(async () =>
             {
                 DiscordChannel proposalChannel = await Bot.Client.GetShard(StringConstants.MainGuildId).GetChannelAsync(StringConstants.ProposalChannel);
@@ -441,16 +451,21 @@ namespace OSISDiscordAssistant.Services
                 }
             });
 
-            Bot.Client.Logger.LogInformation(Bot.PRTask, "Initialized proposal reminder task.", ClientUtilities.GetWesternIndonesianDateTime());
+            SharedData.IsProposalReminderInitialized = true;
 
-            return Task.CompletedTask;
+            Bot.Client.Logger.LogInformation(Bot.PRTask, "Initialized proposal reminder task.", ClientUtilities.GetWesternIndonesianDateTime());
         }
 
         /// <summary>
         /// Creates a status updater task that changes the bot's display status every two minutes.
         /// </summary>
-        public static Task StartStatusUpdater()
+        public static void StartStatusUpdater()
         {
+            if (SharedData.IsStatusUpdaterInitialized)
+            {
+                return;
+            }
+
             Task statusUpdater = Task.Run(async () =>
             {
                 string gradeNumber = "VII";
@@ -499,9 +514,9 @@ namespace OSISDiscordAssistant.Services
                 }
             });
 
-            Bot.Client.Logger.LogInformation(Bot.StatusUpdater, "Initialized status updater task.", ClientUtilities.GetWesternIndonesianDateTime());
+            SharedData.IsStatusUpdaterInitialized = true;
 
-            return Task.CompletedTask;
+            Bot.Client.Logger.LogInformation(Bot.StatusUpdater, "Initialized status updater task.", ClientUtilities.GetWesternIndonesianDateTime());
         }
     }
 }
