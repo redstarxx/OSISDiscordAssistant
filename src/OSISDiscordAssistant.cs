@@ -341,19 +341,22 @@ namespace OSISDiscordAssistant
 
             catch
             {
-                DiscordEmbedBuilder errorEmbed = new DiscordEmbedBuilder
+                if (e.Exception is not CommandNotFoundException)
                 {
-                    Title = "An error occurred!",
-                    Description = $"Exception details: {Formatter.InlineCode($"{e.Exception.GetType()}: {e.Exception.Message}")}",
-                    Timestamp = ClientUtilities.GetWesternIndonesianDateTime(),
-                    Footer = new DiscordEmbedBuilder.EmbedFooter
+                    DiscordEmbedBuilder errorEmbed = new DiscordEmbedBuilder
                     {
-                        Text = "OSIS Discord Assistant"
-                    },
-                    Color = DiscordColor.MidnightBlue
-                };
+                        Title = "An error occurred!",
+                        Description = $"Exception details: {Formatter.InlineCode($"{e.Exception.GetType()}: {e.Exception.Message}")}",
+                        Timestamp = ClientUtilities.GetWesternIndonesianDateTime(),
+                        Footer = new DiscordEmbedBuilder.EmbedFooter
+                        {
+                            Text = "OSIS Discord Assistant"
+                        },
+                        Color = DiscordColor.MidnightBlue
+                    };
 
-                await e.Context.RespondAsync(embed: errorEmbed.Build());
+                    await e.Context.RespondAsync(embed: errorEmbed.Build());
+                }               
             }
 
             e.Context.Client.Logger.LogError(LogEvent,
