@@ -14,19 +14,21 @@ namespace OSISDiscordAssistant.Commands
     {
         [RequireAdminRole]
         [Command("mute")]
-        public async Task MuteAsync(CommandContext ctx, DiscordMember member, params string[] muteReason)
+        public async Task MuteAsync(CommandContext ctx, DiscordMember member, [RemainingText] string muteReason)
         {
-            // Checks whether the invoker is manually verifying themself.
-            if (await ClientUtilities.CheckSelfTargeting(member, ctx))
+            // Checks whether the invoker is muting themself.
+            if (member.Id == ctx.Member.Id)
             {
+                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} You cannot mute yourself.").ConfigureAwait(false);
+
                 return;
             }
 
             // Checks whether the command is executed with a reason.
-            if (string.Join(" ", muteReason).Length == 0)
+            if (muteReason is null)
             {
-                string toSend = "**[ERROR]** You must specify a reason.";
-                await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
+                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} You must specify a reason.").ConfigureAwait(false);
+
                 return;
             }
 
@@ -44,9 +46,11 @@ namespace OSISDiscordAssistant.Commands
         [Command("unmute")]
         public async Task UnmuteAsync(CommandContext ctx, DiscordMember member)
         {
-            // Checks whether the invoker is manually verifying themself.
-            if (await ClientUtilities.CheckSelfTargeting(member, ctx))
+            // Checks whether the invoker is unmuting themself.
+            if (member.Id == ctx.Member.Id)
             {
+                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} You cannot unmute yourself.").ConfigureAwait(false);
+
                 return;
             }
 
@@ -61,25 +65,27 @@ namespace OSISDiscordAssistant.Commands
 
         [RequireAdminRole]
         [Command("kick")]
-        public async Task KickAsync(CommandContext ctx, DiscordMember member, params string[] kickReason)
+        public async Task KickAsync(CommandContext ctx, DiscordMember member, [RemainingText] string kickReason)
         {
-            // Checks whether the invoker is manually verifying themself.
-            if (await ClientUtilities.CheckSelfTargeting(member, ctx))
+            //Check if the invoker is trying to kick themself.
+            if (member.Id == ctx.Member.Id)
             {
+                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} Are you trying to kill yourself?");
+
                 return;
             }
 
             // Checks whether the command is executed with a reason.
-            if (string.Join(" ", kickReason).Length == 0)
+            if (kickReason is null)
             {
-                string toSend = "**[ERROR]** You must specify a reason.";
-                await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
+                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} You must specify a reason.").ConfigureAwait(false);
+
                 return;
             }
 
             try
             {
-                await member.RemoveAsync();
+                await member.RemoveAsync(kickReason);
 
                 string toSend = 
                     "**[KICKED]** " + member.Username + "#" + member.Discriminator 
@@ -96,7 +102,7 @@ namespace OSISDiscordAssistant.Commands
 
         [RequireMainGuild, RequireAccessRole]
         [Command("setname")]
-        public async Task SetNameAsync(CommandContext ctx, DiscordMember member, params string[] newNickname)
+        public async Task SetNameAsync(CommandContext ctx, DiscordMember member, [RemainingText] string newNickname)
         {
             if (ctx.User.Id != member.Id)
             {
@@ -109,10 +115,10 @@ namespace OSISDiscordAssistant.Commands
             }
 
             // Checks whether the command is executed with a reason.
-            if (string.Join(" ", newNickname).Length == 0)
+            if (newNickname is null)
             {
-                string toSend = "**[ERROR]** You must specify a new nickname.";
-                await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
+                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} You must specify a reason.").ConfigureAwait(false);
+
                 return;
             }
 
@@ -162,7 +168,12 @@ namespace OSISDiscordAssistant.Commands
                 return;
             }
 
-            reason = reason is null ? reason = "N/A" : reason;
+            if (reason is null)
+            {
+                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} You must specify a reason.");
+
+                return;
+            }
 
             await member.BanAsync(0, reason);
 
@@ -219,7 +230,7 @@ namespace OSISDiscordAssistant.Commands
         public async Task MuteHelpAsync(CommandContext ctx)
         {
             string toSend =
-                "**[SYNTAX]** !mute [USERMENTION] [REASON (optional)]";
+                "**[SYNTAX]** !mute [USERMENTION] [REASON]";
             await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
         }
 
@@ -253,7 +264,7 @@ namespace OSISDiscordAssistant.Commands
         [Command("unban")]
         public async Task UnbanHelpAsync(CommandContext ctx)
         {
-            string toSend = "**[SYNTAX]** !unban [USERID] [REASON]";
+            string toSend = "**[SYNTAX]** !unban [USERID] [REASON (optional)]";
             await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
         }
 
