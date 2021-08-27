@@ -346,7 +346,7 @@ namespace OSISDiscordAssistant
                     DiscordEmbedBuilder errorEmbed = new DiscordEmbedBuilder
                     {
                         Title = "An error occurred!",
-                        Description = $"Exception details: {Formatter.InlineCode($"{e.Exception.GetType()}: {e.Exception.Message}")}",
+                        Description = $"Details: {Formatter.InlineCode($"{e.Exception.Message}")}",
                         Timestamp = ClientUtilities.GetWesternIndonesianDateTime(),
                         Footer = new DiscordEmbedBuilder.EmbedFooter
                         {
