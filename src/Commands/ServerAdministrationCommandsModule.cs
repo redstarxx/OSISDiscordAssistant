@@ -36,10 +36,7 @@ namespace OSISDiscordAssistant.Commands
             await member.GrantRoleAsync(ctx.Guild.GetRole(mutedRole));
             string mutingUser = ctx.Member.DisplayName;
 
-            string message =
-                "**[MUTED]** " + member.DisplayName + " has been muted by " + mutingUser + 
-                ". Reason: " + string.Join(" ", muteReason);
-            await ctx.Channel.SendMessageAsync(message).ConfigureAwait(false);
+            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[MUTED]")} {member.Mention} has been muted by {ctx.Member.Mention}. Reason: {muteReason}").ConfigureAwait(false);
         }
 
         [RequireAdminRole]
@@ -58,9 +55,7 @@ namespace OSISDiscordAssistant.Commands
             await member.RevokeRoleAsync(ctx.Guild.GetRole(mutedRole));
             string unmutingUser = ctx.Member.DisplayName;
 
-            string message =
-                "**[UNMUTED]** " + member.DisplayName + " has been unmuted by " + unmutingUser + ".";
-            await ctx.Channel.SendMessageAsync(message).ConfigureAwait(false);
+            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[UNMUTED]")} {member.Mention} has been unmuted by {ctx.Member.Mention}.").ConfigureAwait(false);
         }
 
         [RequireAdminRole]
@@ -87,15 +82,12 @@ namespace OSISDiscordAssistant.Commands
             {
                 await member.RemoveAsync(kickReason);
 
-                string toSend = 
-                    "**[KICKED]** " + member.Username + "#" + member.Discriminator 
-                    + " (" + member.DisplayName + ") has been kicked from the guild. Reason: " + string.Join(" ", kickReason);
-                await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
+                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[KICKED]")} {member.Mention} has been kicked from this server by {ctx.Member.Mention}. Reason: {kickReason}").ConfigureAwait(false);
             }
 
             catch
             {
-                string toSend = "**[ERROR]** An error occured. Have you tried to use the command correctly?";
+                string toSend = $"{Formatter.Bold("[ERROR]")} An error occured. Have you tried to use the command correctly?";
                 await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
             }
         }
@@ -117,7 +109,7 @@ namespace OSISDiscordAssistant.Commands
             // Checks whether the command is executed with a reason.
             if (newNickname is null)
             {
-                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} You must specify a reason.").ConfigureAwait(false);
+                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} You must specify a new name.").ConfigureAwait(false);
 
                 return;
             }
@@ -125,12 +117,9 @@ namespace OSISDiscordAssistant.Commands
             try
             {
                 string previousNickname = member.DisplayName;
-                await member.ModifyAsync(x => x.Nickname = string.Join(" ", newNickname));
+                await member.ModifyAsync(x => x.Nickname = newNickname);
 
-                string toSend = 
-                    member.Mention + " " + previousNickname + "'s server username has been changed to " + 
-                    string.Join(" ", newNickname) + ".";
-                await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
+                await ctx.Channel.SendMessageAsync($"{member.Mention} {previousNickname}'s server username has been changed to {newNickname} by {ctx.Member.Mention}.").ConfigureAwait(false);
             }
 
             catch
@@ -177,7 +166,7 @@ namespace OSISDiscordAssistant.Commands
 
             await member.BanAsync(0, reason);
 
-            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[BANNED]")} {member.Username}#{member.Discriminator} has been banned. Reason: {reason}");
+            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[BANNED]")} {member.Username}#{member.Discriminator} has been banned by {ctx.Member.Mention}. Reason: {reason}");
         }
 
         [RequireAdminRole]
@@ -197,7 +186,7 @@ namespace OSISDiscordAssistant.Commands
 
             await member.UnbanAsync(guild, reason);
 
-            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[UNBANNED]")} {member.Username}#{member.Discriminator} has been unbanned. Reason: {reason}");
+            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[UNBANNED]")} {member.Username}#{member.Discriminator} has been unbanned by {ctx.Member.Mention}. Reason: {reason}");
         }
 
         [Command("sendinfoembed")]
