@@ -19,7 +19,7 @@ namespace OSISDiscordAssistant.Utilities
         /// If false, error message is sent as reply.
         /// </summary>
         /// <returns>False if has none of the roles above.</returns>
-        public static async Task<bool> CheckAdminPermissions(CommandContext ctx)
+        public static bool CheckAdminPermissions(CommandContext ctx)
         {
             // Role checks below.
             bool hasServiceAdminRole = CheckServiceAdminRole(ctx);
@@ -34,9 +34,6 @@ namespace OSISDiscordAssistant.Utilities
                 {
                     if (!hasCoreCouncilRole)
                     {
-                        string errorReason = $"{Formatter.Bold("[ERROR]")} This command is restricted to {Formatter.InlineCode("Inti OSIS")} and {Formatter.InlineCode("Administrator")} only.";
-                        await ctx.Channel.SendMessageAsync(errorReason).ConfigureAwait(false);
-
                         return false;
                     }
 

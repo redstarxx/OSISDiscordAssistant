@@ -98,10 +98,12 @@ namespace OSISDiscordAssistant.Commands
         {
             if (ctx.User.Id != member.Id)
             {
-                bool isAdmin = await ClientUtilities.CheckAdminPermissions(ctx);
+                bool isAdmin = ClientUtilities.CheckAdminPermissions(ctx);
 
                 if (!isAdmin)
                 {
+                    await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} If you are not an administrator, you cannot rename someone else's nickname!").ConfigureAwait(false);
+
                     return;
                 }
             }
