@@ -87,8 +87,7 @@ namespace OSISDiscordAssistant.Commands
 
             catch
             {
-                string toSend = $"{Formatter.Bold("[ERROR]")} An error occured. Have you tried to use the command correctly?";
-                await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
+                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} An error occured. Have you tried to use the command correctly?").ConfigureAwait(false);
             }
         }
 
@@ -126,8 +125,7 @@ namespace OSISDiscordAssistant.Commands
 
             catch
             {
-                string toSend = "**[ERROR]** An error occured. Have you tried to use the command correctly?";
-                await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
+                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} An error occured. Have you tried to use the command correctly?").ConfigureAwait(false);
             }
         }
 
@@ -137,7 +135,12 @@ namespace OSISDiscordAssistant.Commands
         {
             try
             {
-                announceMessage = announceMessage is not null ? announceMessage : throw new ArgumentException("Announcement message cannot be empty!");
+                if (announceMessage is null)
+                {
+                    await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} Announcement message cannot be empty!");
+
+                    return;
+                }
 
                 await channel.SendMessageAsync($"{Formatter.Bold("[ANNOUNCEMENT]")} {role.Mention} {announceMessage}");
             }
