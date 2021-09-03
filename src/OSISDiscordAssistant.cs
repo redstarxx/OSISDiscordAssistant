@@ -160,18 +160,20 @@ namespace OSISDiscordAssistant
 
         private Task OnMessageCreated(DiscordClient sender, MessageCreateEventArgs e)
         {
-            if (e.Channel.IsPrivate && !e.Author.IsCurrent)
-            {
-                Client.Logger.LogInformation(LogEvent, $"User '{e.Author.Username}#{e.Author.Discriminator}' ({e.Author.Id}) sent \"{e.Message.Content}\" through Direct Messages ({e.Channel.Id})", ClientUtilities.GetWesternIndonesianDateTime());
+            _ = Task.Run(async () =>
+           {
+               if (e.Channel.IsPrivate && !e.Author.IsCurrent)
+               {
+                   Client.Logger.LogInformation(LogEvent, $"User '{e.Author.Username}#{e.Author.Discriminator}' ({e.Author.Id}) sent \"{e.Message.Content}\" through Direct Messages ({e.Channel.Id})", ClientUtilities.GetWesternIndonesianDateTime());
 
-                if (e.Message.Content.StartsWith("!"))
-                {
-                    string toSend = $"{Formatter.Bold("[ERROR]")} Sorry, you can only execute commands in a guild that the bot is a part of!";
+                   if (e.Message.Content.StartsWith("!"))
+                   {
+                       string toSend = $"{Formatter.Bold("[ERROR]")} Sorry, you can only execute commands in a guild that the bot is a part of!";
 
-                    e.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
-                }
-            }
-
+                       await e.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
+                   }
+               }
+           });
             return Task.CompletedTask;
         }
 
