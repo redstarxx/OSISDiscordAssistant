@@ -87,11 +87,11 @@ namespace OSISDiscordAssistant.Commands
 
             catch
             {
-                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} An error occured. Have you tried to use the command correctly?").ConfigureAwait(false);
+                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} An error occured. The member may not be in this server.").ConfigureAwait(false);
             }
         }
 
-        [RequireMainGuild, RequireAccessRole]
+        [RequireAdminRole]
         [Command("setname")]
         public async Task SetNameAsync(CommandContext ctx, DiscordMember member, [RemainingText] string newNickname)
         {
@@ -125,7 +125,7 @@ namespace OSISDiscordAssistant.Commands
 
             catch
             {
-                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} An error occured. Have you tried to use the command correctly?").ConfigureAwait(false);
+                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} An error occured. The member may not be in this server.").ConfigureAwait(false);
             }
         }
 
