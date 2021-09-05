@@ -2,8 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using OSISDiscordAssistant.Utilities;
 
-#nullable disable
-
 namespace OSISDiscordAssistant.Models
 {
     public partial class EventContext : DbContext
@@ -82,6 +80,12 @@ namespace OSISDiscordAssistant.Models
                 entity.Property(e => e.PreviouslyReminded)
                     .HasColumnName("previously_reminded")
                     .HasColumnType("bool");
+
+                entity.Property(e => e.ProposalFileTitle)
+                    .HasColumnName("proposal_file_title");
+
+                entity.Property(e => e.ProposalFileContent)
+                    .HasColumnName("proposal_file_content");
             });
 
             OnModelCreatingPartial(modelBuilder);

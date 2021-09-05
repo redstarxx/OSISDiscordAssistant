@@ -46,5 +46,15 @@
         /// Marks an event as true if expired.
         /// </summary>
         public bool Expired { get; set; }
+
+        /// <summary>
+        /// Event proposal file name.
+        /// </summary>
+        public string ProposalFileTitle { get; set; }
+
+        /// <summary>
+        /// Event proposal file content in byte array.
+        /// </summary>
+        public byte[] ProposalFileContent { get; set; }
     }
 }
