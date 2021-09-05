@@ -4,6 +4,9 @@ using System.Threading;
 using System.Globalization;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
+using System.Net;
+using System.IO;
+using System.Collections.Generic;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
@@ -1050,6 +1053,254 @@ namespace OSISDiscordAssistant.Commands
 
                     await ctx.Channel.SendMessageAsync(embed: embedBuilder).ConfigureAwait(false);
                 }                             
+            }
+
+            else if (operationSelection == "proposal")
+            {
+                string accessingEventName = string.Join(" ", optionalInput);
+
+                string eventName = null;
+
+                int rowID = 0;
+
+                using (var db = new EventContext())
+                {
+                    bool isNumber = int.TryParse(string.Join(" ", optionalInput), out int rowIDRaw);
+                    bool rowExists = false;
+
+                    string inputEventName = string.Join(" ", optionalInput);
+
+                    if (isNumber)
+                    {
+                        rowExists = db.Events.Any(x => x.Id == rowIDRaw);
+
+                        if (!rowExists)
+                        {
+                            string errorMessage = $"{Formatter.Bold("[ERROR]")} An error occured. You must provide the correct ID or name of the event you are updating. Refer to {Formatter.InlineCode("!event list")} or {Formatter.InlineCode("!event search")}.";
+                            await ctx.Channel.SendMessageAsync(errorMessage).ConfigureAwait(false);
+
+                            return;
+                        }
+
+                        rowID = db.Events.SingleOrDefault(x => x.Id == rowIDRaw).Id;
+                        eventName = db.Events.SingleOrDefault(x => x.Id == rowIDRaw).EventName;
+                    }
+
+                    else if (!isNumber)
+                    {
+                        int counter = 0;
+
+                        foreach (var events in db.Events)
+                        {
+                            if (events.EventName.ToLowerInvariant() == inputEventName.ToLowerInvariant())
+                            {
+                                rowID = events.Id;
+                                eventName = events.EventName;
+                                rowExists = true;
+                                counter++;
+
+                                break;
+                            }
+                        }
+
+                        if (counter == 0)
+                        {
+                            string errorMessage = $"{Formatter.Bold("[ERROR]")} An error occured. You must provide the correct ID or name of the event you are updating. Refer to {Formatter.InlineCode("!event list")} or {Formatter.InlineCode("!event search")}.";
+                            await ctx.Channel.SendMessageAsync(errorMessage).ConfigureAwait(false);
+
+                            return;
+                        }
+                    }
+                }
+
+                var embedBuilder = new DiscordEmbedBuilder
+                {
+                    Timestamp = ClientUtilities.GetWesternIndonesianDateTime(),
+                    Footer = new DiscordEmbedBuilder.EmbedFooter
+                    {
+                        Text = "OSIS Discord Assistant"
+                    },
+                    Color = DiscordColor.MidnightBlue
+                };
+
+                string fileExist;
+
+                using (var db = new EventContext())
+                {
+                    bool proposalExist = db.Events.SingleOrDefault(x => x.Id == rowID).ProposalFileTitle is null;
+
+                    switch (proposalExist)
+                    {
+                        case true:
+                            fileExist = "does not";
+                            break;
+                        case false:
+                            fileExist = "does";
+                            break;
+                    }
+                }
+
+                embedBuilder.Title = $"Events Manager - Accessing {eventName}'s Proposal...";
+                embedBuilder.Description = $"Choose either one of the following emojis to select what are you going to do with {Formatter.Bold(eventName)}. This event {fileExist} have a proposal file stored.\n\n" +
+                    $"{Formatter.Bold("[1]")} Get the event's proposal document;\n{Formatter.Bold("[2]")} Store / update the event's proposal.\n{Formatter.Bold("[3]")} Delete the event's proposal.\n\n" +
+                    $"You have 5 (five) minutes to select your choice.";
+                var updateEmbed = await ctx.Channel.SendMessageAsync(embed: embedBuilder).ConfigureAwait(false);
+
+                var numberOneEmoji = DiscordEmoji.FromName(ctx.Client, ":one:");
+                var numberTwoEmoji = DiscordEmoji.FromName(ctx.Client, ":two:");
+                var numberThreeEmoji = DiscordEmoji.FromName(ctx.Client, ":three:");
+
+                await updateEmbed.CreateReactionAsync(numberOneEmoji).ConfigureAwait(false);
+                await updateEmbed.CreateReactionAsync(numberTwoEmoji).ConfigureAwait(false);
+                await updateEmbed.CreateReactionAsync(numberThreeEmoji).ConfigureAwait(false);
+
+                var selectionInteractivity = ctx.Client.GetInteractivity();
+                var selectionResult = await selectionInteractivity.WaitForReactionAsync
+                    (x => x.Message == updateEmbed && (x.User.Id == ctx.User.Id) && (x.Emoji == numberOneEmoji || x.Emoji == numberTwoEmoji || x.Emoji == numberThreeEmoji), 
+                    TimeSpan.FromMinutes(5));
+
+                if (!selectionResult.TimedOut)
+                {
+                    await updateEmbed.DeleteAllReactionsAsync();
+
+                    var messageBuilder = new DiscordMessageBuilder()
+                    {
+                        Content = $"Event {Formatter.Bold(eventName)}'s proposal is as follows:"
+                    };
+
+                    string fileTitle = null;
+
+                    byte[] fileContent = null;
+
+                    MemoryStream fileStream = new MemoryStream();
+
+                    if (selectionResult.Result.Emoji == numberOneEmoji)
+                    {
+                        using (var db = new EventContext())
+                        {
+                            Events rowToAccess = null;
+                            rowToAccess = db.Events.SingleOrDefault(x => x.Id == rowID);
+
+                            fileTitle = rowToAccess.ProposalFileTitle;
+
+                            fileContent = rowToAccess.ProposalFileContent;
+
+                            if (fileTitle is null)
+                            {
+                                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} Event {Formatter.Bold(eventName)} does not have a proposal file stored!");
+
+                                return;
+                            }
+
+                            fileStream = new MemoryStream(fileContent);
+
+                            messageBuilder.WithFiles(new Dictionary<string, Stream>() { { fileTitle, fileStream } }, true);
+
+                            await ctx.Channel.SendMessageAsync(builder: messageBuilder);
+                        }
+                    }
+
+                    else if (selectionResult.Result.Emoji == numberTwoEmoji)
+                    {
+                        var interactivity = ctx.Client.GetInteractivity();
+
+                        await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention}, drop / upload the proposal file here. An acceptable file is a Microsoft Word document. You have one minute!").ConfigureAwait(false);
+
+                        var proposalResult = await interactivity.WaitForMessageAsync(x => x.Author.Id == ctx.Member.Id, TimeSpan.FromMinutes(1));
+
+                        if (!proposalResult.TimedOut)
+                        {
+                            if (proposalResult.Result.Content.Length is not 0)
+                            {
+                                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} You must be sending a file, not a message or anything else. Alternatively, avoid adding comments to the file you are uploading.");
+
+                                return;
+                            }
+
+                            foreach (var attachment in proposalResult.Result.Attachments)
+                            {
+                                if (attachment.FileName.Length is 0)
+                                {
+                                    await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} Where is the file?");
+
+                                    return;
+                                }
+
+                                if (!ClientUtilities.IsExtensionValid(attachment.FileName))
+                                {
+                                    await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} I'm sorry, the file is not valid! A valid proposal file must be a Microsoft Word file (.docx, .doc, .docm).");
+
+                                    return;
+                                }
+
+                                WebClient wc = new WebClient();
+                                fileTitle = attachment.FileName;
+                                fileContent = wc.DownloadData(attachment.Url);
+                                fileStream = new MemoryStream(fileContent);
+                            }
+
+                            string fileStatus = null;
+
+                            using (var db = new EventContext())
+                            {
+                                Events rowToAccess = null;
+                                rowToAccess = db.Events.SingleOrDefault(x => x.Id == rowID);
+
+                                if (rowToAccess.ProposalFileTitle is null)
+                                {
+                                    fileStatus = "stored";
+                                }
+
+                                else
+                                {
+                                    fileStatus = "updated";
+                                }
+
+                                rowToAccess.ProposalFileTitle = fileTitle;
+
+                                rowToAccess.ProposalFileContent = fileContent;
+
+                                await db.SaveChangesAsync();
+                            }
+
+                            await ctx.Channel.SendMessageAsync($"Event {Formatter.Bold(eventName)}'s proposal document has been {fileStatus}!");
+                        }
+
+                        else
+                        {
+                            await ctx.RespondAsync($"{Formatter.Bold("[TIMED OUT]")} {ctx.Member.Mention} Proposal not uploaded within given time span. Re-run the command if you still need to update {Formatter.Bold(eventName)}'s proposal.").ConfigureAwait(false);
+                        }
+                    }
+
+                    else if (selectionResult.Result.Emoji == numberThreeEmoji)
+                    {
+                        using (var db = new EventContext())
+                        {
+                            Events rowToDelete = null;
+                            rowToDelete = db.Events.SingleOrDefault(x => x.Id == rowID);
+
+                            if (rowToDelete.ProposalFileTitle is null)
+                            {
+                                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} Event {Formatter.Bold(eventName)} does not have a proposal file stored!");
+
+                                return;
+                            }
+
+                            rowToDelete.ProposalFileTitle = null;
+
+                            rowToDelete.ProposalFileContent = null;
+
+                            await db.SaveChangesAsync();
+                        }
+
+                        await ctx.Channel.SendMessageAsync($"Event {Formatter.Bold(eventName)}'s proposal document has been deleted!");
+                    }
+                }
+
+                else
+                {
+                    await ctx.RespondAsync($"{Formatter.Bold("[TIMED OUT]")} {ctx.Member.Mention} You did not choose an option within the given time span. Re-run the command if you still need to update {Formatter.Bold(eventName)}'s proposal.").ConfigureAwait(false);
+                }
             }
            
             else
