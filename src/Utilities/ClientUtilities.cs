@@ -100,6 +100,24 @@ namespace OSISDiscordAssistant.Utilities
             return false;
         }
 
+        public static bool IsExtensionValid(string fileName)
+        {
+            string[] fileExtensions = 
+            { 
+                ".docx", ".docm", ".doc"
+            };
+
+            foreach (string extension in fileExtensions)
+            {
+                if (fileName.Contains(extension))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         /// <summary>
         /// Parses a shortened timespan into seconds. Example: "1d16h35m". 
         /// </summary>
