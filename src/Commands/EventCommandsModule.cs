@@ -321,6 +321,12 @@ namespace OSISDiscordAssistant.Commands
                 await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
             }
 
+            else if (operationSelection == "proposal")
+            {
+                string toSend = $"{Formatter.Bold("[SYNTAX]")} !event proposal [EVENT ID or EVENT NAME]\nExample: {Formatter.InlineCode("!event proposal LDKS 2021")}";
+                await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
+            }
+
             else
             {
                 var helpEmoji = DiscordEmoji.FromName(ctx.Client, ":sos:");
@@ -1335,6 +1341,7 @@ namespace OSISDiscordAssistant.Commands
                         $"{Formatter.Bold("!event update")} - Updates an existing event.\n" +
                         $"{Formatter.Bold("!event delete")} - Deletes an event.\n" +
                         $"{Formatter.Bold("!event search")} - Search the database for an event that matches the given event name or ID.\n" +
+                        $"{Formatter.Bold("!event proposal")} - Gets or updates the proposal file for the respective event name or ID.\n" +
                         $"{Formatter.Bold("!event list")} - Lists all registered events.\n";
 
                     await ctx.Channel.SendMessageAsync(embed: embedBuilder).ConfigureAwait(false);
@@ -1365,6 +1372,7 @@ namespace OSISDiscordAssistant.Commands
                 $"{Formatter.Bold("!event update")} - Updates an existing event.\n" +
                 $"{Formatter.Bold("!event delete")} - Deletes an event.\n" +
                 $"{Formatter.Bold("!event search")} - Search the database for an event that matches the given event name or ID.\n" +
+                $"{Formatter.Bold("!event proposal")} - Gets or updates the proposal file for the respective event name or ID.\n" +
                 $"{Formatter.Bold("!event list")} - Lists all registered events.\n";
 
             await ctx.Channel.SendMessageAsync(embed: embedBuilder).ConfigureAwait(false);
