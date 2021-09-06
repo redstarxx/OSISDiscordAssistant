@@ -100,6 +100,11 @@ namespace OSISDiscordAssistant.Utilities
             return false;
         }
 
+        /// <summary>
+        /// Checks whether the file name contains a file extension that is allowed.
+        /// </summary>
+        /// <param name="fileName">The file name to check.</param>
+        /// <returns>True if the file name contains an allowed file extension.</returns>
         public static bool IsExtensionValid(string fileName)
         {
             string[] fileExtensions = 
