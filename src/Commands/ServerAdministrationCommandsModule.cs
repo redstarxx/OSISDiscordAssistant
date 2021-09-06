@@ -262,7 +262,7 @@ namespace OSISDiscordAssistant.Commands
             await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
         }
 
-        [RequireMainGuild, RequireAccessRole]
+        [RequireAdminRole]
         [Command("setname")]
         public async Task SetNameAsync(CommandContext ctx)
         {
