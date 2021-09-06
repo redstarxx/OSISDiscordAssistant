@@ -276,6 +276,13 @@ namespace OSISDiscordAssistant
 
             sender.Logger.LogCritical(LogEvent, $"Socket threw an exception {ex.GetType()}: {ex.Message}", DateTime.Now);
 
+            if (ex.Message is "Could not connect to Discord.")
+            {
+                sender.Logger.LogInformation(LogEvent, "Terminating...", ClientUtilities.GetWesternIndonesianDateTime());
+
+                Environment.Exit(0);
+            }
+
             return Task.CompletedTask;
         }
 
