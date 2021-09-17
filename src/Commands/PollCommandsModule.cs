@@ -8,6 +8,7 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using DSharpPlus.Interactivity.Extensions;
+using DSharpPlus.Interactivity.Enums;
 using Humanizer;
 using OSISDiscordAssistant.Models;
 using OSISDiscordAssistant.Utilities;
@@ -36,19 +37,13 @@ namespace OSISDiscordAssistant.Commands
 
                 var pollEmbed = await ctx.Channel.SendMessageAsync(embed: pollEmbedBuilder).ConfigureAwait(false);
 
-                foreach (var option in emojiOptions)
-                {
-                    await pollEmbed.CreateReactionAsync(option).ConfigureAwait(false);
-                }
-
                 Thread.Sleep(TimeSpan.FromSeconds(1));
 
                 var interactivity = ctx.Client.GetInteractivity();
 
-                var collectedEmojis = await interactivity.CollectReactionsAsync(pollEmbed, pollDuration).ConfigureAwait(false);
-                var distinctResult = collectedEmojis.Distinct();
+                var collectedEmojis = await interactivity.DoPollAsync(pollEmbed, emojiOptions, PollBehaviour.KeepEmojis, pollDuration);
 
-                var resultEmojis = distinctResult.Select(x => $"{x.Emoji}: {x.Total} ({x.Total.ToWords()}) voter(s).");
+                var resultEmojis = collectedEmojis.Select(x => $"{x.Emoji}: {x.Total} ({x.Total.ToWords()}) voter(s).");
 
                 var pollResultEmbedBuilder = new DiscordEmbedBuilder
                 {
@@ -60,15 +55,23 @@ namespace OSISDiscordAssistant.Commands
                     }
                 };
 
-                if (collectedEmojis.Count() != 0)
+                int voteCount = 0;
+
+                foreach (var vote in collectedEmojis)
                 {
-                    pollResultEmbedBuilder.Description = $"A total of {collectedEmojis.Count()} ({collectedEmojis.Count().ToWords()}) votes have been collected.\n\n" +
+                    voteCount = voteCount + vote.Total;
+                }
+
+                if (voteCount != 0)
+                {
+                    pollResultEmbedBuilder.Description = $"A total of {voteCount} ({voteCount.ToWords()}) votes have been collected.\n\n" +
                         $"{string.Join("\n", resultEmojis)}";
                 }
 
                 else
                 {
-                    pollResultEmbedBuilder.Description = "Nobody has casted their votes!";
+                    pollResultEmbedBuilder.Description = $"Nobody has casted their votes!\n\n" +
+                        $"{string.Join("\n", resultEmojis)}";
                 }
 
                 await ctx.Channel.SendMessageAsync(embed: pollResultEmbedBuilder).ConfigureAwait(false);
