@@ -27,7 +27,7 @@ namespace OSISDiscordAssistant.Commands
         /// </summary>
         /// <param name="ctx">The respective context that the command belongs to.</param>
         /// <param name="operationSelection">Operation type to run.</param>
-        [RequireMainGuild, RequireAccessRole]
+        //[RequireMainGuild, RequireAccessRole]
         [Command("event")]
         public async Task EventCreateOrList(CommandContext ctx, string operationSelection)
         {
@@ -277,25 +277,27 @@ namespace OSISDiscordAssistant.Commands
 
                 Task offloadToTask = Task.Run(async () =>
                 {
-                    int eventIndex = 0;
+                    int counter = 0;
+
                     using (var db = new EventContext())
                     {
                         foreach (var events in db.Events)
                         {
                             string descriptionField = $"Status: {ClientUtilities.ConvertStatusBoolean(events.Expired)}\nPerson-in-charge: {events.PersonInCharge}\nDescription: {events.EventDescription}";
                             embedBuilder.AddField($"({events.Id}) {events.EventName} [{events.EventDate}]", descriptionField, true);
-                            eventIndex++;
+
+                            counter++;
                         }
                     }
 
-                    if (eventIndex == 0)
+                    if (counter == 0)
                     {
                         embedBuilder.Description = "There are no events to list.";
                     }
 
                     else
                     {
-                        embedBuilder.Description = $"List of all registered events. In total, there are {eventIndex} ({eventIndex.ToWords()}) events.";
+                        embedBuilder.Description = $"List of all registered events. In total, there are {counter} ({counter.ToWords()}) events.";
                     }
 
                     await notifyMessage.DeleteAsync();
@@ -373,7 +375,7 @@ namespace OSISDiscordAssistant.Commands
         /// <param name="ctx">The respective context that the command belongs to.</param>
         /// <param name="operationSelection">Operation type to run.</param>
         /// <param name="optionalInput">Row number or event name from the events table to update or delete or search. Optional.</param>
-        [RequireMainGuild, RequireAccessRole]
+        //[RequireMainGuild, RequireAccessRole]
         [Command("event")]
         public async Task Event(CommandContext ctx, string operationSelection, params string[] optionalInput)
         {                    
@@ -970,14 +972,25 @@ namespace OSISDiscordAssistant.Commands
                         try
                         {
                             int counter = 0;
+
+                            int additionalCounter = 0;
+
                             foreach (var events in db.Events)
                             {
-                                if (events.EventName.ToLowerInvariant().Contains(toSearch))
+                                if (counter == 25 || counter > 25)
                                 {
-                                    string descriptionField = $"Status: {ClientUtilities.ConvertStatusBoolean(events.Expired)}\nPerson-in-charge: {events.PersonInCharge}\nDescription: {events.EventDescription}";
-                                    embedBuilder.AddField($"({events.Id}) {events.EventName} [{events.EventDate}]", descriptionField, true);
+                                    additionalCounter++;
+                                }
 
-                                    counter++;
+                                else
+                                {
+                                    if (events.EventName.ToLowerInvariant().Contains(toSearch))
+                                    {
+                                        string descriptionField = $"Status: {ClientUtilities.ConvertStatusBoolean(events.Expired)}\nPerson-in-charge: {events.PersonInCharge}\nDescription: {events.EventDescription}";
+                                        embedBuilder.AddField($"({events.Id}) {events.EventName} [{events.EventDate}]", descriptionField, true);
+
+                                        counter++;
+                                    }
                                 }
                             }
 
@@ -988,7 +1001,9 @@ namespace OSISDiscordAssistant.Commands
 
                             else
                             {
-                                embedBuilder.Description = $"Showing {counter} ({counter.ToWords()}) query result for event name {Formatter.InlineCode(parseOptionalInput)}...";
+                                int searchResultCount = counter + additionalCounter;
+
+                                embedBuilder.Description = $"Showing {counter} ({counter.ToWords()}) out of {searchResultCount} ({searchResultCount.ToWords()}) query result for keyword {Formatter.InlineCode(parseOptionalInput)}...";
                             }
 
                             await ctx.Channel.SendMessageAsync(embed: embedBuilder).ConfigureAwait(false);
@@ -1316,7 +1331,7 @@ namespace OSISDiscordAssistant.Commands
         /// <summary>
         /// Command to view the Events Manager commands and help.
         /// </summary>
-        [RequireMainGuild, RequireAccessRole]
+        //[RequireMainGuild, RequireAccessRole]
         [Command("event")]
         public async Task EventCreateOrList(CommandContext ctx)
         {
