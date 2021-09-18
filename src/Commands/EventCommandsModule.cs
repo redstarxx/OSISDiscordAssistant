@@ -284,7 +284,7 @@ namespace OSISDiscordAssistant.Commands
                         foreach (var events in db.Events)
                         {
                             string descriptionField = $"Status: {ClientUtilities.ConvertStatusBoolean(events.Expired)}\nPerson-in-charge: {events.PersonInCharge}\nDescription: {events.EventDescription}";
-                            embedBuilder.AddField($"({events.Id}) {events.EventName} [{events.EventDate}]", descriptionField, true);
+                            embedBuilder.AddField($"(ID: {events.Id}) {events.EventName} [{events.EventDate}]", descriptionField, true);
 
                             counter++;
                         }
@@ -987,7 +987,7 @@ namespace OSISDiscordAssistant.Commands
                                     if (events.EventName.ToLowerInvariant().Contains(toSearch))
                                     {
                                         string descriptionField = $"Status: {ClientUtilities.ConvertStatusBoolean(events.Expired)}\nPerson-in-charge: {events.PersonInCharge}\nDescription: {events.EventDescription}";
-                                        embedBuilder.AddField($"({events.Id}) {events.EventName} [{events.EventDate}]", descriptionField, true);
+                                        embedBuilder.AddField($"(ID: {events.Id}) {events.EventName} [{events.EventDate}]", descriptionField, true);
 
                                         counter++;
                                     }
@@ -996,7 +996,7 @@ namespace OSISDiscordAssistant.Commands
 
                             if (counter == 0)
                             {
-                                embedBuilder.Description = $"Oops! There are no results for event name {Formatter.InlineCode(parseOptionalInput)}! If you are getting an event by ID, use {Formatter.InlineCode("!event get")}.";
+                                embedBuilder.Description = $"Oops! There are no results for keyword {Formatter.InlineCode(parseOptionalInput)}! If you are getting an event by ID, use {Formatter.InlineCode("!event get")}.";
                             }
 
                             else
@@ -1011,7 +1011,7 @@ namespace OSISDiscordAssistant.Commands
 
                         catch
                         {
-                            embedBuilder.Description = $"Oops! There are no results for event name {Formatter.InlineCode(parseOptionalInput)}! Did you typed the correct event name?";
+                            embedBuilder.Description = $"Oops! There are no results for keyword {Formatter.InlineCode(parseOptionalInput)}! Did you typed the correct event name?";
                             await ctx.Channel.SendMessageAsync(embed: embedBuilder).ConfigureAwait(false);
 
                             return;
