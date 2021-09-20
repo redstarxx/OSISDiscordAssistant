@@ -27,7 +27,7 @@ namespace OSISDiscordAssistant.Commands
         /// </summary>
         /// <param name="ctx">The respective context that the command belongs to.</param>
         /// <param name="operationSelection">Operation type to run.</param>
-        //[RequireMainGuild, RequireAccessRole]
+        [RequireMainGuild, RequireAccessRole]
         [Command("event")]
         public async Task EventCreateOrList(CommandContext ctx, string operationSelection)
         {
@@ -311,6 +311,12 @@ namespace OSISDiscordAssistant.Commands
                 await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
             }
 
+            else if (operationSelection == "get")
+            {
+                string toSend = $"{Formatter.Bold("[SYNTAX]")} !event get [EVENT ID or EVENT NAME]\nExample: {Formatter.InlineCode("!event get LDKS 2021")}";
+                await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
+            }
+
             else if (operationSelection == "search")
             {
                 string toSend = $"{Formatter.Bold("[SYNTAX]")} !event search [EVENT NAME]\nExample: {Formatter.InlineCode("!event search LDKS 2021")}";
@@ -360,7 +366,8 @@ namespace OSISDiscordAssistant.Commands
                         $"{Formatter.Bold("!event create")} - Creates a new event.\n" +
                         $"{Formatter.Bold("!event update")} - Updates an existing event.\n" +
                         $"{Formatter.Bold("!event delete")} - Deletes an event.\n" +
-                        $"{Formatter.Bold("!event search")} - Search an event name that contains the given keyword.\n" +
+                        $"{Formatter.Bold("!event get")} - Gets an event directly with the provided name or ID.\n" +
+                        $"{Formatter.Bold("!event search")} - Search for an event's name that contains the given keyword.\n" +
                         $"{Formatter.Bold("!event proposal")} - Gets or updates the proposal file for the respective event name or ID.\n" +
                         $"{Formatter.Bold("!event list")} - Lists all registered events.\n";
 
@@ -375,7 +382,7 @@ namespace OSISDiscordAssistant.Commands
         /// <param name="ctx">The respective context that the command belongs to.</param>
         /// <param name="operationSelection">Operation type to run.</param>
         /// <param name="optionalInput">Row number or event name from the events table to update or delete or search. Optional.</param>
-        //[RequireMainGuild, RequireAccessRole]
+        [RequireMainGuild, RequireAccessRole]
         [Command("event")]
         public async Task Event(CommandContext ctx, string operationSelection, params string[] optionalInput)
         {                    
@@ -1040,6 +1047,102 @@ namespace OSISDiscordAssistant.Commands
                 }                             
             }
 
+            else if (operationSelection == "get")
+            {
+                string parseOptionalInput = string.Join(" ", optionalInput);
+
+                // Converts the optionalInput into a number so we can access our targeted row.
+                // If true, execute query based on row ID. If false, execute query based on provided event name.
+                bool isNumber = int.TryParse(parseOptionalInput, out int rowID);
+
+                bool isLetter = parseOptionalInput.All(char.IsLetter);
+
+                var embedBuilder = new DiscordEmbedBuilder
+                {
+                    Title = "Events Manager - Get Result",
+                    Timestamp = ClientUtilities.GetWesternIndonesianDateTime(),
+                    Footer = new DiscordEmbedBuilder.EmbedFooter
+                    {
+                        Text = "OSIS Discord Assistant"
+                    },
+                    Color = DiscordColor.MidnightBlue
+                };
+
+                if (isNumber)
+                {
+                    using (var db = new EventContext())
+                    {
+                        Events rowToRead = null;
+
+                        try
+                        {
+                            rowToRead = db.Events.SingleOrDefault(x => x.Id == rowID);
+
+                            embedBuilder.Description = $"Showing result for event ID {Formatter.InlineCode(rowID.ToString())}...";
+
+                            string descriptionField = $"Status: {ClientUtilities.ConvertStatusBoolean(rowToRead.Expired)}\nPerson-in-charge: {rowToRead.PersonInCharge}\nDescription: {rowToRead.EventDescription}";
+                            embedBuilder.AddField($"(ID: {rowToRead.Id}) {rowToRead.EventName} [{rowToRead.EventDate}]", descriptionField, true);
+
+                            await ctx.Channel.SendMessageAsync(embed: embedBuilder).ConfigureAwait(false);
+                        }
+
+                        catch
+                        {
+                            embedBuilder.Description = $"Oops! There are no results for event ID {Formatter.InlineCode(rowID.ToString())}! Have you specified the correct event ID? Alternatively, use {Formatter.InlineCode("!event search")} with the event name you are looking for.";
+                            await ctx.Channel.SendMessageAsync(embed: embedBuilder).ConfigureAwait(false);
+
+                            return;
+                        }
+                    }
+                }
+
+                else if (!isNumber)
+                {
+                    string toSearch = parseOptionalInput.ToLowerInvariant();
+
+                    using (var db = new EventContext())
+                    {
+                        try
+                        {
+                            bool eventFound = false;
+
+                            foreach (var events in db.Events)
+                            {
+                                if (events.EventName.ToLowerInvariant() == toSearch)
+                                {
+                                    string descriptionField = $"Status: {ClientUtilities.ConvertStatusBoolean(events.Expired)}\nPerson-in-charge: {events.PersonInCharge}\nDescription: {events.EventDescription}";
+                                    embedBuilder.AddField($"(ID: {events.Id}) {events.EventName} [{events.EventDate}]", descriptionField, true);
+
+                                    eventFound = true;
+
+                                    break;
+                                }
+                            }
+
+                            if (eventFound is false)
+                            {
+                                embedBuilder.Description = $"Oops! There are no results for event name {Formatter.InlineCode(parseOptionalInput)}! Have you typed the exact event name you are looking for? Alternatively, use {Formatter.InlineCode("!event search")} with the event name you are looking for.";
+                            }
+
+                            else
+                            {
+                                embedBuilder.Description = $"Showing query result for event name {Formatter.InlineCode(parseOptionalInput)}...";
+                            }
+
+                            await ctx.Channel.SendMessageAsync(embed: embedBuilder).ConfigureAwait(false);
+                        }
+
+                        catch
+                        {
+                            embedBuilder.Description = $"Oops! There are no results for event name {Formatter.InlineCode(parseOptionalInput)}! Have you typed the exact event name you are looking for? Alternatively, use {Formatter.InlineCode("!event search")} with the event name you are looking for.";
+                            await ctx.Channel.SendMessageAsync(embed: embedBuilder).ConfigureAwait(false);
+
+                            return;
+                        }
+                    }
+                }
+            }
+
             else if (operationSelection == "proposal")
             {
                 string accessingEventName = string.Join(" ", optionalInput);
@@ -1319,7 +1422,8 @@ namespace OSISDiscordAssistant.Commands
                         $"{Formatter.Bold("!event create")} - Creates a new event.\n" +
                         $"{Formatter.Bold("!event update")} - Updates an existing event.\n" +
                         $"{Formatter.Bold("!event delete")} - Deletes an event.\n" +
-                        $"{Formatter.Bold("!event search")} - Search an event name that contains the given keyword.\n" +
+                        $"{Formatter.Bold("!event get")} - Gets an event directly with the provided name or ID.\n" +
+                        $"{Formatter.Bold("!event search")} - Search for an event's name that contains the given keyword.\n" +
                         $"{Formatter.Bold("!event proposal")} - Gets or updates the proposal file for the respective event name or ID.\n" +
                         $"{Formatter.Bold("!event list")} - Lists all registered events.\n";
 
@@ -1331,7 +1435,7 @@ namespace OSISDiscordAssistant.Commands
         /// <summary>
         /// Command to view the Events Manager commands and help.
         /// </summary>
-        //[RequireMainGuild, RequireAccessRole]
+        [RequireMainGuild, RequireAccessRole]
         [Command("event")]
         public async Task EventCreateOrList(CommandContext ctx)
         {
@@ -1350,7 +1454,8 @@ namespace OSISDiscordAssistant.Commands
                 $"{Formatter.Bold("!event create")} - Creates a new event.\n" +
                 $"{Formatter.Bold("!event update")} - Updates an existing event.\n" +
                 $"{Formatter.Bold("!event delete")} - Deletes an event.\n" +
-                $"{Formatter.Bold("!event search")} - Search an event name that contains the given keyword.\n" +
+                $"{Formatter.Bold("!event get")} - Gets an event directly with the provided name or ID.\n" +
+                $"{Formatter.Bold("!event search")} - Search for an event's name that contains the given keyword.\n" +
                 $"{Formatter.Bold("!event proposal")} - Gets or updates the proposal file for the respective event name or ID.\n" +
                 $"{Formatter.Bold("!event list")} - Lists all registered events.\n";
 
