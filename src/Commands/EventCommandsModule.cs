@@ -984,14 +984,14 @@ namespace OSISDiscordAssistant.Commands
 
                             foreach (var events in db.Events)
                             {
-                                if (counter == 25 || counter > 25)
+                                if (events.EventName.ToLowerInvariant().Contains(toSearch))
                                 {
-                                    additionalCounter++;
-                                }
+                                    if (counter > 25)
+                                    {
+                                        additionalCounter++;
+                                    }
 
-                                else
-                                {
-                                    if (events.EventName.ToLowerInvariant().Contains(toSearch))
+                                    else
                                     {
                                         string descriptionField = $"Status: {ClientUtilities.ConvertStatusBoolean(events.Expired)}\nPerson-in-charge: {events.PersonInCharge}\nDescription: {events.EventDescription}";
                                         embedBuilder.AddField($"(ID: {events.Id}) {events.EventName} [{events.EventDate}]", descriptionField, true);
