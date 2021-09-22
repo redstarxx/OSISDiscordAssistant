@@ -194,6 +194,39 @@ namespace OSISDiscordAssistant.Commands
             await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[UNBANNED]")} {member.Username}#{member.Discriminator} has been unbanned by {ctx.Member.Mention}. Reason: {reason}");
         }
 
+        [RequireAdminRole]
+        [Command("prune")]
+        public async Task PruneAsync(CommandContext ctx, int messageCount, [RemainingText] string reason)
+        {
+            messageCount++;
+
+            if (messageCount < 1)
+            {
+                return;
+            }
+                
+            if (messageCount > 100)
+            {
+                messageCount = 100;
+            }
+
+            reason = reason is null ? reason = "N/A" : reason;
+
+            try
+            {
+                await ctx.Channel.DeleteMessagesAsync(await ctx.Channel.GetMessagesAsync(messageCount), reason);
+            }
+
+            catch
+            {
+                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} An error occured. Are you trying to delete a message older than 14 days?");
+
+                return;
+            }
+
+            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[PRUNED]")} Pruned {messageCount} messages by {ctx.Member.Mention}. Reason: {reason}.");
+        }
+
         [Command("sendinfoembed")]
         public async Task InfoEmbedAsync(CommandContext ctx, ulong targetChannelId)
         {
