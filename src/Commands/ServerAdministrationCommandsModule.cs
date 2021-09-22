@@ -309,5 +309,12 @@ namespace OSISDiscordAssistant.Commands
         {
             await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[SYNTAX]")} !announce [CHANNEL] [TAG (role / member to mention)] [MESSAGE]");
         }
+
+        [RequireAdminRole]
+        [Command("prune")]
+        public async Task PruneHelpAsync(CommandContext ctx)
+        {
+            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[SYNTAX]")} !prune [MESSAGE COUNT] [REASON (optional)]");
+        }
     }
 }
