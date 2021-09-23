@@ -58,6 +58,9 @@ namespace OSISDiscordAssistant.Commands
                 case "@everyone":
                     mentionTarget = "@everyone";
                     break;
+                case "everyone":
+                    mentionTarget = "@everyone";
+                    break;
                 default:
                     string toCheck = remindTarget.Remove(2);
                     if (remindTarget.StartsWith("<") && toCheck == "<@")
