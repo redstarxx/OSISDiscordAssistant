@@ -279,25 +279,42 @@ namespace OSISDiscordAssistant.Commands
                 {
                     int counter = 0;
 
+                    int additionalCounter = 0;
+
+                    int currentYear = DateTime.Now.Year;
+
                     using (var db = new EventContext())
                     {
                         foreach (var events in db.Events)
                         {
-                            string descriptionField = $"Status: {ClientUtilities.ConvertStatusBoolean(events.Expired)}\nPerson-in-charge: {events.PersonInCharge}\nDescription: {events.EventDescription}";
-                            embedBuilder.AddField($"(ID: {events.Id}) {events.EventName} [{events.EventDate}]", descriptionField, true);
+                            if (events.EventDate.Contains(currentYear.ToString()))
+                            {
+                                if (counter > 25)
+                                {
+                                    additionalCounter++;
+                                }
 
-                            counter++;
+                                else
+                                {
+                                    string descriptionField = $"Status: {ClientUtilities.ConvertStatusBoolean(events.Expired)}\nPerson-in-charge: {events.PersonInCharge}\nDescription: {events.EventDescription}";
+                                    embedBuilder.AddField($"(ID: {events.Id}) {events.EventName} [{events.EventDate}]", descriptionField, true);
+
+                                    counter++;
+                                }
+                            }
                         }
                     }
 
                     if (counter == 0)
                     {
-                        embedBuilder.Description = "There are no events to list.";
+                        embedBuilder.Description = $"There are no events registered for this year. Alternatively, use {Formatter.InlineCode("!event list [YEAR]")}.";
                     }
 
                     else
                     {
-                        embedBuilder.Description = $"List of all registered events. In total, there are {counter} ({counter.ToWords()}) events.";
+                        int searchResultCount = counter + additionalCounter;
+
+                        embedBuilder.Description = $"List of all registered events for this year. Showing {counter} ({counter.ToWords()}) out of {searchResultCount} ({searchResultCount.ToWords()}) events. Alternatively, use {Formatter.InlineCode("!event list [YEAR]")}.";
                     }
 
                     await notifyMessage.DeleteAsync();
@@ -366,10 +383,10 @@ namespace OSISDiscordAssistant.Commands
                         $"{Formatter.Bold("!event create")} - Creates a new event.\n" +
                         $"{Formatter.Bold("!event update")} - Updates an existing event.\n" +
                         $"{Formatter.Bold("!event delete")} - Deletes an event.\n" +
-                        $"{Formatter.Bold("!event get")} - Gets an event directly with the provided name or ID.\n" +
-                        $"{Formatter.Bold("!event search")} - Search for an event's name that contains the given keyword.\n" +
+                        $"{Formatter.Bold("!event get")} - Gets an event directly with the provided name (must be exact) or ID.\n" +
+                        $"{Formatter.Bold("!event search")} - Search for an event which name contains the given keyword.\n" +
                         $"{Formatter.Bold("!event proposal")} - Gets or updates the proposal file for the respective event name or ID.\n" +
-                        $"{Formatter.Bold("!event list")} - Lists all registered events.\n";
+                        $"{Formatter.Bold("!event list")} - Lists all registered events for the year selected.\n";
 
                     await ctx.Channel.SendMessageAsync(embed: embedBuilder).ConfigureAwait(false);
                 }
@@ -1390,7 +1407,86 @@ namespace OSISDiscordAssistant.Commands
                     await ctx.RespondAsync($"{Formatter.Bold("[TIMED OUT]")} {ctx.Member.Mention} You did not choose an option within the given time span. Re-run the command if you still need to update {Formatter.Bold(eventName)}'s proposal.").ConfigureAwait(false);
                 }
             }
-           
+
+            else if (operationSelection == "list")
+            {
+                int year;
+
+                var embedBuilder = new DiscordEmbedBuilder
+                {
+                    Title = "Events Manager - Listing All Events...",
+                    Timestamp = ClientUtilities.GetWesternIndonesianDateTime(),
+                    Footer = new DiscordEmbedBuilder.EmbedFooter
+                    {
+                        Text = "OSIS Discord Assistant"
+                    },
+                    Color = DiscordColor.MidnightBlue
+                };
+
+                try
+                {
+                    year = Convert.ToInt32(string.Join(" ", optionalInput));
+                }
+
+                catch
+                {
+                    embedBuilder.Title = "Events Manager - Error";
+
+                    embedBuilder.Description = $"Make sure only to include the year in numbers. Example: {Formatter.InlineCode("!event list 2019")}";
+
+                    await ctx.Channel.SendMessageAsync(embedBuilder.Build());
+
+                    return;
+                }
+
+                var notifyMessage = await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[EVENTS MANAGER]")} Give me a second to process everything...").ConfigureAwait(false);
+                await ctx.TriggerTypingAsync();
+
+                Task offloadToTask = Task.Run(async () =>
+                {
+                    int counter = 0;
+
+                    int additionalCounter = 0;
+
+                    using (var db = new EventContext())
+                    {
+                        foreach (var events in db.Events)
+                        {
+                            if (events.EventDate.Contains(year.ToString()))
+                            {
+                                if (counter > 25)
+                                {
+                                    additionalCounter++;
+                                }
+
+                                else
+                                {
+                                    string descriptionField = $"Status: {ClientUtilities.ConvertStatusBoolean(events.Expired)}\nPerson-in-charge: {events.PersonInCharge}\nDescription: {events.EventDescription}";
+                                    embedBuilder.AddField($"(ID: {events.Id}) {events.EventName} [{events.EventDate}]", descriptionField, true);
+
+                                    counter++;
+                                }
+                            }
+                        }
+                    }
+
+                    if (counter == 0)
+                    {
+                        embedBuilder.Description = $"There are no events registered for the year {Formatter.Underline(year.ToString())}.";
+                    }
+
+                    else
+                    {
+                        int searchResultCount = counter + additionalCounter;
+
+                        embedBuilder.Description = $"List of all registered events for the year {Formatter.Underline(year.ToString())}. Showing {counter} ({counter.ToWords()}) out of {searchResultCount} ({searchResultCount.ToWords()}) events.";
+                    }
+
+                    await notifyMessage.DeleteAsync();
+                    await ctx.Channel.SendMessageAsync(embed: embedBuilder).ConfigureAwait(false);
+                });
+            }
+
             else
             {
                 var helpEmoji = DiscordEmoji.FromName(ctx.Client, ":sos:");
@@ -1422,10 +1518,10 @@ namespace OSISDiscordAssistant.Commands
                         $"{Formatter.Bold("!event create")} - Creates a new event.\n" +
                         $"{Formatter.Bold("!event update")} - Updates an existing event.\n" +
                         $"{Formatter.Bold("!event delete")} - Deletes an event.\n" +
-                        $"{Formatter.Bold("!event get")} - Gets an event directly with the provided name or ID.\n" +
-                        $"{Formatter.Bold("!event search")} - Search for an event's name that contains the given keyword.\n" +
+                        $"{Formatter.Bold("!event get")} - Gets an event directly with the provided name (must be exact) or ID.\n" +
+                        $"{Formatter.Bold("!event search")} - Search for an event which name contains the given keyword.\n" +
                         $"{Formatter.Bold("!event proposal")} - Gets or updates the proposal file for the respective event name or ID.\n" +
-                        $"{Formatter.Bold("!event list")} - Lists all registered events.\n";
+                        $"{Formatter.Bold("!event list")} - Lists all registered events for the year selected.\n";
 
                     await ctx.Channel.SendMessageAsync(embed: embedBuilder).ConfigureAwait(false);
                 }
@@ -1454,10 +1550,10 @@ namespace OSISDiscordAssistant.Commands
                 $"{Formatter.Bold("!event create")} - Creates a new event.\n" +
                 $"{Formatter.Bold("!event update")} - Updates an existing event.\n" +
                 $"{Formatter.Bold("!event delete")} - Deletes an event.\n" +
-                $"{Formatter.Bold("!event get")} - Gets an event directly with the provided name or ID.\n" +
-                $"{Formatter.Bold("!event search")} - Search for an event's name that contains the given keyword.\n" +
+                $"{Formatter.Bold("!event get")} - Gets an event directly with the provided name (must be exact) or ID.\n" +
+                $"{Formatter.Bold("!event search")} - Search for an event which name contains the given keyword.\n" +
                 $"{Formatter.Bold("!event proposal")} - Gets or updates the proposal file for the respective event name or ID.\n" +
-                $"{Formatter.Bold("!event list")} - Lists all registered events.\n";
+                $"{Formatter.Bold("!event list")} - Lists all registered events for the year selected.\n";
 
             await ctx.Channel.SendMessageAsync(embed: embedBuilder).ConfigureAwait(false);
         }        
