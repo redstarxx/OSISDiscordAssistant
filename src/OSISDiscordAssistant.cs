@@ -184,7 +184,7 @@ namespace OSISDiscordAssistant
                 $"updated message ({e.Message.Id}) in #{e.Channel.Name} ({e.Channel.Id}) guild '{e.Guild.Name}' ({e.Guild.Id})",
                 ClientUtilities.GetWesternIndonesianDateTime());
 
-            if (!string.IsNullOrEmpty(e.Message.Content) || e.Message.Embeds.Count > 0)
+            if (!string.IsNullOrEmpty(e.MessageBefore.Content) || e.Message.Embeds.Count > 0)
             {
                 if (SharedData.EditedMessages.ContainsKey(e.Channel.Id))
                 {
