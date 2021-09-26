@@ -84,6 +84,7 @@ namespace OSISDiscordAssistant
             Client.MessageUpdated += OnMessageUpdated;
             Client.MessageDeleted += OnMessageDeleted;
             Client.MessageReactionAdded += OnMessageReactionAdded;
+            Client.MessageReactionRemoved += OnMessageReactionRemoved;
             Client.SocketErrored += OnSocketErrored;
             Client.Heartbeated += OnHeartbeated;
             Client.UnknownEvent += OnUnknownEvent;
@@ -245,6 +246,16 @@ namespace OSISDiscordAssistant
             Client.Logger.LogInformation(LogEvent,
                 $"User '{e.User.Username}#{e.User.Discriminator}' ({e.User.Id}) " +
                 $"added '{e.Emoji}' in #{e.Channel.Name} ({e.Channel.Id})",
+                ClientUtilities.GetWesternIndonesianDateTime());
+
+            return Task.CompletedTask;
+        }
+
+        private Task OnMessageReactionRemoved(DiscordClient sender, MessageReactionRemoveEventArgs e)
+        {
+            Client.Logger.LogInformation(LogEvent,
+                $"User '{e.User.Username}#{e.User.Discriminator}' ({e.User.Id}) " +
+                $"removed '{e.Emoji}' in #{e.Channel.Name} ({e.Channel.Id})",
                 ClientUtilities.GetWesternIndonesianDateTime());
 
             return Task.CompletedTask;
