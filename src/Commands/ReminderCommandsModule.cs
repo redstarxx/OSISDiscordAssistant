@@ -179,7 +179,16 @@ namespace OSISDiscordAssistant.Commands
                         }
 
                         await Task.Delay(toCalculate);
-                        await targetChannel.SendMessageAsync(reminder).ConfigureAwait(false);
+
+                        if (targetChannel == ctx.Channel)
+                        {
+                            await ctx.RespondAsync(reminder).ConfigureAwait(false);
+                        }
+
+                        else
+                        {
+                            await targetChannel.SendMessageAsync(reminder).ConfigureAwait(false);
+                        }
                     });
 
                     reminderTask.Start();
@@ -226,7 +235,16 @@ namespace OSISDiscordAssistant.Commands
                     }
 
                     await Task.Delay(time);
-                    await targetChannel.SendMessageAsync(reminder).ConfigureAwait(false);
+
+                    if (targetChannel == ctx.Channel)
+                    {
+                        await ctx.RespondAsync(reminder).ConfigureAwait(false);
+                    }
+
+                    else
+                    {
+                        await targetChannel.SendMessageAsync(reminder).ConfigureAwait(false);
+                    }
                 });
 
                 reminderTask.Start();
@@ -305,7 +323,16 @@ namespace OSISDiscordAssistant.Commands
                             }
 
                             await Task.Delay(toCalculate);
-                            await targetChannel.SendMessageAsync(reminder).ConfigureAwait(false);                
+
+                            if (targetChannel == ctx.Channel)
+                            {
+                                await ctx.RespondAsync(reminder).ConfigureAwait(false);
+                            }
+
+                            else
+                            {
+                                await targetChannel.SendMessageAsync(reminder).ConfigureAwait(false);
+                            }
                         });
 
                         reminderTask.Start();
@@ -330,7 +357,7 @@ namespace OSISDiscordAssistant.Commands
         [Command("remind")]
         public async Task RemindHelpAsync(CommandContext ctx)
         {
-            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[SYNTAX]")} !remind [TAG ROLE / MEMBER] [TANGGAL / WAKTU UNTUK DIINGATKAN (example: 25/06/2021 or 6j30m or 12:30 or 30m)] [CHANNEL (optional)] [MESSAGE]");
+            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[SYNTAX]")} !remind [ROLE / MEMBER] [TANGGAL / WAKTU UNTUK DIINGATKAN (example: 25/06/2021 or 6j30m or 12:30 or 30m)] [CHANNEL (optional)] [MESSAGE]");
         }
 
         public async Task SendHelpEmoji(CommandContext ctx, DiscordMessage errorMessage)
@@ -346,7 +373,7 @@ namespace OSISDiscordAssistant.Commands
 
             if (emojiResult.Result.Emoji == helpEmoji)
             {
-                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[SYNTAX]")} !remind [TAG ROLE / MEMBER] [TANGGAL / WAKTU UNTUK DIINGATKAN (example: 25/06/2021 or 6j30m or 12:30 or 30m)] [CHANNEL (optional)] [MESSAGE]");
+                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[SYNTAX]")} !remind [ROLE / MEMBER] [TANGGAL / WAKTU UNTUK DIINGATKAN (example: 25/06/2021 or 6j30m or 12:30 or 30m)] [CHANNEL (optional)] [MESSAGE]");
             }
         }      
     }
