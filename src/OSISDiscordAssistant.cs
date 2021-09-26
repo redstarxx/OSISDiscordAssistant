@@ -209,10 +209,20 @@ namespace OSISDiscordAssistant
 
         private Task OnMessageDeleted(DiscordClient sender, MessageDeleteEventArgs e)
         {
-            sender.Logger.LogInformation(LogEvent,
-                $"User '{e.Message.Author.Username}#{e.Message.Author.Discriminator}' ({e.Message.Author.Id}) " +
-                $"deleted message ({e.Message.Id}) in #{e.Channel.Name} ({e.Channel.Id}) guild '{e.Guild.Name}' ({e.Guild.Id})",
-                ClientUtilities.GetWesternIndonesianDateTime());
+            try
+            {
+                sender.Logger.LogInformation(LogEvent,
+                    $"User '{e.Message.Author.Username}#{e.Message.Author.Discriminator}' ({e.Message.Author.Id}) " +
+                    $"deleted message ({e.Message.Id}) in #{e.Channel.Name} ({e.Channel.Id}) guild '{e.Guild.Name}' ({e.Guild.Id})",
+                    ClientUtilities.GetWesternIndonesianDateTime());
+            }
+
+            catch
+            {
+                sender.Logger.LogInformation(LogEvent, $"Message ({e.Message.Id}) was not cached. Skipped logging message deleted event.");
+
+                return Task.CompletedTask;
+            }
 
             if (!string.IsNullOrEmpty(e.Message.Content) || e.Message.Embeds.Count > 0)
             {
