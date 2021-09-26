@@ -171,7 +171,7 @@ namespace OSISDiscordAssistant.Commands
 
             await member.BanAsync(0, reason);
 
-            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[BANNED]")} {member.Username}#{member.Discriminator} has been banned by {ctx.Member.Mention}. Reason: {reason}");
+            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[BANNED]")} {member.Mention} has been banned by {ctx.Member.Mention}. Reason: {reason}");
         }
 
         [RequireAdminRole]
@@ -191,7 +191,7 @@ namespace OSISDiscordAssistant.Commands
 
             await member.UnbanAsync(guild, reason);
 
-            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[UNBANNED]")} {member.Username}#{member.Discriminator} has been unbanned by {ctx.Member.Mention}. Reason: {reason}");
+            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[UNBANNED]")} {member.Mention} has been unbanned by {ctx.Member.Mention}. Reason: {reason}");
         }
 
         [RequireAdminRole]
