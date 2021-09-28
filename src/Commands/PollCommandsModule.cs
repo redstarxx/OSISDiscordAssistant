@@ -20,73 +20,75 @@ namespace OSISDiscordAssistant.Commands
         [Command("poll")]
         public async Task PollAsync(CommandContext ctx, TimeSpan pollDuration, params DiscordEmoji[] emojiOptions)
         {
+            int pollCounter = 0;
+
             using (var db = new CounterContext())
             {
-                int counter = db.Counter.SingleOrDefault(x => x.Id == 1).PollCounter;
-
-                var pollEmbedBuilder = new DiscordEmbedBuilder
-                {
-                    Title = $"Poll #{counter}",
-                    Description = $"Click an emoji below to vote! This poll expires in {pollDuration.Humanize(2)}.",
-                    Timestamp = ClientUtilities.GetWesternIndonesianDateTime(),
-                    Footer = new DiscordEmbedBuilder.EmbedFooter
-                    {
-                        Text = "OSIS Discord Assistant"
-                    }
-                };
-
-                var pollEmbed = await ctx.Channel.SendMessageAsync(embed: pollEmbedBuilder).ConfigureAwait(false);
-
-                Thread.Sleep(TimeSpan.FromSeconds(1));
-
-                var interactivity = ctx.Client.GetInteractivity();
-
-                var collectedEmojis = await interactivity.DoPollAsync(pollEmbed, emojiOptions, PollBehaviour.KeepEmojis, pollDuration);
-
-                var resultEmojis = collectedEmojis.Select(x => $"{x.Emoji}: {x.Total} ({x.Total.ToWords()}) voter(s).");
-
-                var pollResultEmbedBuilder = new DiscordEmbedBuilder
-                {
-                    Title = $"Results for Poll #{counter}",
-                    Timestamp = ClientUtilities.GetWesternIndonesianDateTime(),
-                    Footer = new DiscordEmbedBuilder.EmbedFooter
-                    {
-                        Text = "OSIS Discord Assistant"
-                    }
-                };
-
-                int voteCount = 0;
-
-                foreach (var vote in collectedEmojis)
-                {
-                    voteCount = voteCount + vote.Total;
-                }
-
-                if (voteCount != 0)
-                {
-                    pollResultEmbedBuilder.Description = $"A total of {voteCount} ({voteCount.ToWords()}) votes have been collected.\n\n" +
-                        $"{string.Join("\n", resultEmojis)}";
-                }
-
-                else
-                {
-                    pollResultEmbedBuilder.Description = $"Nobody has casted their votes!\n\n" +
-                        $"{string.Join("\n", resultEmojis)}";
-                }
-
-                await ctx.Channel.SendMessageAsync(embed: pollResultEmbedBuilder).ConfigureAwait(false);
+                pollCounter = db.Counter.SingleOrDefault(x => x.Id == 1).PollCounter;               
 
                 Counter rowToUpdate = null;
                 rowToUpdate = db.Counter.SingleOrDefault(x => x.Id == 1);
 
                 if (rowToUpdate != null)
                 {
-                    int incrementNumber = counter + 1;
+                    int incrementNumber = pollCounter + 1;
                     rowToUpdate.PollCounter = incrementNumber;
                 }
 
                 db.SaveChanges();
             }
+
+            var pollEmbedBuilder = new DiscordEmbedBuilder
+            {
+                Title = $"Poll #{pollCounter}",
+                Description = $"Click an emoji below to vote! This poll expires in {pollDuration.Humanize(2)}.",
+                Timestamp = ClientUtilities.GetWesternIndonesianDateTime(),
+                Footer = new DiscordEmbedBuilder.EmbedFooter
+                {
+                    Text = "OSIS Discord Assistant"
+                }
+            };
+
+            var pollEmbed = await ctx.Channel.SendMessageAsync(embed: pollEmbedBuilder).ConfigureAwait(false);
+
+            Thread.Sleep(TimeSpan.FromSeconds(1));
+
+            var interactivity = ctx.Client.GetInteractivity();
+
+            var collectedEmojis = await interactivity.DoPollAsync(pollEmbed, emojiOptions, PollBehaviour.KeepEmojis, pollDuration);
+
+            var resultEmojis = collectedEmojis.Select(x => $"{x.Emoji}: {x.Total} ({x.Total.ToWords()}) voter(s).");
+
+            var pollResultEmbedBuilder = new DiscordEmbedBuilder
+            {
+                Title = $"Results for Poll #{pollCounter}",
+                Timestamp = ClientUtilities.GetWesternIndonesianDateTime(),
+                Footer = new DiscordEmbedBuilder.EmbedFooter
+                {
+                    Text = "OSIS Discord Assistant"
+                }
+            };
+
+            int voteCount = 0;
+
+            foreach (var vote in collectedEmojis)
+            {
+                voteCount = voteCount + vote.Total;
+            }
+
+            if (voteCount != 0)
+            {
+                pollResultEmbedBuilder.Description = $"A total of {voteCount} ({voteCount.ToWords()}) votes have been collected.\n\n" +
+                    $"{string.Join("\n", resultEmojis)}";
+            }
+
+            else
+            {
+                pollResultEmbedBuilder.Description = $"Nobody has casted their votes!\n\n" +
+                    $"{string.Join("\n", resultEmojis)}";
+            }
+
+            await ctx.Channel.SendMessageAsync(embed: pollResultEmbedBuilder).ConfigureAwait(false);
         }
 
         [Command("poll")]
