@@ -6,7 +6,7 @@ A Discord bot created for OSIS Sekolah Djuwita Batam, written on top of DSharpPl
 ![Maintainer](https://img.shields.io/badge/maintainer-redstarxx-blue)
 
 ## Contributing
-Contributions are only allowed from active members within the student council.
+Contributions are open to everyone! Please read the contributions guideline for more information.
 
 ## Requirements
 - [.NET Core 5](https://dotnet.microsoft.com/download/dotnet/5.0)
@@ -48,3 +48,6 @@ Make sure you have saved your changes before proceeding.
 
 ### Step Four: Running Your Bot
 Once you have done all of the steps above, you are ready to run your bot!
+
+### Self-Hosting
+Yes, this bot can be self-hosted. And as a matter of fact, this bot is self-hosted. However, I will not provide support. You are on your own.
