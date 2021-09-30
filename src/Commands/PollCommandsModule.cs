@@ -57,7 +57,20 @@ namespace OSISDiscordAssistant.Commands
 
             var collectedEmojis = await interactivity.DoPollAsync(pollEmbed, emojiOptions, PollBehaviour.KeepEmojis, pollDuration);
 
-            var resultEmojis = collectedEmojis.Select(x => $"{x.Emoji}: {x.Total} ({x.Total.ToWords()}) voter(s).");
+            string resultEmojis = string.Empty;
+
+            foreach (var emoji in collectedEmojis)
+            {
+                if (emoji.Total > 1)
+                {
+                    resultEmojis = $"{resultEmojis}{emoji.Emoji}: {emoji.Total} ({emoji.Total.ToWords()}) votes.\n";
+                }
+
+                else
+                {
+                    resultEmojis = $"{resultEmojis}{emoji.Emoji}: {emoji.Total} ({emoji.Total.ToWords()}) vote.\n";
+                }
+            }
 
             var pollResultEmbedBuilder = new DiscordEmbedBuilder
             {
@@ -78,7 +91,19 @@ namespace OSISDiscordAssistant.Commands
 
             if (voteCount != 0)
             {
-                pollResultEmbedBuilder.Description = $"A total of {voteCount} ({voteCount.ToWords()}) votes have been collected.\n\n" +
+                string voteStatus = string.Empty;
+
+                switch (voteCount)
+                {
+                    case > 1:
+                        voteStatus = "votes";
+                        break;
+                    default:
+                        voteStatus = "vote";
+                        break;
+                }
+
+                pollResultEmbedBuilder.Description = $"A total of {voteCount} ({voteCount.ToWords()}) {voteStatus} have been collected.\n\n" +
                     $"{string.Join("\n", resultEmojis)}";
             }
 
