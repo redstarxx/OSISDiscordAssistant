@@ -113,7 +113,7 @@ namespace OSISDiscordAssistant.Commands
                     $"{string.Join("\n", resultEmojis)}";
             }
 
-            await ctx.Channel.SendMessageAsync(embed: pollResultEmbedBuilder).ConfigureAwait(false);
+            await ctx.RespondAsync(embed: pollResultEmbedBuilder).ConfigureAwait(false);
         }
 
         [Command("poll")]
