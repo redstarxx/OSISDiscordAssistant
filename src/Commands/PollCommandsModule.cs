@@ -41,7 +41,7 @@ namespace OSISDiscordAssistant.Commands
             var pollEmbedBuilder = new DiscordEmbedBuilder
             {
                 Title = $"Poll #{pollCounter}",
-                Description = $"Click an emoji below to vote! This poll expires in {pollDuration.Humanize(2)}.",
+                Description = $"Click an emoji below to vote! This poll expires in {pollDuration.Humanize(2)} ({Formatter.Timestamp(pollDuration, TimestampFormat.LongDateTime)}).",
                 Timestamp = ClientUtilities.GetWesternIndonesianDateTime(),
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
