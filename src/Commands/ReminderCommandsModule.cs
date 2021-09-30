@@ -130,10 +130,10 @@ namespace OSISDiscordAssistant.Commands
                     }
                 }
 
-                TimeSpan toCalculate = remindTime - currentTime;
+                TimeSpan remainingTime = remindTime - currentTime;
 
                 // Checks whether the provided time span is not less than 30 seconds.
-                if (toCalculate.TotalSeconds < 30)
+                if (remainingTime.TotalSeconds < 30)
                 {
                     string errorMessage = "**[ERROR]** Minimum allowed time span is 30 seconds.";
                     await ctx.RespondAsync(errorMessage).ConfigureAwait(false);
@@ -143,7 +143,7 @@ namespace OSISDiscordAssistant.Commands
 
                 else
                 {
-                    if (toCalculate.Days > 365)
+                    if (remainingTime.Days > 365)
                     {
                         string errorMessage = "**[ERROR]** Maximum allowed time span is one year.";
                         await ctx.RespondAsync(errorMessage).ConfigureAwait(false);
@@ -151,7 +151,7 @@ namespace OSISDiscordAssistant.Commands
                         return;
                     }
 
-                    string toSend = $"Ok {ctx.Member.Mention}, in {toCalculate.Humanize(2)} ({remindTime.ToString()}) " +
+                    string toSend = $"Ok {ctx.Member.Mention}, in {remainingTime.Humanize(2)} ({Formatter.Timestamp(remindTime, TimestampFormat.LongDateTime)}) " +
                         $"{youoreveryone} will be reminded of the following:\n\n {string.Join(" ", remindMessage)}";
 
                     string name = $"• {ctx.Member.DisplayName}#{ctx.Member.Discriminator} - {DateTime.Now}";
@@ -171,14 +171,14 @@ namespace OSISDiscordAssistant.Commands
                             $"{ctx.Member.Mention} wanted to remind you of the following: \n\n{string.Join(" ", remindMessage)}";
                         }
 
-                        long fullDelays = toCalculate.Ticks / maxValue.Ticks;
+                        long fullDelays = remainingTime.Ticks / maxValue.Ticks;
                         for (int i = 0; i < fullDelays; i++)
                         {
                             await Task.Delay(maxValue);
-                            toCalculate -= maxValue;
+                            remainingTime -= maxValue;
                         }
 
-                        await Task.Delay(toCalculate);
+                        await Task.Delay(remainingTime);
 
                         if (targetChannel == ctx.Channel)
                         {
@@ -193,7 +193,7 @@ namespace OSISDiscordAssistant.Commands
 
                     reminderTask.Start();
 
-                    await ctx.RespondAsync(toSend).ConfigureAwait(false);                 
+                    await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);                 
                 }
             }
 
@@ -201,14 +201,14 @@ namespace OSISDiscordAssistant.Commands
             {
                 DateTime currentTime = ClientUtilities.GetWesternIndonesianDateTime();
 
-                var toParse = DateTime.ParseExact(timeSpan, "H:mm", null, DateTimeStyles.None);
+                var remindTime = DateTime.ParseExact(timeSpan, "H:mm", null, DateTimeStyles.None);
 
-                if (currentTime > toParse)
+                if (currentTime > remindTime)
                 {
-                    toParse = toParse.AddDays(1);
+                    remindTime = remindTime.AddDays(1);
                 }
 
-                TimeSpan time = toParse - currentTime;
+                TimeSpan remainingTime = remindTime - currentTime;
 
                 string name = $"• {ctx.Member.DisplayName}#{ctx.Member.Discriminator} - {DateTime.Now}";
 
@@ -227,14 +227,14 @@ namespace OSISDiscordAssistant.Commands
                         $"{ctx.Member.Mention} wanted to remind you of the following: \n\n{string.Join(" ", remindMessage)}";
                     }
 
-                    long fullDelays = time.Ticks / maxValue.Ticks;
+                    long fullDelays = remainingTime.Ticks / maxValue.Ticks;
                     for (int i = 0; i < fullDelays; i++)
                     {
                         await Task.Delay(maxValue);
-                        time -= maxValue;
+                        remainingTime -= maxValue;
                     }
 
-                    await Task.Delay(time);
+                    await Task.Delay(remainingTime);
 
                     if (targetChannel == ctx.Channel)
                     {
@@ -251,15 +251,15 @@ namespace OSISDiscordAssistant.Commands
 
                 string toSend = null;
 
-                if (toParse.ToShortDateString() != currentTime.ToShortDateString())
+                if (remindTime.ToShortDateString() != currentTime.ToShortDateString())
                 {
-                    toSend = $"Ok {ctx.Member.Mention}, tomorrow, in {time.Humanize(2)} ({toParse.ToString()}) {youoreveryone} will be reminded of the following:\n\n" +
+                    toSend = $"Ok {ctx.Member.Mention}, tomorrow, in {remainingTime.Humanize(2)} ({Formatter.Timestamp(remindTime, TimestampFormat.LongDateTime)}) {youoreveryone} will be reminded of the following:\n\n" +
                     $" {string.Join(" ", remindMessage)}";
                 }
 
                 else
                 {
-                    toSend = $"Ok {ctx.Member.Mention}, in {time.Humanize(2)} ({toParse.ToString()}) {youoreveryone} will be reminded of the following:\n\n" +
+                    toSend = $"Ok {ctx.Member.Mention}, in {remainingTime.Humanize(2)} ({Formatter.Timestamp(remindTime, TimestampFormat.LongDateTime)}) {youoreveryone} will be reminded of the following:\n\n" +
                     $" {string.Join(" ", remindMessage)}";
                 }
 
@@ -272,12 +272,12 @@ namespace OSISDiscordAssistant.Commands
                 {
                     DateTime currentTime = ClientUtilities.GetWesternIndonesianDateTime();
 
-                    TimeSpan toCalculate = ClientUtilities.ParseToSeconds(timeSpan);
+                    TimeSpan remainingTime = ClientUtilities.ParseToSeconds(timeSpan);
 
-                    DateTime remainingDateTime = currentTime + toCalculate;
+                    DateTime remindTime = currentTime + remainingTime;
 
                     // Checks whether the provided time span is not less than 30 seconds.
-                    if (toCalculate.TotalSeconds < 30)
+                    if (remainingTime.TotalSeconds < 30)
                     {
                         string errorMessage = "**[ERROR]** Minimum allowed time span is 30 seconds.";
                         await ctx.RespondAsync(errorMessage).ConfigureAwait(false);
@@ -287,7 +287,7 @@ namespace OSISDiscordAssistant.Commands
 
                     else
                     {
-                        if (toCalculate.Days > 365)
+                        if (remainingTime.Days > 365)
                         {
                             string errorMessage = "**[ERROR]** Maximum allowed time span is one year.";
                             await ctx.RespondAsync(errorMessage).ConfigureAwait(false);
@@ -295,7 +295,7 @@ namespace OSISDiscordAssistant.Commands
                             return;
                         }
 
-                        string toSend = $"Ok {ctx.Member.Mention}, in {toCalculate.Humanize(2)} ({remainingDateTime.ToString()}) " +
+                        string toSend = $"Ok {ctx.Member.Mention}, in {remainingTime.Humanize(2)} ({Formatter.Timestamp(remindTime, TimestampFormat.LongDateTime)}) " +
                             $"{youoreveryone} will be reminded of the following:\n\n {string.Join(" ", remindMessage)}";
 
                         string name = $"• {ctx.Member.DisplayName}#{ctx.Member.Discriminator} - {DateTime.Now}";
@@ -315,14 +315,14 @@ namespace OSISDiscordAssistant.Commands
                                 $"{ctx.Member.Mention} wanted to remind you of the following: \n\n{string.Join(" ", remindMessage)}";
                             }
 
-                            long fullDelays = toCalculate.Ticks / maxValue.Ticks;
+                            long fullDelays = remainingTime.Ticks / maxValue.Ticks;
                             for (int i = 0; i < fullDelays; i++)
                             {
                                 await Task.Delay(maxValue);
-                                toCalculate -= maxValue;
+                                remainingTime -= maxValue;
                             }
 
-                            await Task.Delay(toCalculate);
+                            await Task.Delay(remainingTime);
 
                             if (targetChannel == ctx.Channel)
                             {
@@ -337,7 +337,7 @@ namespace OSISDiscordAssistant.Commands
 
                         reminderTask.Start();
 
-                        await ctx.RespondAsync(toSend).ConfigureAwait(false);                        
+                        await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);                        
                     }
                 }
 
