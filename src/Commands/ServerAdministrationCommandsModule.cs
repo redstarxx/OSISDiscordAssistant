@@ -32,9 +32,38 @@ namespace OSISDiscordAssistant.Commands
                 return;
             }
 
-            var mutedRole = ctx.Guild.Roles.SingleOrDefault(x => x.Value.Name == "Muted").Value.Id;
-            await member.GrantRoleAsync(ctx.Guild.GetRole(mutedRole));
-            string mutingUser = ctx.Member.DisplayName;
+            ulong mutedRoleId = 0;
+
+            try
+            {
+                mutedRoleId = ctx.Guild.Roles.SingleOrDefault(x => x.Value.Name == "Muted").Value.Id;
+            }
+
+            // If the Muted role does not exist, the bot will try to create one.
+            catch
+            {
+                var creatingRoleMessage = await ctx.Channel.SendMessageAsync($"Setting up {Formatter.InlineCode("Muted")} role...");
+
+                var memberHighestRole = member.Roles.Max(x => x.Position);
+
+                DiscordRole mutedRole = await ctx.Guild.CreateRoleAsync("Muted", Permissions.None, DiscordColor.Red, false, false, "Muted role was not present on this server.");
+
+                await mutedRole.ModifyPositionAsync(memberHighestRole, null);
+
+                var channels = await ctx.Guild.GetChannelsAsync();
+
+                foreach (var channel in channels)
+                {
+                    await channel.AddOverwriteAsync(mutedRole, Permissions.None, Permissions.SendMessages);
+                }
+
+                await ctx.Channel.DeleteMessageAsync(creatingRoleMessage);
+                await ctx.Member.SendMessageAsync($"I have created a {Formatter.InlineCode("Muted")} role for your server ({Formatter.Bold(ctx.Guild.Name)})! If you are going to create a new channel, you may need to adjust the role overrides for each channels one by one to maintain the Muted role effect.");
+
+                mutedRoleId = ctx.Guild.Roles.SingleOrDefault(x => x.Value.Name == "Muted").Value.Id;
+            }
+
+            await member.GrantRoleAsync(ctx.Guild.GetRole(mutedRoleId));
 
             await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[MUTED]")} {member.Mention} has been muted by {ctx.Member.Mention}. Reason: {muteReason}").ConfigureAwait(false);
         }
@@ -53,7 +82,6 @@ namespace OSISDiscordAssistant.Commands
 
             var mutedRole = ctx.Guild.Roles.SingleOrDefault(x => x.Value.Name == "Muted").Value.Id;
             await member.RevokeRoleAsync(ctx.Guild.GetRole(mutedRole));
-            string unmutingUser = ctx.Member.DisplayName;
 
             await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[UNMUTED]")} {member.Mention} has been unmuted by {ctx.Member.Mention}.").ConfigureAwait(false);
         }
