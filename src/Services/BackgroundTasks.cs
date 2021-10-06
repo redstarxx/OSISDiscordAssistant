@@ -31,16 +31,6 @@ namespace OSISDiscordAssistant.Services
 
                 DiscordChannel errorLogsChannel = await Bot.Client.GetShard(StringConstants.MainGuildId).GetChannelAsync(StringConstants.ErrorChannel);
 
-                var reminderEmbed = new DiscordEmbedBuilder
-                {
-                    Timestamp = ClientUtilities.GetWesternIndonesianDateTime(),
-                    Footer = new DiscordEmbedBuilder.EmbedFooter
-                    {
-                        Text = "OSIS Discord Assistant"
-                    },
-                    Color = DiscordColor.MidnightBlue
-                };
-
                 DiscordMessageBuilder reminderMessageBuilder = new DiscordMessageBuilder
                 {
                 };
@@ -51,9 +41,20 @@ namespace OSISDiscordAssistant.Services
                 {
                     while (true)
                     {
+                        var reminderEmbed = new DiscordEmbedBuilder
+                        {
+                            Timestamp = ClientUtilities.GetWesternIndonesianDateTime(),
+                            Footer = new DiscordEmbedBuilder.EmbedFooter
+                            {
+                                Text = "OSIS Discord Assistant"
+                            },
+                            Color = DiscordColor.MidnightBlue
+                        };
+
                         int counter = 0;
 
                         stopwatch.Start();
+
                         using (var db = new EventContext())
                         {
                             Stopwatch processingStopWatch = new Stopwatch();
@@ -310,16 +311,6 @@ namespace OSISDiscordAssistant.Services
 
                 DiscordChannel errorLogsChannel = await Bot.Client.GetShard(StringConstants.MainGuildId).GetChannelAsync(StringConstants.ErrorChannel);
 
-                var reminderEmbed = new DiscordEmbedBuilder
-                {
-                    Timestamp = ClientUtilities.GetWesternIndonesianDateTime(),
-                    Footer = new DiscordEmbedBuilder.EmbedFooter
-                    {
-                        Text = "OSIS Discord Assistant"
-                    },
-                    Color = DiscordColor.MidnightBlue
-                };
-
                 DiscordMessageBuilder reminderMessageBuilder = new DiscordMessageBuilder
                 {
                 };
@@ -330,9 +321,21 @@ namespace OSISDiscordAssistant.Services
                 {
                     while (true)
                     {
+
+                        var reminderEmbed = new DiscordEmbedBuilder
+                        {
+                            Timestamp = ClientUtilities.GetWesternIndonesianDateTime(),
+                            Footer = new DiscordEmbedBuilder.EmbedFooter
+                            {
+                                Text = "OSIS Discord Assistant"
+                            },
+                            Color = DiscordColor.MidnightBlue
+                        };
+
                         int counter = 0;
 
                         stopwatch.Start();
+                        
                         using (var db = new EventContext())
                         {
                             Stopwatch processingStopWatch = new Stopwatch();
