@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Text;
-using DSharpPlus;
-using DSharpPlus.Entities;
-using DSharpPlus.CommandsNext;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 using System.Linq;
 using System.IO;
-using Newtonsoft.Json;
 using System.Reflection;
+using Newtonsoft.Json;
+using DSharpPlus;
+using DSharpPlus.Entities;
+using DSharpPlus.CommandsNext;
+using OSISDiscordAssistant.Enums;
 
 namespace OSISDiscordAssistant.Utilities
 {
@@ -184,25 +185,47 @@ namespace OSISDiscordAssistant.Utilities
         }
 
         /// <summary>
-        /// Converts the boolean property from the 'expired' row to be listed in the Events Manager listing.
+        /// Converts the bool value to the specified option.
         /// </summary>
-        /// <param name="fromDb">The bool to convert from the 'expired' row.</param>
-        /// <returns>If true, returns "Expired". If false, returns "Active".</returns>
-        public static string ConvertStatusBoolean(bool fromDb)
+        /// <param name="boolValue">The bool value.</param>
+        /// <param name="convertOption">The result string option.</param>
+        /// <returns>A string based on the choosen ConvertBoolOption enum.</returns>
+        public static string ConvertBoolValue(bool boolValue, ConvertBoolOption convertOption)
         {
-            string result = null;
-
-            if (fromDb == true)
+            if (convertOption is ConvertBoolOption.ActiveOrDone)
             {
-                result = "Expired";
+                switch (boolValue)
+                {
+                    case true:
+                        return "Done.";
+                    case false:
+                        return "Active.";
+                }
             }
 
-            else
+            else if (convertOption is ConvertBoolOption.YesOrNo)
             {
-                result = "Active";
+                switch (boolValue)
+                {
+                    case true:
+                        return "Yes.";
+                    case false:
+                        return "No.";
+                }
             }
 
-            return result;
+            else if (convertOption is ConvertBoolOption.StoredOrNotStored)
+            {
+                switch (boolValue)
+                {
+                    case true:
+                        return "Stored.";
+                    case false:
+                        return "Not stored.";
+                }
+            }
+
+            return null;
         }
 
         /// <summary>
