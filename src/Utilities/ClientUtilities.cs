@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.CommandsNext;
+using OSISDiscordAssistant.Services;
 using OSISDiscordAssistant.Enums;
 
 namespace OSISDiscordAssistant.Utilities
@@ -260,6 +261,32 @@ namespace OSISDiscordAssistant.Utilities
 
             string connectionString = configJson.ConnectionString;
             return connectionString;
+        }
+
+        /// <summary>
+        /// Loads the main guild ID and channel IDs required for ERTask and PRTask to function properly.
+        /// </summary>
+        /// <param name="configJson">The JSON struct to read from.</param>
+        public static void LoadDiscordConfigurationValues(ConfigJson configJson)
+        {
+            if (!configJson.MainGuildId.HasValue || !configJson.EventChannelId.HasValue || !configJson.ProposalChannelId.HasValue || !configJson.ErrorChannelId.HasValue)
+            {
+                Console.WriteLine("One of the Discord ID values are missing. Terminating...");
+                Console.ReadLine();
+
+                Environment.Exit(0);
+            }
+
+            else
+            {
+                SharedData.MainGuildId = (ulong)configJson.MainGuildId;
+
+                SharedData.EventChannelId = (ulong)configJson.EventChannelId;
+
+                SharedData.ProposalChannelId = (ulong)configJson.ProposalChannelId;
+
+                SharedData.ErrorChannelId = (ulong)configJson.ErrorChannelId;
+            }
         }
 
         /// <summary>
