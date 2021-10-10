@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
-using OSISDiscordAssistant.Constants;
+using OSISDiscordAssistant.Services;
 
 namespace OSISDiscordAssistant.Attributes
 {
@@ -14,7 +14,7 @@ namespace OSISDiscordAssistant.Attributes
     {
         public override Task<bool> ExecuteCheckAsync(CommandContext ctx, bool help)
         {
-            return Task.FromResult(ctx.Guild.Id == StringConstants.MainGuildId);
+            return Task.FromResult(ctx.Guild.Id == SharedData.MainGuildId);
         }
     }
 }

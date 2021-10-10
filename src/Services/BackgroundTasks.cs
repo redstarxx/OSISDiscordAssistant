@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using OSISDiscordAssistant.Utilities;
-using OSISDiscordAssistant.Constants;
 using OSISDiscordAssistant.Models;
+using OSISDiscordAssistant.Services;
 using Microsoft.Extensions.Logging;
 using Humanizer;
 
@@ -27,9 +27,9 @@ namespace OSISDiscordAssistant.Services
 
             Task eventReminder = Task.Run(async () =>
             {
-                DiscordChannel eventsChannel = await Bot.Client.GetShard(StringConstants.MainGuildId).GetChannelAsync(StringConstants.EventChannel);
+                DiscordChannel eventsChannel = await Bot.Client.GetShard(SharedData.MainGuildId).GetChannelAsync(SharedData.EventChannelId);
 
-                DiscordChannel errorLogsChannel = await Bot.Client.GetShard(StringConstants.MainGuildId).GetChannelAsync(StringConstants.ErrorChannel);
+                DiscordChannel errorLogsChannel = await Bot.Client.GetShard(SharedData.MainGuildId).GetChannelAsync(SharedData.ErrorChannelId);
 
                 DiscordMessageBuilder reminderMessageBuilder = new DiscordMessageBuilder
                 {
@@ -306,9 +306,9 @@ namespace OSISDiscordAssistant.Services
 
             Task proposalReminder = Task.Run(async () =>
             {
-                DiscordChannel proposalChannel = await Bot.Client.GetShard(StringConstants.MainGuildId).GetChannelAsync(StringConstants.ProposalChannel);
+                DiscordChannel proposalChannel = await Bot.Client.GetShard(SharedData.MainGuildId).GetChannelAsync(SharedData.ProposalChannelId);
 
-                DiscordChannel errorLogsChannel = await Bot.Client.GetShard(StringConstants.MainGuildId).GetChannelAsync(StringConstants.ErrorChannel);
+                DiscordChannel errorLogsChannel = await Bot.Client.GetShard(SharedData.MainGuildId).GetChannelAsync(SharedData.ErrorChannelId);
 
                 DiscordMessageBuilder reminderMessageBuilder = new DiscordMessageBuilder
                 {
