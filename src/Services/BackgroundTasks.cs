@@ -59,11 +59,11 @@ namespace OSISDiscordAssistant.Services
                         {
                             Stopwatch processingStopWatch = new Stopwatch();
 
+                            bool sentReminder = false;
+
                             foreach (var row in db.Events)
                             {
                                 processingStopWatch.Start();
-
-                                bool sentReminder = false;
 
                                 var cultureInfo = new CultureInfo(row.EventDateCultureInfo);
 
@@ -239,9 +239,9 @@ namespace OSISDiscordAssistant.Services
 
                                             dbUpdate.SaveChanges();
                                         }
-                                    }
 
-                                    sentReminder = true;
+                                        sentReminder = true;
+                                    }
                                 }
 
                                 processingStopWatch.Stop();
@@ -339,11 +339,11 @@ namespace OSISDiscordAssistant.Services
                         {
                             Stopwatch processingStopWatch = new Stopwatch();
 
+                            bool sentReminder = false;
+
                             foreach (var row in db.Events)
                             {
                                 processingStopWatch.Start();
-
-                                bool sentReminder = false;
 
                                 var cultureInfo = new CultureInfo(row.EventDateCultureInfo);
 
