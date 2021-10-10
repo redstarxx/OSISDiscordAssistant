@@ -51,13 +51,15 @@ namespace OSISDiscordAssistant
 
             var serilogFactory = new LoggerFactory().AddSerilog();
 
-            Console.WriteLine("[2/9] Reading config.json...");
+            Console.WriteLine("[2/9] Reading and loading config.json...");
             var json = string.Empty;
             using (var fileString = File.OpenRead("config.json"))
             using (var stringReader = new StreamReader(fileString, new UTF8Encoding(false)))
                 json = await stringReader.ReadToEndAsync().ConfigureAwait(false);
 
             var configJson = JsonConvert.DeserializeObject<ConfigJson>(json);
+
+            ClientUtilities.LoadDiscordConfigurationValues(configJson);
 
             Console.WriteLine("[3/9] Loading up client configuration...");
             var config = new DiscordConfiguration
