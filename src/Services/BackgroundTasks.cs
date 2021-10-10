@@ -67,12 +67,11 @@ namespace OSISDiscordAssistant.Services
 
                                 var cultureInfo = new CultureInfo(row.EventDateCultureInfo);
 
-                                // Add 7 hours ahead because for some reason Linux doesn't pick the user preferred timezone.
-                                DateTime currentDateTime = ClientUtilities.GetWesternIndonesianDateTime();
+                                DateTime parsedCurrentDateTime = DateTime.Parse(DateTime.Now.ToShortDateString(), cultureInfo);
 
-                                DateTime parseEventDateTime = DateTime.Parse(row.EventDate, cultureInfo);
+                                DateTime parsedEventDateTime = DateTime.Parse(row.EventDate, cultureInfo);
 
-                                TimeSpan timeSpan = parseEventDateTime - currentDateTime;
+                                TimeSpan timeSpan = parsedEventDateTime - parsedCurrentDateTime;
 
                                 if (timeSpan.Days == 7)
                                 {
@@ -210,7 +209,7 @@ namespace OSISDiscordAssistant.Services
                                     sentReminder = true;
                                 }
 
-                                if (parseEventDateTime.ToShortDateString() == currentDateTime.ToShortDateString())
+                                if (parsedEventDateTime.ToShortDateString() == parsedCurrentDateTime.ToShortDateString())
                                 {
                                     if (row.Expired == false)
                                     {
@@ -348,12 +347,11 @@ namespace OSISDiscordAssistant.Services
 
                                 var cultureInfo = new CultureInfo(row.EventDateCultureInfo);
 
-                                // Add 7 hours ahead because for some reason Linux doesn't pick the user preferred timezone.
-                                DateTime currentDateTime = ClientUtilities.GetWesternIndonesianDateTime();
+                                DateTime parsedCurrentDateTime = DateTime.Parse(DateTime.Now.ToShortDateString(), cultureInfo);
 
-                                DateTime parseEventDateTime = DateTime.Parse(row.EventDate, cultureInfo);
+                                DateTime parsedEventDateTime = DateTime.Parse(row.EventDate, cultureInfo);
 
-                                TimeSpan timeSpan = parseEventDateTime - currentDateTime;
+                                TimeSpan timeSpan = parsedEventDateTime - parsedCurrentDateTime;
 
                                 if (timeSpan.Days == 30 || timeSpan.Days > 6 && timeSpan.Days < 30)
                                 {
@@ -388,7 +386,7 @@ namespace OSISDiscordAssistant.Services
                                     }
                                 }
 
-                                if (parseEventDateTime.ToShortDateString() == currentDateTime.ToShortDateString())
+                                if (parsedEventDateTime.ToShortDateString() == parsedCurrentDateTime.ToShortDateString())
                                 {
                                     if (row.ProposalReminded == false)
                                     {
