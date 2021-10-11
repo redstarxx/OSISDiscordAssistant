@@ -67,13 +67,13 @@ namespace OSISDiscordAssistant.Services
 
                                 var cultureInfo = new CultureInfo(row.EventDateCultureInfo);
 
-                                DateTime parsedCurrentDateTime = DateTime.Parse(DateTime.Now.ToShortDateString(), cultureInfo);
+                                DateTime currentDateTime = DateTime.Now.Subtract(TimeSpan.FromHours(DateTime.Now.Hour) + TimeSpan.FromMinutes(DateTime.Now.Minute) + TimeSpan.FromSeconds(DateTime.Now.Second));
 
                                 DateTime parsedEventDateTime = DateTime.Parse(row.EventDate, cultureInfo);
 
-                                TimeSpan timeSpan = parsedEventDateTime - parsedCurrentDateTime;
+                                TimeSpan timeSpan = parsedEventDateTime - currentDateTime;
 
-                                if (timeSpan.Days == 7)
+                                if (Math.Round(timeSpan.TotalDays) == 7)
                                 {
                                     if (row.PreviouslyReminded == false)
                                     {
@@ -107,7 +107,7 @@ namespace OSISDiscordAssistant.Services
                                     }
                                 }
 
-                                else if (timeSpan.Days < 7 && timeSpan.Days > 1)
+                                else if (Math.Round(timeSpan.TotalDays) < 7 && Math.Round(timeSpan.TotalDays) > 1)
                                 {
                                     if (row.PreviouslyReminded == false)
                                     {
@@ -141,7 +141,7 @@ namespace OSISDiscordAssistant.Services
                                     }
                                 }
 
-                                else if (timeSpan.Days == 1)
+                                else if (Math.Round(timeSpan.TotalDays) == 1)
                                 {
                                     if (row.PreviouslyReminded == false)
                                     {
@@ -175,7 +175,7 @@ namespace OSISDiscordAssistant.Services
                                     }
                                 }
 
-                                else if (timeSpan.Days < 1)
+                                else if (Math.Round(timeSpan.TotalDays) < 1)
                                 {
                                     if (row.PreviouslyReminded == false)
                                     {
@@ -204,12 +204,12 @@ namespace OSISDiscordAssistant.Services
 
                                             dbUpdate.SaveChanges();
                                         }
-                                    }
 
-                                    sentReminder = true;
+                                        sentReminder = true;
+                                    }
                                 }
 
-                                if (parsedEventDateTime.ToShortDateString() == parsedCurrentDateTime.ToShortDateString())
+                                if (parsedEventDateTime.ToShortDateString() == currentDateTime.ToShortDateString())
                                 {
                                     if (row.Expired == false)
                                     {
@@ -347,13 +347,13 @@ namespace OSISDiscordAssistant.Services
 
                                 var cultureInfo = new CultureInfo(row.EventDateCultureInfo);
 
-                                DateTime parsedCurrentDateTime = DateTime.Parse(DateTime.Now.ToShortDateString(), cultureInfo);
+                                DateTime currentDateTime = DateTime.Now.Subtract(TimeSpan.FromHours(DateTime.Now.Hour) + TimeSpan.FromMinutes(DateTime.Now.Minute) + TimeSpan.FromSeconds(DateTime.Now.Second));
 
                                 DateTime parsedEventDateTime = DateTime.Parse(row.EventDate, cultureInfo);
 
-                                TimeSpan timeSpan = parsedEventDateTime - parsedCurrentDateTime;
+                                TimeSpan timeSpan = parsedEventDateTime - currentDateTime;
 
-                                if (timeSpan.Days == 30 || timeSpan.Days > 6 && timeSpan.Days < 30)
+                                if (Math.Round(timeSpan.TotalDays) == 30 || Math.Round(timeSpan.TotalDays) > 6 && Math.Round(timeSpan.TotalDays) < 30)
                                 {
                                     if (row.ProposalReminded == false)
                                     {
@@ -386,7 +386,7 @@ namespace OSISDiscordAssistant.Services
                                     }
                                 }
 
-                                if (parsedEventDateTime.ToShortDateString() == parsedCurrentDateTime.ToShortDateString())
+                                if (parsedEventDateTime.ToShortDateString() == currentDateTime.ToShortDateString())
                                 {
                                     if (row.ProposalReminded == false)
                                     {
