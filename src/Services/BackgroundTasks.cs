@@ -73,7 +73,9 @@ namespace OSISDiscordAssistant.Services
 
                                 TimeSpan timeSpan = parsedEventDateTime - currentDateTime;
 
-                                if (Math.Round(timeSpan.TotalDays) == 7)
+                                double remainingDays = Math.Round(timeSpan.TotalDays);
+
+                                if (remainingDays == 7)
                                 {
                                     if (row.PreviouslyReminded == false)
                                     {
@@ -107,12 +109,12 @@ namespace OSISDiscordAssistant.Services
                                     }
                                 }
 
-                                else if (Math.Round(timeSpan.TotalDays) < 7 && Math.Round(timeSpan.TotalDays) > 1)
+                                else if (remainingDays < 7 && remainingDays > 1)
                                 {
                                     if (row.PreviouslyReminded == false)
                                     {
                                         reminderEmbed.Title = $"Events Manager - Reminding {row.EventName}... (Event ID: {row.Id})";
-                                        reminderEmbed.Description = $"Attention council members! In {timeSpan.Days} day(s), it will be the day for {Formatter.Bold(row.EventName)}! Read below to find out more about this event.";
+                                        reminderEmbed.Description = $"Attention council members! In {remainingDays} day(s), it will be the day for {Formatter.Bold(row.EventName)}! Read below to find out more about this event.";
 
                                         reminderEmbed.AddField("Ketua / Wakil Ketua Event", row.PersonInCharge, true);
                                         reminderEmbed.AddField("Tanggal / Waktu Pelaksanaan", row.EventDate, true);
@@ -141,7 +143,7 @@ namespace OSISDiscordAssistant.Services
                                     }
                                 }
 
-                                else if (Math.Round(timeSpan.TotalDays) == 1)
+                                else if (remainingDays == 1)
                                 {
                                     if (row.PreviouslyReminded == false)
                                     {
@@ -175,12 +177,12 @@ namespace OSISDiscordAssistant.Services
                                     }
                                 }
 
-                                else if (Math.Round(timeSpan.TotalDays) < 1)
+                                else if (remainingDays < 1)
                                 {
                                     if (row.PreviouslyReminded == false)
                                     {
                                         reminderEmbed.Title = $"Events Manager - Reminding {row.EventName}... (Event ID: {row.Id})";
-                                        reminderEmbed.Description = $"Attention council members! {Formatter.Bold(row.EventName)} will be in effect in {timeSpan.Hours} hours! Read below to find out more about this event.";
+                                        reminderEmbed.Description = $"Attention council members! {Formatter.Bold(row.EventName)} will be in effect in {Math.Round(timeSpan.TotalHours)} hours! Read below to find out more about this event.";
 
                                         reminderEmbed.AddField("Ketua / Wakil Ketua Event", row.PersonInCharge, true);
                                         reminderEmbed.AddField("Tanggal / Waktu Pelaksanaan", row.EventDate, true);
@@ -353,7 +355,9 @@ namespace OSISDiscordAssistant.Services
 
                                 TimeSpan timeSpan = parsedEventDateTime - currentDateTime;
 
-                                if (Math.Round(timeSpan.TotalDays) == 30 || Math.Round(timeSpan.TotalDays) > 6 && Math.Round(timeSpan.TotalDays) < 30)
+                                double remainingDays = Math.Round(timeSpan.TotalDays);
+
+                                if (remainingDays == 30 || remainingDays > 6 && remainingDays < 30)
                                 {
                                     if (row.ProposalReminded == false)
                                     {
