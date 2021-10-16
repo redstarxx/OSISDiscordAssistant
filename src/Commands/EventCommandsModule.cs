@@ -405,8 +405,15 @@ namespace OSISDiscordAssistant.Commands
         [RequireMainGuild, RequireAccessRole]
         [Command("event")]
         public async Task Event(CommandContext ctx, string operationSelection, params string[] optionalInput)
-        {                    
-            if (operationSelection == "update")
+        {
+            if (operationSelection == "create")
+            {
+                await ctx.Channel.SendMessageAsync($"Currently, OSIS does not support creating an event by directly calling the command. Perhaps in the future!\nTo receive automated reminders for your event, type {Formatter.InlineCode("!event create")} and enter the questioned details.");
+
+                return;
+            }
+
+            else if (operationSelection == "update")
             {
                 var embedBuilder = new DiscordEmbedBuilder
                 {
