@@ -29,20 +29,28 @@ Finally, create a new table again: `CREATE TABLE tags (id SERIAL PRIMARY KEY, ta
 
 Go to the [Discord Developer Portal](https://discord.com/developers) page and create a new app for the bot. Give it a name and an icon, and press Save Changes. Then go to Bot tab and press Add Bot. Give the bot a username and avatar, uncheck the Public Bot checkbox and press Save Changes.
 
-Once changes are saved, press the Copy button under the token. Save the copied token as this will be used by the bot to connect to Discord in the next step.
+After that, press the Copy button under the token. Save the copied token as this will be used by the bot to connect to Discord in the next step.
 
 ### Step Three: Configuration
-Create a new file named `config.json` in the `src` directory. Fill that file with the following format.
+Create a new file named `config.json` in the bot's directory. Fill that file with the following format.
 
 `{
-  "token": "",
-  "prefix": "",
-  "connectionstring": ""
+    "Token": "",
+    "Prefix": "",
+    "DbConnectionString": "",
+    "MainGuildId": "",
+    "EventChannelId": "",
+    "ProposalChannelId": "",
+    "ErrorChannelId": ""
 }`
 
-- For the `token` property, add your bot's connection token between the quotation marks obtained from Step Two.
-- For the `prefix` property, add your desired command prefix between the quotation marks.
-- For the `connectionstring` property, add your database's connection string. A typical PostgreSQL connection string would look like this: `Host=host;Username=username;Password=password;Database=database` Change these values according to your database.
+- For the `Token` property, add your bot's connection token between the quotation marks obtained from Step Two.
+- For the `Prefix` property, add your desired command prefix between the quotation marks.
+- For the `DbConnectionString` property, add your database's connection string. A typical PostgreSQL connection string would look like this: `Host=host;Username=username;Password=password;Database=database` Change these values according to your database.
+- For the `MainGuildId` property, add the guild ID that you want the event and proposal submission reminders to be sent to.
+- For the `EventChannelId` property, add the channel ID that you want the event reminders to be sent to.
+- For the `ProposalChannelId` property, add the channel ID that you want the proposal submission reminders to be sent to.
+- For the `ErrorChannelId` property, add the channel ID that you want the error(s) related to event and proposal submissions reminders background task to be sent to.
 
 Make sure you have saved your changes before proceeding.
 
