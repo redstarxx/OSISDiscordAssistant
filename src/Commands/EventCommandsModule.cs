@@ -288,7 +288,9 @@ namespace OSISDiscordAssistant.Commands
                     {
                         foreach (var events in db.Events)
                         {
-                            if (events.EventDate.Contains(currentYear.ToString()))
+                            DateTime eventDate = DateTime.Parse(events.EventDate, new CultureInfo(events.EventDateCultureInfo));
+
+                            if (eventDate.Year == currentYear)
                             {
                                 if (counter > 25)
                                 {
@@ -1468,7 +1470,9 @@ namespace OSISDiscordAssistant.Commands
                     {
                         foreach (var events in db.Events)
                         {
-                            if (events.EventDate.Contains(year.ToString()))
+                            DateTime eventDate = DateTime.Parse(events.EventDate, new CultureInfo(events.EventDateCultureInfo));
+
+                            if (year == eventDate.Year)
                             {
                                 if (counter > 25)
                                 {
