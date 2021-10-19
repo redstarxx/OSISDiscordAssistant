@@ -357,10 +357,15 @@ namespace OSISDiscordAssistant.Commands
         [Command("remind")]
         public async Task RemindHelpAsync(CommandContext ctx)
         {
+            await SendHelpMessage(ctx);
+        }
+
+        internal async Task SendHelpMessage(CommandContext ctx)
+        {
             await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[SYNTAX]")} !remind [ROLE / MEMBER] [TANGGAL / WAKTU UNTUK DIINGATKAN (example: 25/06/2021 or 6j30m or 12:30 or 30m)] [CHANNEL (optional)] [MESSAGE]");
         }
 
-        public async Task SendHelpEmoji(CommandContext ctx, DiscordMessage errorMessage)
+        internal async Task SendHelpEmoji(CommandContext ctx, DiscordMessage errorMessage)
         {
             var helpEmoji = DiscordEmoji.FromName(ctx.Client, ":sos:");
 
@@ -373,7 +378,7 @@ namespace OSISDiscordAssistant.Commands
 
             if (emojiResult.Result.Emoji == helpEmoji)
             {
-                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[SYNTAX]")} !remind [ROLE / MEMBER] [TANGGAL / WAKTU UNTUK DIINGATKAN (example: 25/06/2021 or 6j30m or 12:30 or 30m)] [CHANNEL (optional)] [MESSAGE]");
+                await SendHelpMessage(ctx);
             }
         }      
     }
