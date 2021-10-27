@@ -45,8 +45,8 @@ namespace OSISDiscordAssistant
 
             // Configures Serilog's Logger instance.
             Console.WriteLine("[1/9] Configuring logger instance...");
-            Log.Logger = new LoggerConfiguration().WriteTo.Console(outputTemplate: StringConstants.LogDateTimeFormat)
-                .WriteTo.File($@"{Environment.CurrentDirectory}/logs/clientlogs-.txt", LogEventLevel.Verbose, outputTemplate: StringConstants.LogDateTimeFormat,
+            Log.Logger = new LoggerConfiguration().WriteTo.Console(outputTemplate: Constant.LogDateTimeFormat)
+                .WriteTo.File($@"{Environment.CurrentDirectory}/logs/clientlogs-.txt", LogEventLevel.Verbose, outputTemplate: Constant.LogDateTimeFormat,
                 retainedFileCountLimit: null, rollingInterval: RollingInterval.Day, flushToDiskInterval: TimeSpan.FromMinutes(1)).CreateLogger();
 
             var serilogFactory = new LoggerFactory().AddSerilog();
