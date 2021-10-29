@@ -11,6 +11,8 @@ using DSharpPlus.Entities;
 using DSharpPlus.CommandsNext;
 using OSISDiscordAssistant.Services;
 using OSISDiscordAssistant.Enums;
+using OSISDiscordAssistant.Constants;
+using Humanizer;
 
 namespace OSISDiscordAssistant.Utilities
 {
@@ -227,6 +229,66 @@ namespace OSISDiscordAssistant.Utilities
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Composes a reminder message.
+        /// </summary>
+        /// <param name="remindMessage">Something to remind (text, link, picture, whatever).</param>
+        /// <param name="ctx">The CommandContext to attach from.</param>
+        /// <param name="remindTarget">The target mention string.</param>
+        /// <returns></returns>
+        public static string CreateReminderMessage(string remindMessage, CommandContext ctx, string remindTarget)
+        {
+            if (ctx.Member.Mention == remindTarget)
+            {
+                return $"{DiscordEmoji.FromName(ctx.Client, ":alarm_clock:")} {ctx.Member.Mention}, you wanted to be reminded of the following: \n\n{remindMessage}";
+            }
+
+            else
+            {
+                return $"{DiscordEmoji.FromName(ctx.Client, ":alarm_clock:")} {remindTarget}, {ctx.Member.Mention} wanted to remind you of the following: \n\n{remindMessage}";
+            }
+        }
+
+        /// <summary>
+        /// Composes a reminder receipt message (sent upon the completion of firing a reminder task).
+        /// </summary>
+        /// <param name="timeSpan">The timespan object.</param>
+        /// <param name="remindMessage">Something to remind (text, link, picture, whatever).</param>
+        /// <param name="displayTarget"></param>
+        /// <returns></returns>
+        public static string CreateReminderReceiptMessage(TimeSpan timeSpan, string remindMessage, string displayTarget)
+        {
+            return $"Okay! In {timeSpan.Humanize(1)} ({Formatter.Timestamp(timeSpan, TimestampFormat.LongDateTime)}) {displayTarget} will be reminded of the following:\n\n {remindMessage}";
+        }
+
+        /// <summary>
+        /// Creates and fires a task which sends a reminder message after delaying from the specified timespan.
+        /// </summary>
+        /// <param name="remainingTime">The timespan object.</param>
+        /// <param name="targetChannel">The DiscordChannel object that you want to send the reminder message to.</param>
+        /// <param name="remindMessage">Something to remind (text, link, picture, whatever).</param>
+        /// <param name="remindTarget">The target mention string.</param>
+        public static void CreateReminderTask(TimeSpan remainingTime, DiscordChannel targetChannel, string remindMessage, CommandContext ctx, string remindTarget)
+        {
+            var reminderTask = new Task(async () =>
+            {
+                string reminderMessage = CreateReminderMessage(remindMessage, ctx, remindTarget);
+
+                long fullDelays = remainingTime.Ticks / Constant.maxTimeSpanValue.Ticks;
+                for (int i = 0; i < fullDelays; i++)
+                {
+                    await Task.Delay(Constant.maxTimeSpanValue);
+                    remainingTime -= Constant.maxTimeSpanValue;
+                }
+
+                await Task.Delay(remainingTime);
+
+                _ = targetChannel == ctx.Channel ? await ctx.RespondAsync(reminderMessage) : await targetChannel.SendMessageAsync(reminderMessage);
+            });
+
+            reminderTask.Start();
         }
 
         /// <summary>

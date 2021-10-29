@@ -7,15 +7,13 @@ using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.Entities;
 using DSharpPlus;
-using Humanizer;
 using OSISDiscordAssistant.Utilities;
+using OSISDiscordAssistant.Enums;
 
 namespace OSISDiscordAssistant.Commands
 {
     class ReminderCommandsModule : BaseCommandModule
-    {
-        private static readonly TimeSpan maxValue = TimeSpan.FromMilliseconds(int.MaxValue);
-
+    {       
         [Command("remind")]
         public async Task RemindWithChannelAsync(CommandContext ctx, string remindTarget, string timeSpan, DiscordChannel toChannel, params string[] toRemind)
         {
@@ -48,24 +46,32 @@ namespace OSISDiscordAssistant.Commands
             }
 
             // Determines whether the user intends to remind themselves or @everyone.
-            // Applies to the following two switch methods below.
-            string mentionTarget = string.Empty;
+            string displayTarget = string.Empty;
+
             switch (remindTarget)
             {
                 case "me":
-                    mentionTarget = ctx.Member.Mention;
+                    remindTarget = ctx.Member.Mention;
+                    displayTarget = "you";
                     break;
                 case "@everyone":
-                    mentionTarget = "@everyone";
+                    remindTarget = "@everyone";
+                    displayTarget = "everyone";
                     break;
                 case "everyone":
-                    mentionTarget = "@everyone";
+                    remindTarget = "@everyone";
+                    displayTarget = "everyone";
                     break;
                 default:
                     string toCheck = remindTarget.Remove(2);
                     if (remindTarget.StartsWith("<") && toCheck == "<@")
                     {
-                        mentionTarget = remindTarget;
+                        displayTarget = remindTarget;
+
+                        if (remindTarget == ctx.User.Mention)
+                        {
+                            displayTarget = "you";
+                        }
                     }
 
                     else
@@ -78,17 +84,6 @@ namespace OSISDiscordAssistant.Commands
                         return;
                     }
 
-                    break;
-            }
-
-            string youoreveryone = string.Empty;
-            switch (remindTarget.ToLowerInvariant())
-            {
-                case "me":
-                    youoreveryone = "you";
-                    break;
-                default:
-                    youoreveryone = remindTarget;
                     break;
             }
 
@@ -151,49 +146,9 @@ namespace OSISDiscordAssistant.Commands
                         return;
                     }
 
-                    string toSend = $"Ok {ctx.Member.Mention}, in {remainingTime.Humanize(2)} ({Formatter.Timestamp(remindTime, TimestampFormat.LongDateTime)}) " +
-                        $"{youoreveryone} will be reminded of the following:\n\n {string.Join(" ", remindMessage)}";
+                    ClientUtilities.CreateReminderTask(remainingTime, targetChannel, remindMessage, ctx, remindTarget);
 
-                    string name = $"• {ctx.Member.DisplayName}#{ctx.Member.Discriminator} - {DateTime.Now}";
-
-                    var reminderTask = new Task(async () =>
-                    {
-                        string reminder = string.Empty;
-                        if (remindTarget == "me")
-                        {
-                            reminder = $"{DiscordEmoji.FromName(ctx.Client, ":alarm_clock:")} {ctx.Member.Mention}, " +
-                            $"you wanted to be reminded of the following: \n\n{string.Join(" ", remindMessage)}";
-                        }
-
-                        else
-                        {
-                            reminder = $"{DiscordEmoji.FromName(ctx.Client, ":alarm_clock:")} {mentionTarget}, " +
-                            $"{ctx.Member.Mention} wanted to remind you of the following: \n\n{string.Join(" ", remindMessage)}";
-                        }
-
-                        long fullDelays = remainingTime.Ticks / maxValue.Ticks;
-                        for (int i = 0; i < fullDelays; i++)
-                        {
-                            await Task.Delay(maxValue);
-                            remainingTime -= maxValue;
-                        }
-
-                        await Task.Delay(remainingTime);
-
-                        if (targetChannel == ctx.Channel)
-                        {
-                            await ctx.RespondAsync(reminder).ConfigureAwait(false);
-                        }
-
-                        else
-                        {
-                            await targetChannel.SendMessageAsync(reminder).ConfigureAwait(false);
-                        }
-                    });
-
-                    reminderTask.Start();
-
-                    await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);                 
+                    await ctx.Channel.SendMessageAsync(ClientUtilities.CreateReminderReceiptMessage(remainingTime, remindMessage, displayTarget)).ConfigureAwait(false);                 
                 }
             }
 
@@ -210,60 +165,9 @@ namespace OSISDiscordAssistant.Commands
 
                 TimeSpan remainingTime = remindTime - currentTime;
 
-                string name = $"• {ctx.Member.DisplayName}#{ctx.Member.Discriminator} - {DateTime.Now}";
+                ClientUtilities.CreateReminderTask(remainingTime, targetChannel, remindMessage, ctx, remindTarget);
 
-                var reminderTask = new Task(async () =>
-                {
-                    string reminder = string.Empty;
-                    if (remindTarget == "me")
-                    {
-                        reminder = $"{DiscordEmoji.FromName(ctx.Client, ":alarm_clock:")} {ctx.Member.Mention}, " +
-                        $"you wanted to be reminded of the following: \n\n{string.Join(" ", remindMessage)}";
-                    }
-
-                    else
-                    {
-                        reminder = $"{DiscordEmoji.FromName(ctx.Client, ":alarm_clock:")} {mentionTarget}, " +
-                        $"{ctx.Member.Mention} wanted to remind you of the following: \n\n{string.Join(" ", remindMessage)}";
-                    }
-
-                    long fullDelays = remainingTime.Ticks / maxValue.Ticks;
-                    for (int i = 0; i < fullDelays; i++)
-                    {
-                        await Task.Delay(maxValue);
-                        remainingTime -= maxValue;
-                    }
-
-                    await Task.Delay(remainingTime);
-
-                    if (targetChannel == ctx.Channel)
-                    {
-                        await ctx.RespondAsync(reminder).ConfigureAwait(false);
-                    }
-
-                    else
-                    {
-                        await targetChannel.SendMessageAsync(reminder).ConfigureAwait(false);
-                    }
-                });
-
-                reminderTask.Start();
-
-                string toSend = null;
-
-                if (remindTime.ToShortDateString() != currentTime.ToShortDateString())
-                {
-                    toSend = $"Ok {ctx.Member.Mention}, tomorrow, in {remainingTime.Humanize(2)} ({Formatter.Timestamp(remindTime, TimestampFormat.LongDateTime)}) {youoreveryone} will be reminded of the following:\n\n" +
-                    $" {string.Join(" ", remindMessage)}";
-                }
-
-                else
-                {
-                    toSend = $"Ok {ctx.Member.Mention}, in {remainingTime.Humanize(2)} ({Formatter.Timestamp(remindTime, TimestampFormat.LongDateTime)}) {youoreveryone} will be reminded of the following:\n\n" +
-                    $" {string.Join(" ", remindMessage)}";
-                }
-
-                await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
+                await ctx.Channel.SendMessageAsync(ClientUtilities.CreateReminderReceiptMessage(remainingTime, remindMessage, displayTarget)).ConfigureAwait(false);
             }
 
             else
@@ -295,49 +199,9 @@ namespace OSISDiscordAssistant.Commands
                             return;
                         }
 
-                        string toSend = $"Ok {ctx.Member.Mention}, in {remainingTime.Humanize(2)} ({Formatter.Timestamp(remindTime, TimestampFormat.LongDateTime)}) " +
-                            $"{youoreveryone} will be reminded of the following:\n\n {string.Join(" ", remindMessage)}";
+                        ClientUtilities.CreateReminderTask(remainingTime, targetChannel, remindMessage, ctx, remindTarget);
 
-                        string name = $"• {ctx.Member.DisplayName}#{ctx.Member.Discriminator} - {DateTime.Now}";
-
-                        var reminderTask = new Task(async () =>
-                        {
-                            string reminder = string.Empty;
-                            if (remindTarget == "me")
-                            {
-                                reminder = $"{DiscordEmoji.FromName(ctx.Client, ":alarm_clock:")} {ctx.Member.Mention}, " +
-                                $"you wanted to be reminded of the following: \n\n{string.Join(" ", remindMessage)}";
-                            }
-
-                            else
-                            {
-                                reminder = $"{DiscordEmoji.FromName(ctx.Client, ":alarm_clock:")} {mentionTarget}, " +
-                                $"{ctx.Member.Mention} wanted to remind you of the following: \n\n{string.Join(" ", remindMessage)}";
-                            }
-
-                            long fullDelays = remainingTime.Ticks / maxValue.Ticks;
-                            for (int i = 0; i < fullDelays; i++)
-                            {
-                                await Task.Delay(maxValue);
-                                remainingTime -= maxValue;
-                            }
-
-                            await Task.Delay(remainingTime);
-
-                            if (targetChannel == ctx.Channel)
-                            {
-                                await ctx.RespondAsync(reminder).ConfigureAwait(false);
-                            }
-
-                            else
-                            {
-                                await targetChannel.SendMessageAsync(reminder).ConfigureAwait(false);
-                            }
-                        });
-
-                        reminderTask.Start();
-
-                        await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);                        
+                        await ctx.Channel.SendMessageAsync(ClientUtilities.CreateReminderReceiptMessage(remainingTime, remindMessage, displayTarget)).ConfigureAwait(false);                        
                     }
                 }
 
