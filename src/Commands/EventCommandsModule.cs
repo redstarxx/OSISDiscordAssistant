@@ -442,16 +442,8 @@ namespace OSISDiscordAssistant.Commands
                             }
                         }
 
-                        // Checks whether the selected event is already expired
+                        // Checks whether the selected event has already expired.
                         bool hasExpired = db.Events.SingleOrDefault(x => x.Id == rowID).Expired;
-
-                        if (hasExpired)
-                        {
-                            string errorMessage = $"{Formatter.Bold("[ERROR]")} Oops! You can only update events that has not yet expired.";
-                            await ctx.Channel.SendMessageAsync(errorMessage).ConfigureAwait(false);
-
-                            return;
-                        }
 
                         if (rowExists)
                         {
@@ -742,6 +734,39 @@ namespace OSISDiscordAssistant.Commands
                                             }
                                         }
 
+                                        var warningMessage = await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[WARNING]")} By updating the date of {Formatter.Bold(previousEventName)}, it will reset the reminder for this event and all members may be pinged again to remind them if a reminder for this event was sent previously. Proceed?");
+
+                                        DiscordEmoji checkMarkEmoji = DiscordEmoji.FromName(ctx.Client, ":white_check_mark:");
+                                        DiscordEmoji crossMarkEmoji = DiscordEmoji.FromName(ctx.Client, ":x:");
+
+                                        await warningMessage.CreateReactionAsync(checkMarkEmoji);
+                                        await warningMessage.CreateReactionAsync(crossMarkEmoji);
+
+                                        var warningInteractivityResult = await ctx.Client.GetInteractivity().WaitForReactionAsync
+                                            (x => x.Message == warningMessage && (x.User.Id == ctx.User.Id) && (x.Emoji == checkMarkEmoji || x.Emoji == crossMarkEmoji), TimeSpan.FromMinutes(15));
+
+                                        if (!warningInteractivityResult.TimedOut)
+                                        {
+                                            if (warningInteractivityResult.Result.Emoji == checkMarkEmoji)
+                                            {
+                                                await ctx.Channel.SendMessageAsync("Okay.");
+                                            }
+
+                                            else if (warningInteractivityResult.Result.Emoji == crossMarkEmoji)
+                                            {
+                                                await ctx.Channel.SendMessageAsync("Cancellation acknowledged.");
+
+                                                return;
+                                            }
+                                        }
+
+                                        else
+                                        {
+                                            await ctx.RespondAsync("You're taking too long to react. Feel free to retry again.");
+
+                                            return;
+                                        }
+
                                         Task offloadToTask = Task.Run(async () =>
                                         {
                                             using (var dbUpdate = new EventContext())
@@ -754,6 +779,8 @@ namespace OSISDiscordAssistant.Commands
                                                     rowToUpdate.EventDate = eventDate;
                                                     rowToUpdate.EventDateCultureInfo = eventDateCultureInfo;
                                                     rowToUpdate.PreviouslyReminded = false;
+                                                    rowToUpdate.Expired = false;
+                                                    rowToUpdate.ProposalReminded = false;
 
                                                     dbUpdate.SaveChanges();
 
