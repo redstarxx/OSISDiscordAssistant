@@ -41,9 +41,27 @@ namespace OSISDiscordAssistant
         public ulong? ProposalChannelId { get; private set; }
 
         /// <summary>
+        /// The channel ID of the new member role verification request command channel.
+        /// </summary>
+        [JsonProperty("VerificationRequestsCommandChannelId")]
+        public ulong? VerificationRequestsCommandChannelId { get; private set; }
+
+        /// <summary>
+        /// The channel ID of the new member role verification request processing channel.
+        /// </summary>
+        [JsonProperty("VerificationRequestsProcessingChannelId")]
+        public ulong? VerificationRequestsProcessingChannelId { get; private set; }
+
+        /// <summary>
         /// The channel ID of the PRTask and ERTask exception logs channel.
         /// </summary>
         [JsonProperty("ErrorChannelId")]
         public ulong? ErrorChannelId { get; private set; }
+
+        /// <summary>
+        /// The ID of the role required to access the channels restricted to OSIS members in the main OSIS private server.
+        /// </summary>
+        [JsonProperty("AccessRoleId")]
+        public ulong? AccessRoleId { get; private set; }
     }
 }

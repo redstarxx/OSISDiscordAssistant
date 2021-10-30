@@ -331,7 +331,9 @@ namespace OSISDiscordAssistant.Utilities
         /// <param name="configJson">The JSON struct to read from.</param>
         public static void LoadDiscordConfigurationValues(ConfigJson configJson)
         {
-            if (!configJson.MainGuildId.HasValue || !configJson.EventChannelId.HasValue || !configJson.ProposalChannelId.HasValue || !configJson.ErrorChannelId.HasValue)
+            if (!configJson.MainGuildId.HasValue || !configJson.EventChannelId.HasValue || !configJson.ProposalChannelId.HasValue || 
+                !configJson.VerificationRequestsCommandChannelId.HasValue || !configJson.VerificationRequestsProcessingChannelId.HasValue || 
+                !configJson.ErrorChannelId.HasValue || !configJson.AccessRoleId.HasValue)
             {
                 Console.WriteLine("One of the Discord ID values are missing. Terminating...");
                 Console.ReadLine();
@@ -347,7 +349,13 @@ namespace OSISDiscordAssistant.Utilities
 
                 SharedData.ProposalChannelId = (ulong)configJson.ProposalChannelId;
 
+                SharedData.VerificationRequestsCommandChannelId = (ulong)configJson.VerificationRequestsCommandChannelId;
+
+                SharedData.VerificationRequestsProcessingChannelId = (ulong)configJson.VerificationRequestsProcessingChannelId;
+
                 SharedData.ErrorChannelId = (ulong)configJson.ErrorChannelId;
+
+                SharedData.AccessRoleId = (ulong)configJson.AccessRoleId;
             }
         }
 
