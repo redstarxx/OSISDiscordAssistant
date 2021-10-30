@@ -177,7 +177,7 @@ namespace OSISDiscordAssistant.Services
                                     }
                                 }
 
-                                else if (remainingDays < 1)
+                                else if (remainingDays < 1 && remainingDays > 0)
                                 {
                                     if (row.PreviouslyReminded == false)
                                     {
@@ -208,6 +208,33 @@ namespace OSISDiscordAssistant.Services
                                         }
 
                                         sentReminder = true;
+                                    }
+                                }
+
+                                else if (remainingDays < 0)
+                                {
+                                    // If the bot did not have a chance to remind the event before the event date, mark it as done anyway.
+                                    if (remainingDays < 0)
+                                    {
+                                        if (row.Expired is false)
+                                        {
+                                            using (var dbUpdate = new EventContext())
+                                            {
+                                                Events rowToUpdate = null;
+                                                rowToUpdate = dbUpdate.Events.SingleOrDefault(x => x.Id == row.Id);
+
+                                                if (rowToUpdate != null)
+                                                {
+                                                    rowToUpdate.PreviouslyReminded = true;
+                                                    rowToUpdate.ProposalReminded = true;
+                                                    rowToUpdate.Expired = true;
+                                                }
+
+                                                dbUpdate.SaveChanges();
+
+                                                Bot.Client.Logger.LogInformation($"Marked event '{row.EventName}' (ID: {row.Id}) as expired in {processingStopWatch.ElapsedMilliseconds} ms.");
+                                            }
+                                        }
                                     }
                                 }
 
@@ -405,9 +432,9 @@ namespace OSISDiscordAssistant.Services
                                             }
 
                                             dbUpdate.SaveChanges();
-                                        }
 
-                                        Bot.Client.Logger.LogInformation($"Marked '{row.EventName}' (ID: {row.Id}) proposal_reminded as {row.ProposalReminded}.");
+                                            Bot.Client.Logger.LogInformation($"Marked '{row.EventName}' (ID: {row.Id}) proposal reminded column as {row.ProposalReminded}.");
+                                        }
                                     }
                                 }
 
