@@ -267,5 +267,11 @@ namespace OSISDiscordAssistant.Commands
 
             await ctx.Channel.SendMessageAsync(embed: embedBuilder).ConfigureAwait(false);
         }
+
+        [Command("prefix")]
+        public async Task PrefixAsync(CommandContext ctx)
+        {          
+            await ctx.RespondAsync($"{Formatter.Bold("[PREFIX]")} My prefixes are {ClientUtilities.GetPrefixList()}.");
+        }
     }
 }

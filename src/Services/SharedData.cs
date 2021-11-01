@@ -6,6 +6,11 @@ namespace OSISDiscordAssistant.Services
     public class SharedData
     {
         /// <summary>
+        /// The prefixes used to execute a command.
+        /// </summary>
+        public static string[] Prefixes;
+
+        /// <summary>
         /// The dictionary that stores deleted messages that has been previously cached.
         /// </summary>
         public static ConcurrentDictionary<ulong, DiscordMessage> DeletedMessages = new ConcurrentDictionary<ulong, DiscordMessage>();

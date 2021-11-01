@@ -100,13 +100,15 @@ namespace OSISDiscordAssistant
             Console.WriteLine("[6/9] Loading up CommandsNext configuration...");
             var commandsConfig = new CommandsNextConfiguration
             {
-                StringPrefixes = new String[] { configJson.Prefix },
+                StringPrefixes = configJson.Prefix,
                 EnableMentionPrefix = true,
                 EnableDms = false,
                 EnableDefaultHelp = false,
             };
 
             Commands = await Client.UseCommandsNextAsync(commandsConfig);
+
+            SharedData.Prefixes = configJson.Prefix;
 
             Console.WriteLine("[7/9] Registering CommandsNext commands modules...");
             // Registers commands.

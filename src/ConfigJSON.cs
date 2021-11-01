@@ -14,7 +14,7 @@ namespace OSISDiscordAssistant
         /// Gets the commands prefix.
         /// </summary>
         [JsonProperty("Prefix")]
-        public string Prefix { get; private set; }
+        public string[] Prefix { get; private set; }
 
         /// <summary>
         /// Gets the PostgreSQL database connection string required for database operations.

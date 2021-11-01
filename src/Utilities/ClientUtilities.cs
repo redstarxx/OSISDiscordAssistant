@@ -360,6 +360,45 @@ namespace OSISDiscordAssistant.Utilities
         }
 
         /// <summary>
+        /// Gets the prefixes that are loaded from the config.json file.
+        /// </summary>
+        /// <returns>The list of prefixes formatted beautifully.</returns>
+        public static string GetPrefixList()
+        {
+            int prefixCount = 0;
+            int processedCount = 0;
+            string prefixList = string.Empty;
+
+            foreach (string prefix in SharedData.Prefixes)
+            {
+                prefixCount++;
+            }
+
+            foreach (string prefix in SharedData.Prefixes)
+            {
+                if (processedCount == 0)
+                {
+                    prefixList = $"{Formatter.InlineCode(prefix)}";
+                    processedCount++;
+                }
+
+                else if (prefixCount - 1 == processedCount)
+                {
+                    prefixList = $"{prefixList} and {Formatter.InlineCode(prefix)}";
+                    processedCount++;
+                }
+
+                else
+                {
+                    prefixList = $"{prefixList}, {Formatter.InlineCode(prefix)}";
+                    processedCount++;
+                }
+            }
+
+            return prefixList;
+        }
+
+        /// <summary>
         /// Converts the local DateTime to Western Indonesian Time.
         /// </summary>
         /// <returns>GMT +7 DateTime</returns>
