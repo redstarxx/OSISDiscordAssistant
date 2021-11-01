@@ -754,7 +754,7 @@ namespace OSISDiscordAssistant.Commands
 
                                             else if (warningInteractivityResult.Result.Emoji == crossMarkEmoji)
                                             {
-                                                await ctx.Channel.SendMessageAsync("Cancellation acknowledged.");
+                                                await ctx.Channel.SendMessageAsync($"Cancellation acknowledged. Aborted updating {Formatter.Bold(previousEventName)}.");
 
                                                 return;
                                             }
@@ -762,7 +762,7 @@ namespace OSISDiscordAssistant.Commands
 
                                         else
                                         {
-                                            await ctx.RespondAsync("You're taking too long to react. Feel free to retry again.");
+                                            await ctx.RespondAsync($"You're taking too long to react. Feel free to retry updating {Formatter.Bold(previousEventName)} again.");
 
                                             return;
                                         }
