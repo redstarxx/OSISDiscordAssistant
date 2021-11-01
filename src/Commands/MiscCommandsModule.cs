@@ -66,10 +66,14 @@ namespace OSISDiscordAssistant.Commands
             {
                 Title = "About OSIS Discord Assistant",
                 Description = string.Concat($"OSIS Discord Assistant is a bot created by RedStar#9271 (<@!322693857760509952>). " +
-                $"This bot is solely developed to assist the student council members of Sekolah Djuwita to carry out its tasks in terms " +
-                $"of event planning, reminders and server administration. The source code is available {Formatter.MaskedUrl("here.", new Uri("https://github.com/redstarxx/OSISDiscordAssistant"))}" +
-                $"\n\nThis shard is currently servicing {ctx.Client.Guilds.Count} guilds."),
-                Color = DiscordColor.MidnightBlue
+                $"This bot is developed to assist the members of OSIS Sekolah Djuwita Batam to carry out its tasks in terms " +
+                $"of event planning, automated deadline reminders and server administration. The source code is available {Formatter.MaskedUrl("here.", new Uri("https://github.com/redstarxx/OSISDiscordAssistant"))}" +
+                $"\n\n{Formatter.MaskedUrl("Add me to your server!", new Uri("https://discord.com/api/oauth2/authorize?client_id=382165423979888653&permissions=8&scope=bot"))}"),
+                Color = DiscordColor.MidnightBlue,
+                Footer = new DiscordEmbedBuilder.EmbedFooter
+                {
+                    Text = $"This shard is currently servicing {ctx.Client.Guilds.Count} servers. | Shard ID: {ctx.Client.ShardId}."
+                }
             };
 
             embedBuilder.AddField("Bot Version", Formatter.Bold(ccv), true)
