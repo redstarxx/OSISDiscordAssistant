@@ -173,10 +173,9 @@ namespace OSISDiscordAssistant.Commands
                     await member.GrantRoleAsync(ctx.Guild.GetRole(SharedData.AccessRoleId));
                     await member.ModifyAsync(setName => setName.Nickname = requestedName);
 
+                    embedBuilder.Title = $"Verification Request #{verificationCounterNumber} | ACCEPTED";
                     embedBuilder.Description = $"{ctx.User.Username}#{ctx.User.Discriminator} has submitted a verification request.\n"
-                        + $"{Formatter.Bold("Nama Panggilan:")} {requestedName}\n{Formatter.Bold("User ID:")} {ctx.User.Id}\n{Formatter.Bold("Verification Status:")} ACCEPTED (handled by {reactionResult.Result.Interaction.User.Mention} at <t:{reactionResult.Result.Interaction.CreationTimestamp.ToUnixTimeSeconds()}:F>).\n"
-                        + $"Click the {Formatter.InlineCode("ACCEPT")} button to approve this request or the {Formatter.InlineCode("DECLINE")} button to deny. "
-                        + $"This request expires in two days ({Formatter.Timestamp(ClientUtilities.GetWesternIndonesianDateTime().AddDays(2), TimestampFormat.LongDateTime)}).";
+                        + $"{Formatter.Bold("Nama Panggilan:")} {requestedName}\n{Formatter.Bold("User ID:")} {ctx.User.Id}\n{Formatter.Bold("Verification Status:")} ACCEPTED (handled by {reactionResult.Result.Interaction.User.Mention} at <t:{reactionResult.Result.Interaction.CreationTimestamp.ToUnixTimeSeconds()}:F>).";
                     embedBuilder.Timestamp = ClientUtilities.GetWesternIndonesianDateTime();
 
                     await reactionResult.Result.Interaction.CreateResponseAsync(InteractionResponseType.UpdateMessage
@@ -189,10 +188,9 @@ namespace OSISDiscordAssistant.Commands
 
                 else if (reactionResult.Result.Id == "decline_button")
                 {
+                    embedBuilder.Title = $"Verification Request #{verificationCounterNumber} | DENIED";
                     embedBuilder.Description = $"{ctx.User.Username}#{ctx.User.Discriminator} has submitted a verification request.\n"
-                        + $"{Formatter.Bold("Nama Panggilan:")} {requestedName}\n{Formatter.Bold("User ID:")} {ctx.User.Id}\n{Formatter.Bold("Verification Status:")} DECLINED (handled by {reactionResult.Result.Interaction.User.Mention} at <t:{reactionResult.Result.Interaction.CreationTimestamp.ToUnixTimeSeconds()}:F>).\n"
-                        + $"Click the {Formatter.InlineCode("ACCEPT")} button to approve this request or the {Formatter.InlineCode("DECLINE")} button to deny. "
-                        + $"This request expires in two days ({Formatter.Timestamp(ClientUtilities.GetWesternIndonesianDateTime().AddDays(2), TimestampFormat.LongDateTime)}).";
+                        + $"{Formatter.Bold("Nama Panggilan:")} {requestedName}\n{Formatter.Bold("User ID:")} {ctx.User.Id}\n{Formatter.Bold("Verification Status:")} DECLINED (handled by {reactionResult.Result.Interaction.User.Mention} at <t:{reactionResult.Result.Interaction.CreationTimestamp.ToUnixTimeSeconds()}:F>).";
                     embedBuilder.Timestamp = ClientUtilities.GetWesternIndonesianDateTime();
 
                     await reactionResult.Result.Interaction.CreateResponseAsync(InteractionResponseType.UpdateMessage
@@ -205,10 +203,9 @@ namespace OSISDiscordAssistant.Commands
 
             else
             {
+                embedBuilder.Title = $"Verification Request #{verificationCounterNumber} | EXPIRED";
                 embedBuilder.Description = $"{ctx.User.Username}#{ctx.User.Discriminator} has submitted a verification request.\n"
-                    + $"{Formatter.Bold("Nama Panggilan:")} {requestedName}\n{Formatter.Bold("User ID:")} {ctx.User.Id}\n{Formatter.Bold("Verification Status:")} EXPIRED (at <t:{reactionResult.Result.Interaction.CreationTimestamp.ToUnixTimeSeconds()}:F>).\n"
-                    + $"Click the {Formatter.InlineCode("ACCEPT")} button to approve this request or the {Formatter.InlineCode("DECLINE")} button to deny. "
-                    + $"This request expires in two days ({Formatter.Timestamp(ClientUtilities.GetWesternIndonesianDateTime().AddDays(2), TimestampFormat.LongDateTime)}).";
+                    + $"{Formatter.Bold("Nama Panggilan:")} {requestedName}\n{Formatter.Bold("User ID:")} {ctx.User.Id}\n{Formatter.Bold("Verification Status:")} EXPIRED (nobody handled this request within 48 hours) at <t:{reactionResult.Result.Interaction.CreationTimestamp.ToUnixTimeSeconds()}:F>).";
                 embedBuilder.Timestamp = ClientUtilities.GetWesternIndonesianDateTime();
 
                 await reactionResult.Result.Interaction.CreateResponseAsync(InteractionResponseType.UpdateMessage
