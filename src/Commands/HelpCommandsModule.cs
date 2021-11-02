@@ -44,7 +44,7 @@ namespace OSISDiscordAssistant.Commands
             string verificationCommands = $"{Formatter.Bold("requestverify")} - Request a verification as a new member to the core council (Inti OSIS) members.\n" +
                 $"{Formatter.Bold("overify")} - Manually verifies a new member as a council member.\n";
 
-            string administrationCommands = $"{Formatter.Bold("!setname")} - Sets a new name for yourself or another user.\n" +
+            string administrationCommands = $"{Formatter.Bold("setname")} - Sets a new name for yourself or another user.\n" +
                 $"{Formatter.Bold("kick")} - Kicks a member from this Discord server.\n" +
                 $"{Formatter.Bold("ban")} - Bans a member from this Discord server.\n" +
                 $"{Formatter.Bold("unban")} - Unbans a member from this Discord server.\n" +
