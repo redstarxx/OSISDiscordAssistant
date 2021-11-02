@@ -158,7 +158,7 @@ namespace OSISDiscordAssistant
             // Reminders are sent 30 days before or a week before the day of the event.
             BackgroundTasks.StartProposalReminders();
 
-            Client.Logger.LogInformation(LogEvent, "Client is ready for tasking.", ClientUtilities.GetWesternIndonesianDateTime());
+            Client.Logger.LogInformation(LogEvent, "Client is ready for tasking.", DateTime.Now);
 
             return Task.CompletedTask;
         }                
@@ -169,7 +169,7 @@ namespace OSISDiscordAssistant
            {
                if (e.Channel.IsPrivate && !e.Author.IsCurrent)
                {
-                   Client.Logger.LogInformation(LogEvent, $"User '{e.Author.Username}#{e.Author.Discriminator}' ({e.Author.Id}) sent \"{e.Message.Content}\" through Direct Messages ({e.Channel.Id})", ClientUtilities.GetWesternIndonesianDateTime());
+                   Client.Logger.LogInformation(LogEvent, $"User '{e.Author.Username}#{e.Author.Discriminator}' ({e.Author.Id}) sent \"{e.Message.Content}\" through Direct Messages ({e.Channel.Id})", DateTime.Now);
 
                    if (e.Message.Content.StartsWith("!"))
                    {
@@ -179,6 +179,7 @@ namespace OSISDiscordAssistant
                    }
                }
            });
+
             return Task.CompletedTask;
         }
 
@@ -187,11 +188,11 @@ namespace OSISDiscordAssistant
             sender.Logger.LogInformation(LogEvent,
                 $"User '{e.Message.Author.Username}#{e.Message.Author.Discriminator}' ({e.Message.Author.Id}) " +
                 $"updated message ({e.Message.Id}) in #{e.Channel.Name} ({e.Channel.Id}) guild '{e.Guild.Name}' ({e.Guild.Id})",
-                ClientUtilities.GetWesternIndonesianDateTime());
+                DateTime.Now);
 
             if (e.MessageBefore is null)
             {
-                sender.Logger.LogInformation(LogEvent, $"Message ({e.Message.Id}) was not cached. Skipped storing previous message content.");
+                sender.Logger.LogInformation(LogEvent, $"Message ({e.Message.Id}) is not cached. Skipped storing previous message content.");
 
                 return Task.CompletedTask;
             }
@@ -219,7 +220,7 @@ namespace OSISDiscordAssistant
                 sender.Logger.LogInformation(LogEvent,
                     $"User '{e.Message.Author.Username}#{e.Message.Author.Discriminator}' ({e.Message.Author.Id}) " +
                     $"deleted message ({e.Message.Id}) in #{e.Channel.Name} ({e.Channel.Id}) guild '{e.Guild.Name}' ({e.Guild.Id})",
-                    ClientUtilities.GetWesternIndonesianDateTime());
+                    DateTime.Now);
             }
 
             catch
@@ -250,7 +251,7 @@ namespace OSISDiscordAssistant
             Client.Logger.LogInformation(LogEvent,
                 $"User '{e.User.Username}#{e.User.Discriminator}' ({e.User.Id}) " +
                 $"added '{e.Emoji}' in #{e.Channel.Name} ({e.Channel.Id})",
-                ClientUtilities.GetWesternIndonesianDateTime());
+                DateTime.Now);
 
             return Task.CompletedTask;
         }
@@ -260,7 +261,7 @@ namespace OSISDiscordAssistant
             Client.Logger.LogInformation(LogEvent,
                 $"User '{e.User.Username}#{e.User.Discriminator}' ({e.User.Id}) " +
                 $"removed '{e.Emoji}' in #{e.Channel.Name} ({e.Channel.Id})",
-                ClientUtilities.GetWesternIndonesianDateTime());
+                DateTime.Now);
 
             return Task.CompletedTask;
         }
@@ -310,7 +311,7 @@ namespace OSISDiscordAssistant
 
             if (ex.Message is "Could not connect to Discord.")
             {
-                sender.Logger.LogInformation(LogEvent, "Terminating...", ClientUtilities.GetWesternIndonesianDateTime());
+                sender.Logger.LogInformation(LogEvent, "Terminating...", DateTime.Now);
 
                 Environment.Exit(0);
             }
@@ -339,7 +340,7 @@ namespace OSISDiscordAssistant
             e.Context.Client.Logger.LogInformation(LogEvent,
                 $"User '{e.Context.User.Username}#{e.Context.User.Discriminator}' ({e.Context.User.Id}) " +
                 $"executed '{e.Command.QualifiedName}' in #{e.Context.Channel.Name} ({e.Context.Channel.Id}) guild '{e.Context.Guild.Name}' ({e.Context.Guild.Id})",
-                ClientUtilities.GetWesternIndonesianDateTime());
+                DateTime.Now);
 
             return Task.CompletedTask;
         }
@@ -388,7 +389,7 @@ namespace OSISDiscordAssistant
                     {
                         Title = "An error occurred!",
                         Description = $"Details: {Formatter.InlineCode($"{e.Exception.Message}")}",
-                        Timestamp = ClientUtilities.GetWesternIndonesianDateTime(),
+                        Timestamp = DateTime.Now,
                         Footer = new DiscordEmbedBuilder.EmbedFooter
                         {
                             Text = "OSIS Discord Assistant"
@@ -402,7 +403,7 @@ namespace OSISDiscordAssistant
 
             e.Context.Client.Logger.LogError(LogEvent,
                 $"User '{e.Context.User.Username}#{e.Context.User.Discriminator}' ({e.Context.User.Id}) tried to execute '{e.Command?.QualifiedName ?? "<unknown command>"}' "
-                + $"in #{e.Context.Channel.Name} ({e.Context.Channel.Id})  guild '{e.Context.Guild.Name}' ({e.Context.Guild.Id}) and failed with {e.Exception.GetType()}: {e.Exception.Message}", ClientUtilities.GetWesternIndonesianDateTime());
+                + $"in #{e.Context.Channel.Name} ({e.Context.Channel.Id})  guild '{e.Context.Guild.Name}' ({e.Context.Guild.Id}) and failed with {e.Exception.GetType()}: {e.Exception.Message}", DateTime.Now);
 
             return Task.CompletedTask;
         }

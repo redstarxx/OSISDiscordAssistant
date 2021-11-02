@@ -233,7 +233,7 @@ namespace OSISDiscordAssistant.Commands
                 },
                 Title = "Member Information",
                 Description = $"Halo, {ctx.Member.Mention}! Informasi akun anda adalah sebagai berikut:",
-                Timestamp = ClientUtilities.GetWesternIndonesianDateTime(),
+                Timestamp = DateTime.Now,
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
                     Text = "OSIS Discord Assistant"

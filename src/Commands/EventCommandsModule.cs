@@ -127,7 +127,7 @@ namespace OSISDiscordAssistant.Commands
                                 var cultureInfoUS = new CultureInfo("en-US");
 
                                 // Add 7 hours ahead because for some reason Linux doesn't pick the user preferred timezone.
-                                DateTime currentTime = ClientUtilities.GetWesternIndonesianDateTime();
+                                DateTime currentTime = DateTime.Now;
 
                                 DateTime toConvert = DateTime.Parse(eventDate, cultureInfoUS);
 
@@ -160,7 +160,7 @@ namespace OSISDiscordAssistant.Commands
                                     var cultureInfoID = new CultureInfo("id-ID");
 
                                     // Add 7 hours ahead because for some reason Linux doesn't pick the user preferred timezone.
-                                    DateTime currentTime = ClientUtilities.GetWesternIndonesianDateTime();
+                                    DateTime currentTime = DateTime.Now;
 
                                     DateTime toConvert = DateTime.Parse(eventDate, cultureInfoID);
 
@@ -265,7 +265,7 @@ namespace OSISDiscordAssistant.Commands
                 var embedBuilder = new DiscordEmbedBuilder
                 {
                     Title = "Events Manager - Listing All Events...",
-                    Timestamp = ClientUtilities.GetWesternIndonesianDateTime(),
+                    Timestamp = DateTime.Now,
                     Footer = new DiscordEmbedBuilder.EmbedFooter
                     {
                         Text = "OSIS Discord Assistant"
@@ -384,7 +384,7 @@ namespace OSISDiscordAssistant.Commands
             {
                 var embedBuilder = new DiscordEmbedBuilder
                 {
-                    Timestamp = ClientUtilities.GetWesternIndonesianDateTime(),
+                    Timestamp = DateTime.Now,
                     Footer = new DiscordEmbedBuilder.EmbedFooter
                     {
                         Text = "OSIS Discord Assistant"
@@ -545,7 +545,7 @@ namespace OSISDiscordAssistant.Commands
 
                                             embedBuilder.Title = $"Events Manager - {previousEventName} Update Details";
                                             embedBuilder.Description = $"{ctx.Member.Mention} has made update(s) to {previousEventName}.\n\n{Formatter.Bold("Changes made:")}\n• Changed event name from {Formatter.InlineCode(previousEventName)} to {Formatter.InlineCode(eventName)}.";
-                                            embedBuilder.Timestamp = ClientUtilities.GetWesternIndonesianDateTime();
+                                            embedBuilder.Timestamp = DateTime.Now;
 
                                             await ctx.Channel.SendMessageAsync(embed: embedBuilder).ConfigureAwait(false);
                                         });
@@ -604,7 +604,7 @@ namespace OSISDiscordAssistant.Commands
 
                                             embedBuilder.Title = $"Events Manager - {previousEventName} Update Details";
                                             embedBuilder.Description = $"{ctx.Member.Mention} has made update(s) to {previousEventName}.\n\n{Formatter.Bold("Changes made:")}\n• Changed person-in-charge (ketua / wakil ketua event) from {Formatter.InlineCode(previousPersonInCharge)} to {Formatter.InlineCode(personInCharge)}.";
-                                            embedBuilder.Timestamp = ClientUtilities.GetWesternIndonesianDateTime();
+                                            embedBuilder.Timestamp = DateTime.Now;
 
                                             await ctx.Channel.SendMessageAsync(embed: embedBuilder).ConfigureAwait(false);
                                         });                                       
@@ -665,7 +665,7 @@ namespace OSISDiscordAssistant.Commands
                                             var cultureInfoUS = new CultureInfo("en-US");
 
                                             // Add 7 hours ahead because for some reason Linux doesn't pick the user preferred timezone.
-                                            DateTime currentTime = ClientUtilities.GetWesternIndonesianDateTime();
+                                            DateTime currentTime = DateTime.Now;
 
                                             DateTime toConvert = DateTime.Parse(eventDate, cultureInfoUS);
 
@@ -698,7 +698,7 @@ namespace OSISDiscordAssistant.Commands
                                                 var cultureInfoID = new CultureInfo("id-ID");
 
                                                 // Add 7 hours ahead because for some reason Linux doesn't pick the user preferred timezone.
-                                                DateTime currentTime = ClientUtilities.GetWesternIndonesianDateTime();
+                                                DateTime currentTime = DateTime.Now;
 
                                                 DateTime toConvert = DateTime.Parse(eventDate, cultureInfoID);
 
@@ -789,7 +789,7 @@ namespace OSISDiscordAssistant.Commands
 
                                                 embedBuilder.Title = $"Events Manager - {previousEventName} Update Details";
                                                 embedBuilder.Description = $"{ctx.Member.Mention} has made update(s) to {previousEventName}.\n\n{Formatter.Bold("Changes made:")}\n• Changed event date from {Formatter.InlineCode(previousEventDate)} to {Formatter.InlineCode(eventDate)}.";
-                                                embedBuilder.Timestamp = ClientUtilities.GetWesternIndonesianDateTime();
+                                                embedBuilder.Timestamp = DateTime.Now;
 
                                                 await ctx.Channel.SendMessageAsync(embed: embedBuilder).ConfigureAwait(false);
                                             }
@@ -848,7 +848,7 @@ namespace OSISDiscordAssistant.Commands
 
                                                 embedBuilder.Title = $"Events Manager - {previousEventName} Update Details";
                                                 embedBuilder.Description = $"{ctx.Member.Mention} has made update(s) to {previousEventName}.\n\n{Formatter.Bold("Changes made:")}\n• Changed event description from {Formatter.InlineCode(previousEventDescription)} to {Formatter.InlineCode(eventDescription)}.";
-                                                embedBuilder.Timestamp = ClientUtilities.GetWesternIndonesianDateTime();
+                                                embedBuilder.Timestamp = DateTime.Now;
 
                                                 await ctx.Channel.SendMessageAsync(embed: embedBuilder).ConfigureAwait(false);
                                             }
@@ -983,7 +983,7 @@ namespace OSISDiscordAssistant.Commands
                 var embedBuilder = new DiscordEmbedBuilder
                 {
                     Title = "Events Manager - Search Result",
-                    Timestamp = ClientUtilities.GetWesternIndonesianDateTime(),
+                    Timestamp = DateTime.Now,
                     Footer = new DiscordEmbedBuilder.EmbedFooter
                     {
                         Text = "OSIS Discord Assistant"
@@ -1083,7 +1083,7 @@ namespace OSISDiscordAssistant.Commands
                 var embedBuilder = new DiscordEmbedBuilder
                 {
                     Title = "Events Manager - Get Result",
-                    Timestamp = ClientUtilities.GetWesternIndonesianDateTime(),
+                    Timestamp = DateTime.Now,
                     Footer = new DiscordEmbedBuilder.EmbedFooter
                     {
                         Text = "OSIS Discord Assistant"
@@ -1230,7 +1230,7 @@ namespace OSISDiscordAssistant.Commands
 
                 var embedBuilder = new DiscordEmbedBuilder
                 {
-                    Timestamp = ClientUtilities.GetWesternIndonesianDateTime(),
+                    Timestamp = DateTime.Now,
                     Footer = new DiscordEmbedBuilder.EmbedFooter
                     {
                         Text = "OSIS Discord Assistant"
@@ -1425,7 +1425,7 @@ namespace OSISDiscordAssistant.Commands
                 var embedBuilder = new DiscordEmbedBuilder
                 {
                     Title = "Events Manager - Listing All Events...",
-                    Timestamp = ClientUtilities.GetWesternIndonesianDateTime(),
+                    Timestamp = DateTime.Now,
                     Footer = new DiscordEmbedBuilder.EmbedFooter
                     {
                         Text = "OSIS Discord Assistant"
@@ -1522,7 +1522,7 @@ namespace OSISDiscordAssistant.Commands
             var embedBuilder = new DiscordEmbedBuilder
             {
                 Title = "Events Manager - Overview",
-                Timestamp = ClientUtilities.GetWesternIndonesianDateTime(),
+                Timestamp = DateTime.Now,
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
                     Text = "OSIS Discord Assistant"

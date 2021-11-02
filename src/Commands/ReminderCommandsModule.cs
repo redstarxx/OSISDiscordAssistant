@@ -89,9 +89,10 @@ namespace OSISDiscordAssistant.Commands
 
             DiscordChannel targetChannel = remindChannel ?? ctx.Channel;
 
+            DateTime currentTime = DateTime.Now;
+
             if (timeSpan.Contains("/"))
             {
-                DateTime currentTime = ClientUtilities.GetWesternIndonesianDateTime();
                 DateTime remindTime;
 
                 try
@@ -154,8 +155,6 @@ namespace OSISDiscordAssistant.Commands
 
             else if (timeSpan.Contains(":"))
             {
-                DateTime currentTime = ClientUtilities.GetWesternIndonesianDateTime();
-
                 var remindTime = DateTime.ParseExact(timeSpan, "H:mm", null, DateTimeStyles.None);
 
                 if (currentTime > remindTime)
@@ -174,8 +173,6 @@ namespace OSISDiscordAssistant.Commands
             {
                 try
                 {
-                    DateTime currentTime = ClientUtilities.GetWesternIndonesianDateTime();
-
                     TimeSpan remainingTime = ClientUtilities.ParseToSeconds(timeSpan);
 
                     DateTime remindTime = currentTime + remainingTime;

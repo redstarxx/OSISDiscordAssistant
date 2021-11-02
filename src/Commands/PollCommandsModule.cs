@@ -42,7 +42,7 @@ namespace OSISDiscordAssistant.Commands
             {
                 Title = $"Poll #{pollCounter}",
                 Description = $"Click an emoji below to vote! This poll expires in {pollDuration.Humanize(2)} ({Formatter.Timestamp(pollDuration, TimestampFormat.LongDateTime)}).",
-                Timestamp = ClientUtilities.GetWesternIndonesianDateTime(),
+                Timestamp = DateTime.Now,
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
                     Text = "OSIS Discord Assistant"
@@ -75,7 +75,7 @@ namespace OSISDiscordAssistant.Commands
             var pollResultEmbedBuilder = new DiscordEmbedBuilder
             {
                 Title = $"Results for Poll #{pollCounter}",
-                Timestamp = ClientUtilities.GetWesternIndonesianDateTime(),
+                Timestamp = DateTime.Now,
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
                     Text = "OSIS Discord Assistant"

@@ -399,25 +399,12 @@ namespace OSISDiscordAssistant.Utilities
         }
 
         /// <summary>
-        /// Converts the local DateTime to Western Indonesian Time.
-        /// </summary>
-        /// <returns>GMT +7 DateTime</returns>
-        public static DateTime GetWesternIndonesianDateTime()
-        {
-            DateTime currentTime = DateTime.Now;
-
-            return currentTime;
-        }
-
-        /// <summary>
         /// Gets the current version of the bot.
         /// </summary>
         /// <returns>The version number in major.minor.patch format.</returns>
         public static string GetBuildVersion()
         {
-            var ccv = Assembly.GetExecutingAssembly().GetName().Version.ToString(3);
-
-            return ccv;
+            return Assembly.GetExecutingAssembly().GetName().Version.ToString(3);
         }
     }
 }

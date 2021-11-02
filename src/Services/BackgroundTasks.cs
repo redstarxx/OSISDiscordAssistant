@@ -43,7 +43,7 @@ namespace OSISDiscordAssistant.Services
                     {
                         var reminderEmbed = new DiscordEmbedBuilder
                         {
-                            Timestamp = ClientUtilities.GetWesternIndonesianDateTime(),
+                            Timestamp = DateTime.Now,
                             Footer = new DiscordEmbedBuilder.EmbedFooter
                             {
                                 Text = "OSIS Discord Assistant"
@@ -293,12 +293,12 @@ namespace OSISDiscordAssistant.Services
 
                         if (counter != 0)
                         {
-                            Bot.Client.Logger.LogInformation(Bot.ERTask, $"Completed events reminder task in {elapsedMilliseconds} ms. Reminded {counter} ({counter.ToWords()}) events.", ClientUtilities.GetWesternIndonesianDateTime());
+                            Bot.Client.Logger.LogInformation(Bot.ERTask, $"Completed events reminder task in {elapsedMilliseconds} ms. Reminded {counter} ({counter.ToWords()}) events.", DateTime.Now);
                         }
 
                         else
                         {
-                            Bot.Client.Logger.LogInformation(Bot.ERTask, $"Completed events reminder task in {elapsedMilliseconds} ms. No events to remind.", ClientUtilities.GetWesternIndonesianDateTime());
+                            Bot.Client.Logger.LogInformation(Bot.ERTask, $"Completed events reminder task in {elapsedMilliseconds} ms. No events to remind.", DateTime.Now);
                         }
 
                         stopwatch.Reset();
@@ -320,7 +320,7 @@ namespace OSISDiscordAssistant.Services
 
             SharedData.IsEventReminderInitialized = true;
 
-            Bot.Client.Logger.LogInformation(Bot.ERTask, "Initialized events reminder task.", ClientUtilities.GetWesternIndonesianDateTime());
+            Bot.Client.Logger.LogInformation(Bot.ERTask, "Initialized events reminder task.", DateTime.Now);
         }
 
         /// <summary>
@@ -352,7 +352,7 @@ namespace OSISDiscordAssistant.Services
 
                         var reminderEmbed = new DiscordEmbedBuilder
                         {
-                            Timestamp = ClientUtilities.GetWesternIndonesianDateTime(),
+                            Timestamp = DateTime.Now,
                             Footer = new DiscordEmbedBuilder.EmbedFooter
                             {
                                 Text = "OSIS Discord Assistant"
@@ -458,12 +458,12 @@ namespace OSISDiscordAssistant.Services
 
                         if (counter != 0)
                         {
-                            Bot.Client.Logger.LogInformation(Bot.PRTask, $"Completed proposal reminder task in {elapsedMilliseconds} ms. Reminded {counter} ({counter.ToWords()}) proposal submissions.", ClientUtilities.GetWesternIndonesianDateTime());
+                            Bot.Client.Logger.LogInformation(Bot.PRTask, $"Completed proposal reminder task in {elapsedMilliseconds} ms. Reminded {counter} ({counter.ToWords()}) proposal submissions.", DateTime.Now);
                         }
 
                         else
                         {
-                            Bot.Client.Logger.LogInformation(Bot.PRTask, $"Completed proposal reminder task in {elapsedMilliseconds} ms. No proposal submissions to remind.", ClientUtilities.GetWesternIndonesianDateTime());
+                            Bot.Client.Logger.LogInformation(Bot.PRTask, $"Completed proposal reminder task in {elapsedMilliseconds} ms. No proposal submissions to remind.", DateTime.Now);
                         }
 
                         stopwatch.Reset();
@@ -485,7 +485,7 @@ namespace OSISDiscordAssistant.Services
 
             SharedData.IsProposalReminderInitialized = true;
 
-            Bot.Client.Logger.LogInformation(Bot.PRTask, "Initialized proposal reminder task.", ClientUtilities.GetWesternIndonesianDateTime());
+            Bot.Client.Logger.LogInformation(Bot.PRTask, "Initialized proposal reminder task.", DateTime.Now);
         }
 
         /// <summary>
@@ -548,7 +548,7 @@ namespace OSISDiscordAssistant.Services
 
             SharedData.IsStatusUpdaterInitialized = true;
 
-            Bot.Client.Logger.LogInformation(Bot.StatusUpdater, "Initialized status updater task.", ClientUtilities.GetWesternIndonesianDateTime());
+            Bot.Client.Logger.LogInformation(Bot.StatusUpdater, "Initialized status updater task.", DateTime.Now);
         }
     }
 }

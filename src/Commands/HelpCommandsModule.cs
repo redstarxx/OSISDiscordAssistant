@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
@@ -16,7 +17,7 @@ namespace OSISDiscordAssistant.Commands
             {
                 Title = "Listing All Commands...",
                 Description = $"My prefixes are {ClientUtilities.GetPrefixList()}.",
-                Timestamp = ClientUtilities.GetWesternIndonesianDateTime(),
+                Timestamp = DateTime.Now,
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
                     Text = "OSIS Discord Assistant"

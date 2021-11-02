@@ -138,8 +138,8 @@ namespace OSISDiscordAssistant.Commands
                 Description = $"{ctx.User.Username}#{ctx.User.Discriminator} has submitted a verification request.\n"
                     + $"{Formatter.Bold("Nama Panggilan:")} {string.Join(" ", displayName)}\n{Formatter.Bold("User ID:")} {ctx.User.Id}\n{Formatter.Bold("Verification Status:")} WAITING.\n"
                     + $"Click the {Formatter.InlineCode("ACCEPT")} button to approve this request or the {Formatter.InlineCode("DECLINE")} button to deny. "
-                    + $"This request expires in two days ({Formatter.Timestamp(ClientUtilities.GetWesternIndonesianDateTime().AddDays(2), TimestampFormat.LongDateTime)}).",
-                Timestamp = ClientUtilities.GetWesternIndonesianDateTime(),
+                    + $"This request expires in two days ({Formatter.Timestamp(DateTime.Now.AddDays(2), TimestampFormat.LongDateTime)}).",
+                Timestamp = DateTime.Now,
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
                     Text = "OSIS Discord Assistant"
@@ -176,7 +176,7 @@ namespace OSISDiscordAssistant.Commands
                     embedBuilder.Title = $"Verification Request #{verificationCounterNumber} | ACCEPTED";
                     embedBuilder.Description = $"{ctx.User.Username}#{ctx.User.Discriminator} has submitted a verification request.\n"
                         + $"{Formatter.Bold("Nama Panggilan:")} {requestedName}\n{Formatter.Bold("User ID:")} {ctx.User.Id}\n{Formatter.Bold("Verification Status:")} ACCEPTED (handled by {reactionResult.Result.Interaction.User.Mention} at <t:{reactionResult.Result.Interaction.CreationTimestamp.ToUnixTimeSeconds()}:F>).";
-                    embedBuilder.Timestamp = ClientUtilities.GetWesternIndonesianDateTime();
+                    embedBuilder.Timestamp = DateTime.Now;
 
                     await reactionResult.Result.Interaction.CreateResponseAsync(InteractionResponseType.UpdateMessage
                         , new DiscordInteractionResponseBuilder().AddEmbed(embed: embedBuilder));
@@ -191,7 +191,7 @@ namespace OSISDiscordAssistant.Commands
                     embedBuilder.Title = $"Verification Request #{verificationCounterNumber} | DENIED";
                     embedBuilder.Description = $"{ctx.User.Username}#{ctx.User.Discriminator} has submitted a verification request.\n"
                         + $"{Formatter.Bold("Nama Panggilan:")} {requestedName}\n{Formatter.Bold("User ID:")} {ctx.User.Id}\n{Formatter.Bold("Verification Status:")} DECLINED (handled by {reactionResult.Result.Interaction.User.Mention} at <t:{reactionResult.Result.Interaction.CreationTimestamp.ToUnixTimeSeconds()}:F>).";
-                    embedBuilder.Timestamp = ClientUtilities.GetWesternIndonesianDateTime();
+                    embedBuilder.Timestamp = DateTime.Now;
 
                     await reactionResult.Result.Interaction.CreateResponseAsync(InteractionResponseType.UpdateMessage
                         , new DiscordInteractionResponseBuilder().AddEmbed(embed: embedBuilder));
@@ -206,7 +206,7 @@ namespace OSISDiscordAssistant.Commands
                 embedBuilder.Title = $"Verification Request #{verificationCounterNumber} | EXPIRED";
                 embedBuilder.Description = $"{ctx.User.Username}#{ctx.User.Discriminator} has submitted a verification request.\n"
                     + $"{Formatter.Bold("Nama Panggilan:")} {requestedName}\n{Formatter.Bold("User ID:")} {ctx.User.Id}\n{Formatter.Bold("Verification Status:")} EXPIRED (nobody handled this request within 48 hours) at <t:{reactionResult.Result.Interaction.CreationTimestamp.ToUnixTimeSeconds()}:F>).";
-                embedBuilder.Timestamp = ClientUtilities.GetWesternIndonesianDateTime();
+                embedBuilder.Timestamp = DateTime.Now;
 
                 await reactionResult.Result.Interaction.CreateResponseAsync(InteractionResponseType.UpdateMessage
                     , new DiscordInteractionResponseBuilder().AddEmbed(embed: embedBuilder));
