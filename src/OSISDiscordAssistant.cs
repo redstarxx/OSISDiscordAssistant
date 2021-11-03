@@ -87,6 +87,7 @@ namespace OSISDiscordAssistant
             Client.MessageDeleted += OnMessageDeleted;
             Client.MessageReactionAdded += OnMessageReactionAdded;
             Client.MessageReactionRemoved += OnMessageReactionRemoved;
+            Client.ComponentInteractionCreated += OnComponentInteractionCreated;
             Client.SocketErrored += OnSocketErrored;
             Client.Heartbeated += OnHeartbeated;
             Client.UnknownEvent += OnUnknownEvent;
@@ -241,6 +242,16 @@ namespace OSISDiscordAssistant
                 {
                     SharedData.DeletedMessages.TryAdd(e.Channel.Id, e.Message);
                 }
+            }
+
+            return Task.CompletedTask;
+        }
+
+        private Task OnComponentInteractionCreated(DiscordClient sender, ComponentInteractionCreateEventArgs e)
+        {
+            if (e.Id == "verify_button" || e.Id == "accept_button" || e.Id == "deny_button")
+            {
+                ClientUtilities.HandleVerificationRequests(sender, e);
             }
 
             return Task.CompletedTask;
