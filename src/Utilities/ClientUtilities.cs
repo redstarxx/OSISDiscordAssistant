@@ -436,7 +436,7 @@ namespace OSISDiscordAssistant.Utilities
                         var member = await e.Guild.GetMemberAsync(db.Verifications.SingleOrDefault(x => x.VerificationEmbedId == e.Message.Id).UserId);
                         await member.GrantRoleAsync(e.Guild.GetRole(SharedData.AccessRoleId));
 
-                        await member.SendMessageAsync($"{Formatter.Bold("[VERIFICATION]")} Your verification request has been accepted by {e.User.Username}! You may now access the internal channels of {e.Guild.Name} and start chatting.");
+                        await member.SendMessageAsync($"{Formatter.Bold("[VERIFICATION]")} Your verification request has been accepted by {e.User.Username}! You may now access the internal channels of {e.Guild.Name} and start chatting!");
 
                         var getEmbed = await e.Channel.GetMessageAsync(e.Message.Id);
 
@@ -446,7 +446,7 @@ namespace OSISDiscordAssistant.Utilities
                         {
                             DiscordEmbedBuilder embedBuilder = new DiscordEmbedBuilder(embed)
                             {
-                                Title = $"Verification Request #{verificationCounterNumber} | ACCEPTED",
+                                Title = $"{embed.Title.Replace(" | PENDING", " | ACCEPTED")}",
                                 Description = $"{member.Username}#{member.Discriminator} has submitted a verification request.\n"
                                 + $"{Formatter.Bold("Requested Nickname:")} {db.Verifications.SingleOrDefault(x => x.VerificationEmbedId == e.Message.Id).RequestedName}\n{Formatter.Bold("User ID:")} {member.Id}\n{Formatter.Bold("Verification Status:")} ACCEPTED (handled by {e.Interaction.User.Mention} at <t:{e.Interaction.CreationTimestamp.ToUnixTimeSeconds()}:F>)."
                             };
@@ -477,7 +477,7 @@ namespace OSISDiscordAssistant.Utilities
                         {
                             DiscordEmbedBuilder embedBuilder = new DiscordEmbedBuilder(embed)
                             {
-                                Title = $"Verification Request #{verificationCounterNumber} | DENIED",
+                                Title = $"{embed.Title.Replace(" | PENDING", " | DENIED")}",
                                 Description = $"{member.Username}#{member.Discriminator} has submitted a verification request.\n"
                                 + $"{Formatter.Bold("Requested Nickname:")} {db.Verifications.SingleOrDefault(x => x.VerificationEmbedId == e.Message.Id).RequestedName}\n{Formatter.Bold("User ID:")} {member.Id}\n{Formatter.Bold("Verification Status:")} DENIED (handled by {e.Interaction.User.Mention} at <t:{e.Interaction.CreationTimestamp.ToUnixTimeSeconds()}:F>)."
                             };
