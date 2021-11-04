@@ -249,7 +249,7 @@ namespace OSISDiscordAssistant
 
         private Task OnComponentInteractionCreated(DiscordClient sender, ComponentInteractionCreateEventArgs e)
         {
-            if (e.Id == "verify_button" || e.Id == "accept_button" || e.Id == "deny_button")
+            if (e.Id == "verify_button" || e.Id == "accept_button" || e.Id == "deny_button" || e.Id == "why_button")
             {
                 ClientUtilities.HandleVerificationRequests(sender, e);
             }
