@@ -304,7 +304,26 @@ namespace OSISDiscordAssistant.Utilities
 
                 var member = await e.Guild.GetMemberAsync(e.User.Id);
 
+                bool verificationPending;
                 bool isVerified = member.Roles.Any(x => x.Id == SharedData.AccessRoleId);
+
+                using (var db = new VerificationContext())
+                {
+                    verificationPending = db.Verifications.Any(x => x.UserId == e.User.Id);
+                }
+
+                if (verificationPending)
+                {
+                    DiscordFollowupMessageBuilder followupMessageBuilder = new DiscordFollowupMessageBuilder()
+                    {
+                        Content = "You have already requested for a verification! If it has not been handled yet for some time, feel free to reach out to a member of Inti OSIS.",
+                        IsEphemeral = true
+                    };
+
+                    await e.Interaction.CreateFollowupMessageAsync(followupMessageBuilder);
+
+                    return;
+                }
 
                 if (isVerified)
                 {
@@ -363,11 +382,10 @@ namespace OSISDiscordAssistant.Utilities
                             Name = $"{e.User.Username}#{e.User.Discriminator}",
                             IconUrl = e.User.AvatarUrl
                         },
-                        Title = $"Verification Request #{verificationCounterNumber}",
+                        Title = $"Verification Request #{verificationCounterNumber} | PENDING",
                         Description = $"{e.User.Username}#{e.User.Discriminator} has submitted a verification request.\n"
-                            + $"{Formatter.Bold("Nama Panggilan:")} {nameInteractivity.Result.Content}\n{Formatter.Bold("User ID:")} {e.User.Id}\n{Formatter.Bold("Verification Status:")} PENDING.\n"
-                            + $"Click the {Formatter.InlineCode("ACCEPT")} button to approve this request or the {Formatter.InlineCode("DECLINE")} button to deny. "
-                            + $"This request expires in two days ({Formatter.Timestamp(DateTime.Now.AddDays(2), TimestampFormat.LongDateTime)}).",
+                            + $"{Formatter.Bold("Requested Nickname:")} {nameInteractivity.Result.Content}\n{Formatter.Bold("User ID:")} {e.User.Id}\n{Formatter.Bold("Verification Status:")} PENDING.\n"
+                            + $"Click the {Formatter.InlineCode("ACCEPT")} button to approve this request or the {Formatter.InlineCode("DECLINE")} button to deny.",
                         Timestamp = DateTime.Now,
                         Footer = new DiscordEmbedBuilder.EmbedFooter
                         {
@@ -430,7 +448,7 @@ namespace OSISDiscordAssistant.Utilities
                             {
                                 Title = $"Verification Request #{verificationCounterNumber} | ACCEPTED",
                                 Description = $"{member.Username}#{member.Discriminator} has submitted a verification request.\n"
-                                + $"{Formatter.Bold("Nama Panggilan:")} {db.Verifications.SingleOrDefault(x => x.VerificationEmbedId == e.Message.Id).RequestedName}\n{Formatter.Bold("User ID:")} {member.Id}\n{Formatter.Bold("Verification Status:")} ACCEPTED (handled by {e.Interaction.User.Mention} at <t:{e.Interaction.CreationTimestamp.ToUnixTimeSeconds()}:F>)."
+                                + $"{Formatter.Bold("Requested Nickname:")} {db.Verifications.SingleOrDefault(x => x.VerificationEmbedId == e.Message.Id).RequestedName}\n{Formatter.Bold("User ID:")} {member.Id}\n{Formatter.Bold("Verification Status:")} ACCEPTED (handled by {e.Interaction.User.Mention} at <t:{e.Interaction.CreationTimestamp.ToUnixTimeSeconds()}:F>)."
                             };
 
                             updatedEmbed = embedBuilder.Build();
@@ -461,7 +479,7 @@ namespace OSISDiscordAssistant.Utilities
                             {
                                 Title = $"Verification Request #{verificationCounterNumber} | DENIED",
                                 Description = $"{member.Username}#{member.Discriminator} has submitted a verification request.\n"
-                                + $"{Formatter.Bold("Nama Panggilan:")} {db.Verifications.SingleOrDefault(x => x.VerificationEmbedId == e.Message.Id).RequestedName}\n{Formatter.Bold("User ID:")} {member.Id}\n{Formatter.Bold("Verification Status:")} DENIED (handled by {e.Interaction.User.Mention} at <t:{e.Interaction.CreationTimestamp.ToUnixTimeSeconds()}:F>)."
+                                + $"{Formatter.Bold("Requested Nickname:")} {db.Verifications.SingleOrDefault(x => x.VerificationEmbedId == e.Message.Id).RequestedName}\n{Formatter.Bold("User ID:")} {member.Id}\n{Formatter.Bold("Verification Status:")} DENIED (handled by {e.Interaction.User.Mention} at <t:{e.Interaction.CreationTimestamp.ToUnixTimeSeconds()}:F>)."
                             };
 
                             updatedEmbed = embedBuilder.Build();
