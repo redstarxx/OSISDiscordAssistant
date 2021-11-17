@@ -436,7 +436,7 @@ namespace OSISDiscordAssistant.Utilities
                         var member = await e.Guild.GetMemberAsync(db.Verifications.SingleOrDefault(x => x.VerificationEmbedId == e.Message.Id).UserId);
                         await member.GrantRoleAsync(e.Guild.GetRole(SharedData.AccessRoleId));
 
-                        await member.SendMessageAsync($"{Formatter.Bold("[VERIFICATION]")} Your verification request has been accepted by {e.User.Username}! You may now access the internal channels of {e.Guild.Name} and start chatting!");
+                        await member.SendMessageAsync($"{Formatter.Bold("[VERIFICATION]")} Your verification request has been {Formatter.Bold("ACCEPTED")} by {e.User.Mention}! You may now access the internal channels of {e.Guild.Name} and begin your interaction!");
 
                         var getEmbed = await e.Channel.GetMessageAsync(e.Message.Id);
 
@@ -467,7 +467,7 @@ namespace OSISDiscordAssistant.Utilities
                     else if (e.Id == "deny_button")
                     {
                         var member = await e.Guild.GetMemberAsync(db.Verifications.SingleOrDefault(x => x.VerificationEmbedId == e.Message.Id).UserId);
-                        await member.SendMessageAsync($"{Formatter.Bold("[VERIFICATION]")} I'm sorry, your verification request has been {Formatter.Bold("DENIED")} by {e.User.Username}! You may reach out to a member of the Inti OSIS to find out why.");
+                        await member.SendMessageAsync($"{Formatter.Bold("[VERIFICATION]")} I'm sorry, your verification request has been {Formatter.Bold("DENIED")} by {e.User.Mention}! You may reach out to the denying person directly or a member of Inti OSIS to find out why.");
 
                         var getEmbed = await e.Channel.GetMessageAsync(e.Message.Id);
 
