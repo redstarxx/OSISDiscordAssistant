@@ -159,6 +159,8 @@ namespace OSISDiscordAssistant
             // Reminders are sent 30 days before or a week before the day of the event.
             BackgroundTasks.StartProposalReminders();
 
+            BackgroundTasks.StartVerificationCleanupTask();
+
             Client.Logger.LogInformation(LogEvent, "Client is ready for tasking.", DateTime.Now);
 
             return Task.CompletedTask;
@@ -253,6 +255,8 @@ namespace OSISDiscordAssistant
             {
                 ClientUtilities.HandleVerificationRequests(sender, e);
             }
+
+            Client.Logger.LogInformation(LogEvent, $"User {e.User.Username}#{e.User.Discriminator} ({e.User.Id}) clicked '{e.Id}' button in #{e.Channel.Name} ({e.Channel.Id})", DateTime.Now);
 
             return Task.CompletedTask;
         }
