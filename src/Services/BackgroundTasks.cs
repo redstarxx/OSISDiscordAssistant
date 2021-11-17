@@ -550,5 +550,89 @@ namespace OSISDiscordAssistant.Services
 
             Bot.Client.Logger.LogInformation(Bot.StatusUpdater, "Initialized status updater task.", DateTime.Now);
         }
+
+        public static void StartVerificationCleanupTask()
+        {
+            if (SharedData.IsStartVerificationCleanupTaskInitialized)
+            {
+                return;
+            }
+
+            Task verificationCleaningServiceTask = Task.Run(async () =>
+            {
+                DiscordChannel verificationProcessingChannel = await Bot.Client.GetShard(SharedData.MainGuildId).GetChannelAsync(SharedData.VerificationRequestsProcessingChannelId);
+
+                Stopwatch stopwatch = new Stopwatch();
+
+                int counter = 0;
+
+                try
+                {
+                    while (true)
+                    {
+                        stopwatch.Start();
+
+                        using (var db = new VerificationContext())
+                        {
+                            foreach (var row in db.Verifications)
+                            {
+                                var requestEmbed = await verificationProcessingChannel.GetMessageAsync(row.VerificationEmbedId);
+
+                                foreach (var embed in requestEmbed.Embeds.ToList())
+                                {
+                                    DateTimeOffset offset = (DateTimeOffset)embed.Timestamp;
+                                    DateTime embedTimestamp = offset.DateTime;
+
+                                    if (embedTimestamp.Subtract(TimeSpan.FromSeconds(DateTime.Now.Second)).AddDays(2) == DateTime.Now.Subtract(TimeSpan.FromSeconds(DateTime.Now.Second)) ||
+                                    DateTime.Now.Subtract(TimeSpan.FromSeconds(DateTime.Now.Second)) > embedTimestamp.Subtract(TimeSpan.FromSeconds(DateTime.Now.Second)).AddDays(2))
+                                    {
+                                        counter++;
+
+                                        DiscordEmbed updatedEmbed = null;
+
+                                        DiscordEmbedBuilder embedBuilder = new DiscordEmbedBuilder(embed)
+                                        {
+                                            Title = $"{embed.Title.Replace(" | PENDING", " | EXPIRED")}",
+                                            Description = $"{embed.Description.Replace("PENDING.", $"EXPIRED (nobody handled this request, at {Formatter.Timestamp(DateTime.Now, TimestampFormat.LongDateTime)}).")}"
+                                        };
+
+                                        updatedEmbed = embedBuilder.Build();
+
+                                        await requestEmbed.ModifyAsync(x => x.WithEmbed(updatedEmbed));
+
+                                        await Bot.Client.GetShard(SharedData.MainGuildId).GetGuildAsync(SharedData.MainGuildId).Result
+                                        .GetMemberAsync(row.UserId).Result.SendMessageAsync($"{Formatter.Bold("[VERIFICATION]")} I'm sorry, your verification request has expired! Nobody responded to it within 48 hours. Feel free to try again or reach out to a member of Inti OSIS for assistance.");
+
+                                        var request = db.Verifications.SingleOrDefault(x => x.VerificationEmbedId == row.VerificationEmbedId);
+
+                                        db.Remove(request);
+                                        await db.SaveChangesAsync();
+                                    }
+                                }
+                            }
+                        }
+
+                        stopwatch.Stop();
+
+                        long elapsedMilliseconds = stopwatch.ElapsedMilliseconds;
+
+                        Bot.Client.Logger.LogInformation(new EventId(5, "VerificationCleanup"), $"Completed verification request cleanup task in {elapsedMilliseconds} ms. Removed {counter} ({counter.ToWords()}) requests.", DateTime.Now);
+
+                        counter = 0;
+                        stopwatch.Reset();
+                        await Task.Delay(TimeSpan.FromMinutes(1));
+                    }
+                }
+
+                catch (Exception ex)
+                {
+                    var exception = ex;
+                    while (exception is AggregateException)
+                        exception = exception.InnerException;
+
+                    Bot.Client.Logger.LogCritical(new EventId(5, "VerificationCleanup"), $"Proposal reminder task threw an exception: {exception.GetType()}: {exception.Message}", DateTime.Now);
+                }
+            });
+        }
     }
 }

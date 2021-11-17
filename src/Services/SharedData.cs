@@ -36,11 +36,6 @@ namespace OSISDiscordAssistant.Services
         public static ulong ProposalChannelId;
 
         /// <summary>
-        /// The channel ID of the new member role verification request command channel.
-        /// </summary>
-        public static ulong VerificationRequestsCommandChannelId;
-
-        /// <summary>
         /// The channel ID of the new member role verification request processing channel.
         /// </summary>
         public static ulong VerificationRequestsProcessingChannelId;
@@ -69,5 +64,10 @@ namespace OSISDiscordAssistant.Services
         /// Get or set whether status updater task has been fired.
         /// </summary>
         public static bool IsStatusUpdaterInitialized = false;
+
+        /// <summary>
+        /// Get or set whether verification cleaning service task has been fired.
+        /// </summary>
+        public static bool IsStartVerificationCleanupTaskInitialized = false;
     }
 }

@@ -316,7 +316,7 @@ namespace OSISDiscordAssistant.Utilities
                 {
                     DiscordFollowupMessageBuilder followupMessageBuilder = new DiscordFollowupMessageBuilder()
                     {
-                        Content = "You have already requested for a verification! If it has not been handled yet for some time, feel free to reach out to a member of Inti OSIS.",
+                        Content = "You have already requested for a verification! If it has not been handled yet for some time, feel free to reach out to a member of Inti OSIS for assistance.",
                         IsEphemeral = true
                     };
 
@@ -342,7 +342,7 @@ namespace OSISDiscordAssistant.Utilities
                 {
                     DiscordFollowupMessageBuilder followupMessageBuilder = new DiscordFollowupMessageBuilder()
                     {
-                        Content = "Please check your DMs to proceed with your verification!",
+                        Content = "Please check your Direct Messages to proceed with your verification!",
                         IsEphemeral = true
                     };
 
@@ -385,7 +385,7 @@ namespace OSISDiscordAssistant.Utilities
                         Title = $"Verification Request #{verificationCounterNumber} | PENDING",
                         Description = $"{e.User.Username}#{e.User.Discriminator} has submitted a verification request.\n"
                             + $"{Formatter.Bold("Requested Nickname:")} {nameInteractivity.Result.Content}\n{Formatter.Bold("User ID:")} {e.User.Id}\n{Formatter.Bold("Verification Status:")} PENDING.\n"
-                            + $"Click the {Formatter.InlineCode("ACCEPT")} button to approve this request or the {Formatter.InlineCode("DECLINE")} button to deny.",
+                            + $"This request expires at {Formatter.Timestamp(DateTime.Now.AddDays(2), TimestampFormat.LongDateTime)}.\nAlternatively, use the {Formatter.InlineCode("!overify")} command to manually verify a new member.",
                         Timestamp = DateTime.Now,
                         Footer = new DiscordEmbedBuilder.EmbedFooter
                         {
@@ -416,19 +416,19 @@ namespace OSISDiscordAssistant.Utilities
                         await db.SaveChangesAsync();
                     }
 
-                    await member.SendMessageAsync($"Your verification request has been sent, {nameInteractivity.Result.Content}! Expect a response within the next 48 hours.");                  
-                }               
+                    messageBuilder.Clear();
+
+                    embedBuilder.Title = embedBuilder.Title.Replace(" | PENDING", string.Empty);
+                    embedBuilder.Description = embedBuilder.Description.Replace("Alternatively, use the `!overify` command to manually verify a new member.", string.Empty);
+                    messageBuilder.WithContent($"Your verification request has been sent successfully! Here's a copy of your verification request details.");
+                    messageBuilder.WithEmbed(embedBuilder);
+
+                    await member.SendMessageAsync(messageBuilder);
+                }
             }
 
             else if (e.Id == "accept_button" || e.Id == "deny_button")
             {
-                int verificationCounterNumber = 0;
-
-                using (var db = new CounterContext())
-                {
-                    verificationCounterNumber = db.Counter.SingleOrDefault(x => x.Id == 1).VerifyCounter;
-                }
-
                 using (var db = new VerificationContext())
                 {
                     if (e.Id == "accept_button")
@@ -577,8 +577,6 @@ namespace OSISDiscordAssistant.Utilities
                 SharedData.EventChannelId = (ulong)configJson.EventChannelId;
 
                 SharedData.ProposalChannelId = (ulong)configJson.ProposalChannelId;
-
-                SharedData.VerificationRequestsCommandChannelId = (ulong)configJson.VerificationRequestsCommandChannelId;
 
                 SharedData.VerificationRequestsProcessingChannelId = (ulong)configJson.VerificationRequestsProcessingChannelId;
 
