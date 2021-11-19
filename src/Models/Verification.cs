@@ -13,7 +13,7 @@
         public ulong UserId { get; set; }
 
         /// <summary>
-        /// The ID of the verification request embed.
+        /// The ID of the verification request embed message.
         /// </summary>
         public ulong VerificationEmbedId { get; set; }
 
