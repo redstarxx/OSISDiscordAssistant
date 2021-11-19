@@ -31,7 +31,7 @@ namespace OSISDiscordAssistant.Commands
                 await member.GrantRoleAsync(ctx.Guild.GetRole(SharedData.AccessRoleId));
                 await member.SendMessageAsync($"{Formatter.Bold("[VERIFICATION]")} You have been manually verified by {ctx.Member.Mention}! You may now access the internal channels of {ctx.Guild.Name} and begin your interaction!");
 
-                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[VERIFICATION]")} {member.Mention} has been given the access role.");
+                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[VERIFICATION]")} {member.Mention} has been granted the access role.");
 
                 using (var db = new VerificationContext())
                 {
@@ -55,9 +55,7 @@ namespace OSISDiscordAssistant.Commands
 
                             await requestEmbed.ModifyAsync(x => x.WithEmbed(updatedEmbed));                          
 
-                            var request = db.Verifications.SingleOrDefault(x => x.VerificationEmbedId == pendingVerification.VerificationEmbedId);
-
-                            db.Remove(request);
+                            db.Remove(pendingVerification);
                             await db.SaveChangesAsync();
 
                             break;
