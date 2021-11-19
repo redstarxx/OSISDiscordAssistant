@@ -7,11 +7,14 @@ using System.IO;
 using System.Reflection;
 using Newtonsoft.Json;
 using DSharpPlus;
+using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.Entities;
 using DSharpPlus.CommandsNext;
+using DSharpPlus.EventArgs;
 using OSISDiscordAssistant.Services;
 using OSISDiscordAssistant.Enums;
 using OSISDiscordAssistant.Constants;
+using OSISDiscordAssistant.Models;
 using Humanizer;
 
 namespace OSISDiscordAssistant.Utilities
@@ -291,6 +294,232 @@ namespace OSISDiscordAssistant.Utilities
             reminderTask.Start();
         }
 
+        public static async void HandleVerificationRequests(DiscordClient client, ComponentInteractionCreateEventArgs e)
+        {
+            if (e.Id == "verify_button")
+            {
+                await e.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
+
+                var interactivity = client.GetInteractivity();
+
+                var member = await e.Guild.GetMemberAsync(e.User.Id);
+
+                bool verificationPending;
+                bool isVerified = member.Roles.Any(x => x.Id == SharedData.AccessRoleId);
+
+                using (var db = new VerificationContext())
+                {
+                    verificationPending = db.Verifications.Any(x => x.UserId == e.User.Id);
+                }
+
+                if (verificationPending)
+                {
+                    DiscordFollowupMessageBuilder followupMessageBuilder = new DiscordFollowupMessageBuilder()
+                    {
+                        Content = "You have already requested for a verification! If it has not been handled yet for some time, feel free to reach out to a member of Inti OSIS for assistance.",
+                        IsEphemeral = true
+                    };
+
+                    await e.Interaction.CreateFollowupMessageAsync(followupMessageBuilder);
+
+                    return;
+                }
+
+                if (isVerified)
+                {
+                    DiscordFollowupMessageBuilder followupMessageBuilder = new DiscordFollowupMessageBuilder()
+                    {
+                        Content = "You are already verified!",
+                        IsEphemeral = true
+                    };
+
+                    await e.Interaction.CreateFollowupMessageAsync(followupMessageBuilder);
+
+                    return;
+                }
+
+                else
+                {
+                    DiscordFollowupMessageBuilder followupMessageBuilder = new DiscordFollowupMessageBuilder()
+                    {
+                        Content = "Please check your Direct Messages to proceed with your verification!",
+                        IsEphemeral = true
+                    };
+
+                    await e.Interaction.CreateFollowupMessageAsync(followupMessageBuilder);
+                }
+
+                var askMessage = await member.SendMessageAsync($"Silahkan ketik nama panggilan anda. Contoh: {Formatter.InlineCode("Kerwintiro")}.");
+
+                var nameInteractivity = await interactivity.WaitForMessageAsync(x => x.Channel is DiscordDmChannel && x.Author == e.User);
+
+                if (nameInteractivity.Result.Content is not null)
+                {
+                    int verificationCounterNumber = 0;
+
+                    using (var db = new CounterContext())
+                    {
+                        verificationCounterNumber = db.Counter.SingleOrDefault(x => x.Id == 1).VerifyCounter;
+
+                        Counter rowToUpdate = null;
+                        rowToUpdate = db.Counter.SingleOrDefault(x => x.Id == 1);
+
+                        if (rowToUpdate != null)
+                        {
+                            rowToUpdate.VerifyCounter = verificationCounterNumber + 1;
+                        }
+
+                        db.SaveChanges();
+                    }
+
+                    var messageBuilder = new DiscordMessageBuilder();
+
+                    //Sends a verification request to #verification as an embed.
+                    var embedBuilder = new DiscordEmbedBuilder
+                    {
+                        Author = new DiscordEmbedBuilder.EmbedAuthor
+                        {
+                            Name = $"{e.User.Username}#{e.User.Discriminator}",
+                            IconUrl = e.User.AvatarUrl
+                        },
+                        Title = $"Verification Request #{verificationCounterNumber} | PENDING",
+                        Description = $"{e.User.Username}#{e.User.Discriminator} has submitted a verification request.\n"
+                            + $"{Formatter.Bold("Requested Nickname:")} {nameInteractivity.Result.Content}\n{Formatter.Bold("User ID:")} {e.User.Id}\n{Formatter.Bold("Verification Status:")} PENDING.\n"
+                            + $"This request expires at {Formatter.Timestamp(DateTime.Now.AddDays(2), TimestampFormat.LongDateTime)}.\nAlternatively, use the {Formatter.InlineCode("!overify")} command to manually verify a new member.",
+                        Timestamp = DateTime.Now,
+                        Footer = new DiscordEmbedBuilder.EmbedFooter
+                        {
+                            Text = "OSIS Discord Assistant"
+                        },
+                        Color = DiscordColor.MidnightBlue
+                    };
+
+                    messageBuilder.WithEmbed(embed: embedBuilder);
+                    messageBuilder.AddComponents(new DiscordButtonComponent[]
+                    {
+                    new DiscordButtonComponent(ButtonStyle.Success, "accept_button", "ACCEPT", false, null),
+                    new DiscordButtonComponent(ButtonStyle.Danger, "deny_button", "DECLINE", false, null)
+                    });
+
+                    DiscordChannel channel = e.Guild.GetChannel(SharedData.VerificationRequestsProcessingChannelId);
+                    var requestEmbed = await channel.SendMessageAsync(builder: messageBuilder).ConfigureAwait(false);
+
+                    using (var db = new VerificationContext())
+                    {
+                        db.Add(new Verification
+                        {
+                            UserId = e.User.Id,
+                            VerificationEmbedId = requestEmbed.Id,
+                            RequestedName = nameInteractivity.Result.Content
+                        });
+
+                        await db.SaveChangesAsync();
+                    }
+
+                    messageBuilder.Clear();
+
+                    embedBuilder.Title = embedBuilder.Title.Replace(" | PENDING", string.Empty);
+                    embedBuilder.Description = embedBuilder.Description.Replace("Alternatively, use the `!overify` command to manually verify a new member.", string.Empty);
+                    messageBuilder.WithContent($"Your verification request has been sent successfully! Here's a copy of your verification request details.");
+                    messageBuilder.WithEmbed(embedBuilder);
+
+                    await member.SendMessageAsync(messageBuilder);
+                }
+            }
+
+            else if (e.Id == "accept_button" || e.Id == "deny_button")
+            {
+                using (var db = new VerificationContext())
+                {
+                    if (e.Id == "accept_button")
+                    {
+                        var member = await e.Guild.GetMemberAsync(db.Verifications.SingleOrDefault(x => x.VerificationEmbedId == e.Message.Id).UserId);
+                        await member.GrantRoleAsync(e.Guild.GetRole(SharedData.AccessRoleId));
+
+                        await member.SendMessageAsync($"{Formatter.Bold("[VERIFICATION]")} Your verification request has been {Formatter.Bold("ACCEPTED")} by {e.User.Mention}! You may now access the internal channels of {e.Guild.Name} and begin your interaction!");
+
+                        var getEmbed = await e.Channel.GetMessageAsync(e.Message.Id);
+
+                        DiscordEmbed updatedEmbed = null;
+
+                        foreach (var embed in getEmbed.Embeds)
+                        {
+                            DiscordEmbedBuilder embedBuilder = new DiscordEmbedBuilder(embed)
+                            {
+                                Title = $"{embed.Title.Replace(" | PENDING", " | ACCEPTED")}",
+                                Description = $"{member.Username}#{member.Discriminator} has submitted a verification request.\n"
+                                + $"{Formatter.Bold("Requested Nickname:")} {db.Verifications.SingleOrDefault(x => x.VerificationEmbedId == e.Message.Id).RequestedName}\n{Formatter.Bold("User ID:")} {member.Id}\n{Formatter.Bold("Verification Status:")} ACCEPTED (handled by {e.Interaction.User.Mention} at <t:{e.Interaction.CreationTimestamp.ToUnixTimeSeconds()}:F>)."
+                            };
+
+                            updatedEmbed = embedBuilder.Build();
+
+                            break;
+                        };
+
+                        var messageBuilder = new DiscordMessageBuilder()
+                        {
+                            Embed = updatedEmbed
+                        };
+
+                        await e.Interaction.CreateResponseAsync(InteractionResponseType.UpdateMessage, new DiscordInteractionResponseBuilder(messageBuilder));
+                    }
+
+                    else if (e.Id == "deny_button")
+                    {
+                        var member = await e.Guild.GetMemberAsync(db.Verifications.SingleOrDefault(x => x.VerificationEmbedId == e.Message.Id).UserId);
+                        await member.SendMessageAsync($"{Formatter.Bold("[VERIFICATION]")} I'm sorry, your verification request has been {Formatter.Bold("DENIED")} by {e.User.Mention}! You may reach out to the denying person directly or a member of Inti OSIS to find out why.");
+
+                        var getEmbed = await e.Channel.GetMessageAsync(e.Message.Id);
+
+                        DiscordEmbed updatedEmbed = null;
+
+                        foreach (var embed in getEmbed.Embeds)
+                        {
+                            DiscordEmbedBuilder embedBuilder = new DiscordEmbedBuilder(embed)
+                            {
+                                Title = $"{embed.Title.Replace(" | PENDING", " | DENIED")}",
+                                Description = $"{member.Username}#{member.Discriminator} has submitted a verification request.\n"
+                                + $"{Formatter.Bold("Requested Nickname:")} {db.Verifications.SingleOrDefault(x => x.VerificationEmbedId == e.Message.Id).RequestedName}\n{Formatter.Bold("User ID:")} {member.Id}\n{Formatter.Bold("Verification Status:")} DENIED (handled by {e.Interaction.User.Mention} at <t:{e.Interaction.CreationTimestamp.ToUnixTimeSeconds()}:F>)."
+                            };
+
+                            updatedEmbed = embedBuilder.Build();
+
+                            break;
+                        };
+
+                        var messageBuilder = new DiscordMessageBuilder()
+                        {
+                            Embed = updatedEmbed
+                        };
+
+                        await e.Interaction.CreateResponseAsync(InteractionResponseType.UpdateMessage, new DiscordInteractionResponseBuilder(messageBuilder));
+                    }
+
+                    // Remove the user data immediately, as it serves no purpose hereafter.
+                    var rowToDelete = db.Verifications.SingleOrDefault(x => x.VerificationEmbedId == e.Message.Id);
+
+                    db.Remove(rowToDelete);
+                    await db.SaveChangesAsync();
+                }
+            }
+
+            else if (e.Id == "why_button")
+            {
+                await e.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
+
+                DiscordFollowupMessageBuilder followupMessageBuilder = new DiscordFollowupMessageBuilder()
+                {
+                    Content = $"Although {e.Guild.Name} is a private server, a verification system is set up in the effort to deter server raids and keep unwanted users out, should the invite link is somehow compromised.\n\n" +
+                    $"If you are a new member of OSIS Sekolah Djuwita Batam, get verified now to access our internal channels!",
+                    IsEphemeral = true
+                };
+
+                await e.Interaction.CreateFollowupMessageAsync(followupMessageBuilder);
+            }
+
+            return;
+        }
+
         /// <summary>
         /// An async version of reading the content of config.json which contains the connection string to the PostgreSQL database and deserializes it.
         /// </summary>
@@ -348,8 +577,6 @@ namespace OSISDiscordAssistant.Utilities
                 SharedData.EventChannelId = (ulong)configJson.EventChannelId;
 
                 SharedData.ProposalChannelId = (ulong)configJson.ProposalChannelId;
-
-                SharedData.VerificationRequestsCommandChannelId = (ulong)configJson.VerificationRequestsCommandChannelId;
 
                 SharedData.VerificationRequestsProcessingChannelId = (ulong)configJson.VerificationRequestsProcessingChannelId;
 

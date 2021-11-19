@@ -4,12 +4,12 @@ using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
-using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.Entities;
 using OSISDiscordAssistant.Models;
 using OSISDiscordAssistant.Attributes;
 using OSISDiscordAssistant.Utilities;
 using OSISDiscordAssistant.Services;
+using Microsoft.Extensions.Logging;
 
 namespace OSISDiscordAssistant.Commands
 {
@@ -27,19 +27,46 @@ namespace OSISDiscordAssistant.Commands
 
             try
             {
-                // Grants the "verified" role to the targeted user.
+                // Grants the access role to the targeted user.
                 await member.GrantRoleAsync(ctx.Guild.GetRole(SharedData.AccessRoleId));
+                await member.SendMessageAsync($"{Formatter.Bold("[VERIFICATION]")} You have been manually verified by {ctx.Member.Mention}! You may now access the internal channels of {ctx.Guild.Name} and begin your interaction!");
 
-                string toSend =
-                    "**[USERINFO]** Informasi akun " + member.DisplayName + " telah diupdate.";
-                await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
+                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[VERIFICATION]")} {member.Mention} has been granted the access role.");
+
+                using (var db = new VerificationContext())
+                {
+                    var pendingVerification = db.Verifications.SingleOrDefault(x => x.UserId == member.Id);
+
+                    if (pendingVerification != null)
+                    {
+                        var requestEmbed = await ctx.Guild.GetChannel(SharedData.VerificationRequestsProcessingChannelId).GetMessageAsync(pendingVerification.VerificationEmbedId);
+
+                        foreach (var embed in requestEmbed.Embeds)
+                        {
+                            DiscordEmbed updatedEmbed = null;
+
+                            DiscordEmbedBuilder embedBuilder = new DiscordEmbedBuilder(embed)
+                            {
+                                Title = $"{embed.Title.Replace(" | PENDING", " | ACCEPTED")}",
+                                Description = $"{embed.Description.Replace("PENDING.", $"ACCEPTED (overrided by {ctx.Member.Mention}, at {Formatter.Timestamp(DateTime.Now, TimestampFormat.LongDateTime)}).")}"
+                            };
+
+                            updatedEmbed = embedBuilder.Build();
+
+                            await requestEmbed.ModifyAsync(x => x.WithEmbed(updatedEmbed));                          
+
+                            db.Remove(pendingVerification);
+                            await db.SaveChangesAsync();
+
+                            break;
+                        }                       
+                    }
+                }
             }
 
             catch
             {
-                string toSend =
-                    "**[ERROR]** An error occured. Have you tried to use the command correctly?";
-                await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
+                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[VERIFICATION]")} An error occured. Have you tried to use the command correctly?");
             }
         }
 
@@ -55,165 +82,16 @@ namespace OSISDiscordAssistant.Commands
 
             try
             {
-                // Assigns the verified role to the targeted user.
+                // Grants the access role to the targeted user.
                 await member.GrantRoleAsync(ctx.Guild.GetRole(SharedData.AccessRoleId));
                 await member.ModifyAsync(setName => setName.Nickname = string.Join(" ", displayName));
 
-                string toSend =
-                    "**[USERINFO]** Informasi akun " + string.Join(" ", displayName) + " telah diupdate.";
-                await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
+                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[VERIFICATION]")} {member.Mention} has been given the access role and assigned a new nickname ({string.Join(" ", displayName)}).");
             }
 
             catch
             {
-                string toSend =
-                    "**[ERROR]** An error occured. Have you tried to use the command correctly?";
-                await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
-            }
-        }
-
-        [RequireMainGuild]
-        [Command("requestverify")]
-        public async Task RequestVerifyAsync(CommandContext ctx, params string[] displayName)
-        {
-            if (ctx.Channel.Id != SharedData.VerificationRequestsCommandChannelId)
-            {
-                DiscordChannel requiredChannel = await ctx.Client.GetChannelAsync(SharedData.VerificationRequestsCommandChannelId);
-
-                await ctx.RespondAsync($"{Formatter.Bold("[ERROR]")} This command is only usable in {requiredChannel.Mention}!");
-
-                return;
-            }
-
-            // Checks whether the command is executed with a reason.
-            if (string.Join(" ", displayName).Length == 0)
-            {
-                string toSend =
-                "**[SYNTAX]** !requestverify [NAMA PANGGILAN]\n"
-                + "Note: Fill in the parameters in sync with above otherwise the bot cannot process your request.";
-                await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
-                return;
-            }
-
-            bool hasAccessRole = ClientUtilities.CheckAccessRole(ctx);
-
-            if (hasAccessRole)
-            {
-                string toSend = $"{Formatter.Bold("[ERROR]")} You are already verified!";
-                await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
-
-                return;
-            }
-
-            int verificationCounterNumber = 0;
-
-            using (var db = new CounterContext())
-            {
-                verificationCounterNumber = db.Counter.SingleOrDefault(x => x.Id == 1).VerifyCounter;
-
-                Counter rowToUpdate = null;
-                rowToUpdate = db.Counter.SingleOrDefault(x => x.Id == 1);
-
-                if (rowToUpdate != null)
-                {
-                    rowToUpdate.VerifyCounter = verificationCounterNumber + 1;
-                }
-
-                db.SaveChanges();              
-            }
-
-            string requestedName = string.Join(" ", displayName);
-
-            var messageBuilder = new DiscordMessageBuilder();
-
-            //Sends a verification request to #verification as an embed.
-            var embedBuilder = new DiscordEmbedBuilder
-            {
-                Author = new DiscordEmbedBuilder.EmbedAuthor
-                {
-                    Name = $"{ctx.Member.DisplayName}#{ctx.Member.Discriminator}",
-                    IconUrl = ctx.Member.AvatarUrl
-                },
-                Title = $"Verification Request #{verificationCounterNumber}",
-                Description = $"{ctx.User.Username}#{ctx.User.Discriminator} has submitted a verification request.\n"
-                    + $"{Formatter.Bold("Nama Panggilan:")} {string.Join(" ", displayName)}\n{Formatter.Bold("User ID:")} {ctx.User.Id}\n{Formatter.Bold("Verification Status:")} WAITING.\n"
-                    + $"Click the {Formatter.InlineCode("ACCEPT")} button to approve this request or the {Formatter.InlineCode("DECLINE")} button to deny. "
-                    + $"This request expires in two days ({Formatter.Timestamp(DateTime.Now.AddDays(2), TimestampFormat.LongDateTime)}).",
-                Timestamp = DateTime.Now,
-                Footer = new DiscordEmbedBuilder.EmbedFooter
-                {
-                    Text = "OSIS Discord Assistant"
-                },
-                Color = DiscordColor.MidnightBlue
-            };
-
-            messageBuilder.WithEmbed(embed: embedBuilder);
-            messageBuilder.AddComponents(new DiscordButtonComponent[]
-            {
-                    new DiscordButtonComponent(ButtonStyle.Success, "accept_button", "ACCEPT", false, null),
-                    new DiscordButtonComponent(ButtonStyle.Danger, "decline_button", "DECLINE", false, null)
-            });
-
-            DiscordChannel channel = ctx.Guild.GetChannel(SharedData.VerificationRequestsProcessingChannelId);
-            var requestEmbed = await channel.SendMessageAsync(builder: messageBuilder).ConfigureAwait(false);
-
-            string receiptMessage = $"{ctx.Member.Mention}, your verification request has been sent! Expect a response within the next two days!";
-            await ctx.Channel.SendMessageAsync(receiptMessage).ConfigureAwait(false);
-
-            DiscordMember member = await ctx.Guild.GetMemberAsync(ctx.User.Id);
-
-            var interactivity = ctx.Client.GetInteractivity();
-
-            var reactionResult = await interactivity.WaitForButtonAsync(requestEmbed, TimeSpan.FromDays(2));
-
-            if (!reactionResult.TimedOut)
-            {
-                if (reactionResult.Result.Id == "accept_button")
-                {
-                    await member.GrantRoleAsync(ctx.Guild.GetRole(SharedData.AccessRoleId));
-                    await member.ModifyAsync(setName => setName.Nickname = requestedName);
-
-                    embedBuilder.Title = $"Verification Request #{verificationCounterNumber} | ACCEPTED";
-                    embedBuilder.Description = $"{ctx.User.Username}#{ctx.User.Discriminator} has submitted a verification request.\n"
-                        + $"{Formatter.Bold("Nama Panggilan:")} {requestedName}\n{Formatter.Bold("User ID:")} {ctx.User.Id}\n{Formatter.Bold("Verification Status:")} ACCEPTED (handled by {reactionResult.Result.Interaction.User.Mention} at <t:{reactionResult.Result.Interaction.CreationTimestamp.ToUnixTimeSeconds()}:F>).";
-                    embedBuilder.Timestamp = DateTime.Now;
-
-                    await reactionResult.Result.Interaction.CreateResponseAsync(InteractionResponseType.UpdateMessage
-                        , new DiscordInteractionResponseBuilder().AddEmbed(embed: embedBuilder));
-
-                    string toSend =
-                        $"{Formatter.Bold("[USERINFO]")} {ctx.Member.Mention}'s verification request has been approved. Access role has been assigned.";
-                    await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
-                }
-
-                else if (reactionResult.Result.Id == "decline_button")
-                {
-                    embedBuilder.Title = $"Verification Request #{verificationCounterNumber} | DENIED";
-                    embedBuilder.Description = $"{ctx.User.Username}#{ctx.User.Discriminator} has submitted a verification request.\n"
-                        + $"{Formatter.Bold("Nama Panggilan:")} {requestedName}\n{Formatter.Bold("User ID:")} {ctx.User.Id}\n{Formatter.Bold("Verification Status:")} DECLINED (handled by {reactionResult.Result.Interaction.User.Mention} at <t:{reactionResult.Result.Interaction.CreationTimestamp.ToUnixTimeSeconds()}:F>).";
-                    embedBuilder.Timestamp = DateTime.Now;
-
-                    await reactionResult.Result.Interaction.CreateResponseAsync(InteractionResponseType.UpdateMessage
-                        , new DiscordInteractionResponseBuilder().AddEmbed(embed: embedBuilder));
-
-                    string toSend = $"{Formatter.Bold("[USERINFO]")} Sorry, {ctx.Member.Mention}! Your verification request has been declined. Contact someone with the {Formatter.InlineCode("Administrator")} role to find out why.";
-                    await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
-                }
-            }
-
-            else
-            {
-                embedBuilder.Title = $"Verification Request #{verificationCounterNumber} | EXPIRED";
-                embedBuilder.Description = $"{ctx.User.Username}#{ctx.User.Discriminator} has submitted a verification request.\n"
-                    + $"{Formatter.Bold("Nama Panggilan:")} {requestedName}\n{Formatter.Bold("User ID:")} {ctx.User.Id}\n{Formatter.Bold("Verification Status:")} EXPIRED (nobody handled this request within 48 hours) at <t:{reactionResult.Result.Interaction.CreationTimestamp.ToUnixTimeSeconds()}:F>).";
-                embedBuilder.Timestamp = DateTime.Now;
-
-                await reactionResult.Result.Interaction.CreateResponseAsync(InteractionResponseType.UpdateMessage
-                    , new DiscordInteractionResponseBuilder().AddEmbed(embed: embedBuilder));
-
-                string toSend =
-                    $"{Formatter.Bold("[USERINFO]")} Sorry, {ctx.Member.Mention}! Your verification request has expired (nobody responded). Contact someone with the {Formatter.InlineCode("Administrator")} role to find out why.";
-                await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
+                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[VERIFICATION]")} An error occured. Have you tried to use the command correctly?");
             }
         }
 
@@ -225,20 +103,7 @@ namespace OSISDiscordAssistant.Commands
         [Command("overify")]
         public async Task OverifyHelpAsync(CommandContext ctx)
         {
-            string toSend =
-                "**[SYNTAX]** !overify [USERMENTION] [DISPLAYNAME (optional)]\n"
-                + "Note: Fill in the parameters in sync with above otherwise the bot cannot process your request.";
-            await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
-        }
-
-        [RequireMainGuild]
-        [Command("requestverify")]
-        public async Task RequestVerifyHelpAsync(CommandContext ctx)
-        {
-            string toSend =
-                "**[SYNTAX]** !requestverify [NAMA PANGGILAN]\n"
-                + "Note: Fill in the parameters in sync with above otherwise the bot cannot process your request.";
-            await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
+            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[SYNTAX]")} !overify [USER MENTION or USER ID] [NEW NICKNAME (optional)]");
         }
     }
 }

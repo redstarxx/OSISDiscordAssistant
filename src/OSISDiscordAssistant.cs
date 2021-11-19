@@ -87,6 +87,7 @@ namespace OSISDiscordAssistant
             Client.MessageDeleted += OnMessageDeleted;
             Client.MessageReactionAdded += OnMessageReactionAdded;
             Client.MessageReactionRemoved += OnMessageReactionRemoved;
+            Client.ComponentInteractionCreated += OnComponentInteractionCreated;
             Client.SocketErrored += OnSocketErrored;
             Client.Heartbeated += OnHeartbeated;
             Client.UnknownEvent += OnUnknownEvent;
@@ -157,6 +158,8 @@ namespace OSISDiscordAssistant
             // Starts the proposals reminder task which queries the events table on a daily basis.
             // Reminders are sent 30 days before or a week before the day of the event.
             BackgroundTasks.StartProposalReminders();
+
+            BackgroundTasks.StartVerificationCleanupTask();
 
             Client.Logger.LogInformation(LogEvent, "Client is ready for tasking.", DateTime.Now);
 
@@ -242,6 +245,18 @@ namespace OSISDiscordAssistant
                     SharedData.DeletedMessages.TryAdd(e.Channel.Id, e.Message);
                 }
             }
+
+            return Task.CompletedTask;
+        }
+
+        private Task OnComponentInteractionCreated(DiscordClient sender, ComponentInteractionCreateEventArgs e)
+        {
+            if (e.Id == "verify_button" || e.Id == "accept_button" || e.Id == "deny_button" || e.Id == "why_button")
+            {
+                ClientUtilities.HandleVerificationRequests(sender, e);
+            }
+
+            Client.Logger.LogInformation(LogEvent, $"User {e.User.Username}#{e.User.Discriminator} ({e.User.Id}) clicked '{e.Id}' button in #{e.Channel.Name} ({e.Channel.Id})", DateTime.Now);
 
             return Task.CompletedTask;
         }
