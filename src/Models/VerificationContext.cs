@@ -7,7 +7,7 @@ namespace OSISDiscordAssistant.Models
     public partial class VerificationContext : DbContext
     {
         /// <summary>
-        /// Provides a context to conduct database operations on the Events table.
+        /// Provides a context to conduct database operations on the Verifications table.
         /// </summary>
         public VerificationContext()
         {
