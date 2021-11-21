@@ -19,6 +19,7 @@ using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.Entities;
 using Serilog;
 using Serilog.Events;
+using Serilog.Templates;
 
 namespace OSISDiscordAssistant
 {
@@ -45,8 +46,8 @@ namespace OSISDiscordAssistant
 
             // Configures Serilog's Logger instance.
             Console.WriteLine("[1/9] Configuring logger instance...");
-            Log.Logger = new LoggerConfiguration().WriteTo.Console(outputTemplate: Constant.LogDateTimeFormat)
-                .WriteTo.File($@"{Environment.CurrentDirectory}/logs/clientlogs-.txt", LogEventLevel.Verbose, outputTemplate: Constant.LogDateTimeFormat,
+            Log.Logger = new LoggerConfiguration().WriteTo.Console(new ExpressionTemplate(Constant.LogConsoleFormat))
+                .WriteTo.File($@"{Environment.CurrentDirectory}/logs/clientlogs-.txt", LogEventLevel.Verbose, outputTemplate: Constant.LogFileFormat,
                 retainedFileCountLimit: null, rollingInterval: RollingInterval.Day, flushToDiskInterval: TimeSpan.FromMinutes(1)).CreateLogger();
 
             var serilogFactory = new LoggerFactory().AddSerilog();
