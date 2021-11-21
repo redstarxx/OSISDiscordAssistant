@@ -5,9 +5,14 @@ namespace OSISDiscordAssistant.Constants
     public static class Constant
     {
         /// <summary>
-        /// The output template DateTime format for Serilog.
+        /// The Serilog template format for writing logs into the console window.
         /// </summary>
-        public const string LogDateTimeFormat = "[{Timestamp:dd-MM-yyyy HH:mm:ss zzz} {Level:u3}] [{EventId}] {Message:lj}{NewLine}{Exception}";
+        public const string LogConsoleFormat = "[{@t:dd-MM-yyyy HH:mm:ss zzz} {@l:u3}]{#if EventId is not null} [{EventId.Name}]{#end} {@m}\n{@x}";
+
+        /// <summary>
+        /// The Serilog template format for writing logs into a text file.
+        /// </summary>
+        public const string LogFileFormat = "[{Timestamp:dd-MM-yyyy HH:mm:ss zzz} {Level:u3}] [{EventId}] {Message:lj}{NewLine}{Exception}";
 
         /// <summary>
         /// Maximum value of a TimeSpan instance.
