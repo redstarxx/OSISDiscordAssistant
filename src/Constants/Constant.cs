@@ -12,7 +12,7 @@ namespace OSISDiscordAssistant.Constants
         /// <summary>
         /// The Serilog template format for writing logs into a text file.
         /// </summary>
-        public const string LogFileFormat = "[{Timestamp:dd-MM-yyyy HH:mm:ss zzz} {Level:u3}] [{EventId}] {Message:lj}{NewLine}{Exception}";
+        public const string LogFileFormat = "[{Timestamp:dd-MM-yyyy HH:mm:ss zzz} {Level:u3}] {Message:lj}{NewLine}{Exception}";
 
         /// <summary>
         /// Maximum value of a TimeSpan instance.
