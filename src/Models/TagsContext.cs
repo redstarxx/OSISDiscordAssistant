@@ -1,5 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
-using OSISDiscordAssistant.Utilities;
+﻿using System;
+using Microsoft.EntityFrameworkCore;
+using OSISDiscordAssistant.Services;
 
 #nullable disable
 
@@ -25,8 +26,13 @@ namespace OSISDiscordAssistant.Models
         {
             if (!optionsBuilder.IsConfigured)
             {
-                string connectionString = ClientUtilities.GetConnectionString();
-                optionsBuilder.UseNpgsql(connectionString);
+                // Retry reconnecting to the database on failure.
+                optionsBuilder.UseNpgsql(SharedData.DbConnectionString, builder =>
+                {
+                    builder.EnableRetryOnFailure(5, TimeSpan.FromSeconds(30), null);
+                });
+
+                base.OnConfiguring(optionsBuilder);
             }
         }
 
