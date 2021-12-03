@@ -31,14 +31,6 @@ namespace OSISDiscordAssistant
 
         public IReadOnlyDictionary<int, CommandsNextExtension> Commands;
 
-        public static EventId LogEvent { get; } = new EventId(1000, "BotClient");
-
-        public static EventId ERTask { get; } = new EventId(2000, "ERTask");
-
-        public static EventId PRTask { get; } = new EventId(3000, "PRTask");
-
-        public static EventId StatusUpdater { get; } = new EventId(4000, "StatusUpdater");
-
         public async Task RunAsync()
         {
             // Displays the current version of the bot.
@@ -46,7 +38,8 @@ namespace OSISDiscordAssistant
 
             // Configures Serilog's Logger instance.
             Console.WriteLine("[1/9] Configuring logger instance...");
-            Log.Logger = new LoggerConfiguration().WriteTo.Console(new ExpressionTemplate(Constant.LogConsoleFormat))
+            Log.Logger = new LoggerConfiguration()
+                .WriteTo.Console(new ExpressionTemplate(Constant.LogConsoleFormat))
                 .WriteTo.File($@"{Environment.CurrentDirectory}/logs/clientlogs-.txt", LogEventLevel.Verbose, outputTemplate: Constant.LogFileFormat,
                 retainedFileCountLimit: null, rollingInterval: RollingInterval.Day, flushToDiskInterval: TimeSpan.FromMinutes(1)).CreateLogger();
 
@@ -162,7 +155,7 @@ namespace OSISDiscordAssistant
 
             BackgroundTasks.StartVerificationCleanupTask();
 
-            Client.Logger.LogInformation(LogEvent, "Client is ready for tasking.", DateTime.Now);
+            Client.Logger.LogInformation(EventIds.Core, "Client is ready for tasking.", DateTime.Now);
 
             return Task.CompletedTask;
         }                
@@ -173,7 +166,7 @@ namespace OSISDiscordAssistant
            {
                if (e.Channel.IsPrivate && !e.Author.IsCurrent)
                {
-                   Client.Logger.LogInformation(LogEvent, $"User '{e.Author.Username}#{e.Author.Discriminator}' ({e.Author.Id}) sent \"{e.Message.Content}\" through Direct Messages ({e.Channel.Id})", DateTime.Now);
+                   Client.Logger.LogInformation(EventIds.EventHandler, $"User '{e.Author.Username}#{e.Author.Discriminator}' ({e.Author.Id}) sent \"{e.Message.Content}\" through Direct Messages ({e.Channel.Id})", DateTime.Now);
 
                    if (e.Message.Content.StartsWith("!"))
                    {
@@ -189,14 +182,14 @@ namespace OSISDiscordAssistant
 
         private Task OnMessageUpdated(DiscordClient sender, MessageUpdateEventArgs e)
         {
-            sender.Logger.LogInformation(LogEvent,
+            sender.Logger.LogInformation(EventIds.EventHandler,
                 $"User '{e.Message.Author.Username}#{e.Message.Author.Discriminator}' ({e.Message.Author.Id}) " +
                 $"updated message ({e.Message.Id}) in #{e.Channel.Name} ({e.Channel.Id}) guild '{e.Guild.Name}' ({e.Guild.Id})",
                 DateTime.Now);
 
             if (e.MessageBefore is null)
             {
-                sender.Logger.LogInformation(LogEvent, $"Message ({e.Message.Id}) is not cached. Skipped storing previous message content.");
+                sender.Logger.LogInformation(EventIds.EventHandler, $"Message ({e.Message.Id}) is not cached. Skipped storing previous message content.");
 
                 return Task.CompletedTask;
             }
@@ -221,7 +214,7 @@ namespace OSISDiscordAssistant
         {
             try
             {
-                sender.Logger.LogInformation(LogEvent,
+                sender.Logger.LogInformation(EventIds.EventHandler,
                     $"User '{e.Message.Author.Username}#{e.Message.Author.Discriminator}' ({e.Message.Author.Id}) " +
                     $"deleted message ({e.Message.Id}) in #{e.Channel.Name} ({e.Channel.Id}) guild '{e.Guild.Name}' ({e.Guild.Id})",
                     DateTime.Now);
@@ -229,7 +222,7 @@ namespace OSISDiscordAssistant
 
             catch
             {
-                sender.Logger.LogInformation(LogEvent, $"Message ({e.Message.Id}) was not cached. Skipped logging message deleted event.");
+                sender.Logger.LogInformation(EventIds.EventHandler, $"Message ({e.Message.Id}) was not cached. Skipped logging message deleted event.");
 
                 return Task.CompletedTask;
             }
@@ -257,14 +250,14 @@ namespace OSISDiscordAssistant
                 ClientUtilities.HandleVerificationRequests(sender, e);
             }
 
-            Client.Logger.LogInformation(LogEvent, $"User {e.User.Username}#{e.User.Discriminator} ({e.User.Id}) clicked '{e.Id}' button in #{e.Channel.Name} ({e.Channel.Id})", DateTime.Now);
+            Client.Logger.LogInformation(EventIds.EventHandler, $"User {e.User.Username}#{e.User.Discriminator} ({e.User.Id}) clicked '{e.Id}' button in #{e.Channel.Name} ({e.Channel.Id})", DateTime.Now);
 
             return Task.CompletedTask;
         }
 
         private Task OnMessageReactionAdded(object sender, MessageReactionAddEventArgs e)
         {
-            Client.Logger.LogInformation(LogEvent,
+            Client.Logger.LogInformation(EventIds.EventHandler,
                 $"User '{e.User.Username}#{e.User.Discriminator}' ({e.User.Id}) " +
                 $"added '{e.Emoji}' in #{e.Channel.Name} ({e.Channel.Id})",
                 DateTime.Now);
@@ -274,7 +267,7 @@ namespace OSISDiscordAssistant
 
         private Task OnMessageReactionRemoved(DiscordClient sender, MessageReactionRemoveEventArgs e)
         {
-            Client.Logger.LogInformation(LogEvent,
+            Client.Logger.LogInformation(EventIds.EventHandler,
                 $"User '{e.User.Username}#{e.User.Discriminator}' ({e.User.Id}) " +
                 $"removed '{e.Emoji}' in #{e.Channel.Name} ({e.Channel.Id})",
                 DateTime.Now);
@@ -284,35 +277,35 @@ namespace OSISDiscordAssistant
 
         private Task OnGuildMemberAdded(DiscordClient sender, GuildMemberAddEventArgs e)
         {
-            sender.Logger.LogInformation(LogEvent, $"User added: {e.Member.Username}#{e.Member.Discriminator} ({e.Member.Id}) in {e.Guild.Name} ({e.Guild.Id})", DateTime.Now);
+            sender.Logger.LogInformation(EventIds.EventHandler, $"User added: {e.Member.Username}#{e.Member.Discriminator} ({e.Member.Id}) in {e.Guild.Name} ({e.Guild.Id})", DateTime.Now);
 
             return Task.CompletedTask;
         }
 
         private Task OnGuildMemberRemoved(DiscordClient sender, GuildMemberRemoveEventArgs e)
         {
-            sender.Logger.LogInformation(LogEvent, $"User removed: {e.Member.Username}#{e.Member.Discriminator} ({e.Member.Id}) in {e.Guild.Name} ({e.Guild.Id}).", DateTime.Now);
+            sender.Logger.LogInformation(EventIds.EventHandler, $"User removed: {e.Member.Username}#{e.Member.Discriminator} ({e.Member.Id}) in {e.Guild.Name} ({e.Guild.Id}).", DateTime.Now);
 
             return Task.CompletedTask;
         }
 
         private Task OnGuildAvailable(DiscordClient sender, GuildCreateEventArgs e)
         {
-            sender.Logger.LogInformation(LogEvent, $"Guild available: {e.Guild.Name} ({e.Guild.Id})", DateTime.Now);
+            sender.Logger.LogInformation(EventIds.EventHandler, $"Guild available: {e.Guild.Name} ({e.Guild.Id})", DateTime.Now);
 
             return Task.CompletedTask;
         }
 
         private Task OnGuildCreated(DiscordClient sender, GuildCreateEventArgs e)
         {
-            sender.Logger.LogInformation(LogEvent, $"Guild added: {e.Guild.Name} ({e.Guild.Id})", DateTime.Now);
+            sender.Logger.LogInformation(EventIds.EventHandler, $"Guild added: {e.Guild.Name} ({e.Guild.Id})", DateTime.Now);
 
             return Task.CompletedTask;
         }
 
         private Task OnGuildDeleted(DiscordClient sender, GuildDeleteEventArgs e)
         {
-            sender.Logger.LogInformation(LogEvent, $"Guild removed: {e.Guild.Name} ({e.Guild.Id})", DateTime.Now);
+            sender.Logger.LogInformation(EventIds.EventHandler, $"Guild removed: {e.Guild.Name} ({e.Guild.Id})", DateTime.Now);
 
             return Task.CompletedTask;
         }
@@ -323,11 +316,11 @@ namespace OSISDiscordAssistant
             while (ex is AggregateException)
                 ex = ex.InnerException;
 
-            sender.Logger.LogCritical(LogEvent, $"Socket threw an exception {ex.GetType()}: {ex.Message}", DateTime.Now);
+            sender.Logger.LogCritical(EventIds.EventHandler, $"Socket threw an exception {ex.GetType()}: {ex.Message}", DateTime.Now);
 
             if (ex.Message is "Could not connect to Discord.")
             {
-                sender.Logger.LogInformation(LogEvent, "Terminating...", DateTime.Now);
+                sender.Logger.LogInformation(EventIds.EventHandler, "Terminating...", DateTime.Now);
 
                 Environment.Exit(0);
             }
@@ -337,7 +330,7 @@ namespace OSISDiscordAssistant
 
         private Task OnHeartbeated(DiscordClient sender, HeartbeatEventArgs e)
         {
-            sender.Logger.LogInformation(LogEvent, $"Received heartbeat ACK: {e.Ping} ms.", DateTime.Now);
+            sender.Logger.LogInformation(EventIds.EventHandler, $"Received heartbeat ACK: {e.Ping} ms.", DateTime.Now);
 
             return Task.CompletedTask;
         }
@@ -346,14 +339,14 @@ namespace OSISDiscordAssistant
         {
             e.Handled = true;
 
-            sender.Logger.LogWarning(LogEvent, $"Received unknown event {e.EventName}, payload:\n{e.Json}", DateTime.Now);
+            sender.Logger.LogWarning(EventIds.EventHandler, $"Received unknown event {e.EventName}, payload:\n{e.Json}", DateTime.Now);
 
             return Task.CompletedTask;
         }
 
         private Task CommandsNext_CommandExecuted(CommandsNextExtension sender, CommandExecutionEventArgs e)
         {
-            e.Context.Client.Logger.LogInformation(LogEvent,
+            e.Context.Client.Logger.LogInformation(EventIds.EventHandler,
                 $"User '{e.Context.User.Username}#{e.Context.User.Discriminator}' ({e.Context.User.Id}) " +
                 $"executed '{e.Command.QualifiedName}' in #{e.Context.Channel.Name} ({e.Context.Channel.Id}) guild '{e.Context.Guild.Name}' ({e.Context.Guild.Id})",
                 DateTime.Now);
@@ -417,9 +410,11 @@ namespace OSISDiscordAssistant
                 }               
             }
 
-            e.Context.Client.Logger.LogError(LogEvent,
+            //Log.Logger.ForContext(e.Command.Module.ModuleType).Warning($"User '{e.Context.User.Username}#{e.Context.User.Discriminator}' ({e.Context.User.Id}) tried to execute '{e.Command?.QualifiedName ?? "<unknown command>"}' "
+            //    + $"in #{e.Context.Channel.Name} ({e.Context.Channel.Id}) guild '{e.Context.Guild.Name}' ({e.Context.Guild.Id}) and failed with {e.Exception.GetType()}: {e.Exception.Message}", EventIds.EventHandler, DateTime.Now);
+            e.Context.Client.Logger.LogError(EventIds.EventHandler,
                 $"User '{e.Context.User.Username}#{e.Context.User.Discriminator}' ({e.Context.User.Id}) tried to execute '{e.Command?.QualifiedName ?? "<unknown command>"}' "
-                + $"in #{e.Context.Channel.Name} ({e.Context.Channel.Id})  guild '{e.Context.Guild.Name}' ({e.Context.Guild.Id}) and failed with {e.Exception.GetType()}: {e.Exception.Message}", DateTime.Now);
+                + $"in #{e.Context.Channel.Name} ({e.Context.Channel.Id}) guild '{e.Context.Guild.Name}' ({e.Context.Guild.Id}) and failed with {e.Exception.GetType()}: {e.Exception.Message}", DateTime.Now);
 
             return Task.CompletedTask;
         }

@@ -68,6 +68,6 @@ namespace OSISDiscordAssistant.Services
         /// <summary>
         /// Get or set whether verification cleaning service task has been fired.
         /// </summary>
-        public static bool IsStartVerificationCleanupTaskInitialized = false;
+        public static bool IsVerificationCleanupTaskInitialized = false;
     }
 }

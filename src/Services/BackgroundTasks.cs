@@ -5,9 +5,8 @@ using System.Globalization;
 using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.Entities;
-using OSISDiscordAssistant.Utilities;
 using OSISDiscordAssistant.Models;
-using OSISDiscordAssistant.Services;
+using OSISDiscordAssistant.Constants;
 using Microsoft.Extensions.Logging;
 using Humanizer;
 
@@ -293,12 +292,12 @@ namespace OSISDiscordAssistant.Services
 
                         if (counter != 0)
                         {
-                            Bot.Client.Logger.LogInformation(Bot.ERTask, $"Completed events reminder task in {elapsedMilliseconds} ms. Reminded {counter} ({counter.ToWords()}) events.", DateTime.Now);
+                            Bot.Client.Logger.LogInformation(EventIds.Services, $"Completed events reminder task in {elapsedMilliseconds} ms. Reminded {counter} ({counter.ToWords()}) events.", DateTime.Now);
                         }
 
                         else
                         {
-                            Bot.Client.Logger.LogInformation(Bot.ERTask, $"Completed events reminder task in {elapsedMilliseconds} ms. No events to remind.", DateTime.Now);
+                            Bot.Client.Logger.LogInformation(EventIds.Services, $"Completed events reminder task in {elapsedMilliseconds} ms. No events to remind.", DateTime.Now);
                         }
 
                         stopwatch.Reset();
@@ -312,7 +311,7 @@ namespace OSISDiscordAssistant.Services
                     while (exception is AggregateException)
                         exception = exception.InnerException;
 
-                    Bot.Client.Logger.LogCritical(Bot.ERTask, $"Events reminder task threw an exception: {exception.GetType()}: {exception.Message}", DateTime.Now);
+                    Bot.Client.Logger.LogCritical(EventIds.Services, $"Events reminder task threw an exception: {exception.GetType()}: {exception.Message}", DateTime.Now);
 
                     await errorLogsChannel.SendMessageAsync($"{ex.Message}").ConfigureAwait(false);
                 }
@@ -320,7 +319,7 @@ namespace OSISDiscordAssistant.Services
 
             SharedData.IsEventReminderInitialized = true;
 
-            Bot.Client.Logger.LogInformation(Bot.ERTask, "Initialized events reminder task.", DateTime.Now);
+            Bot.Client.Logger.LogInformation(EventIds.Services, "Initialized events reminder task.", DateTime.Now);
         }
 
         /// <summary>
@@ -458,12 +457,12 @@ namespace OSISDiscordAssistant.Services
 
                         if (counter != 0)
                         {
-                            Bot.Client.Logger.LogInformation(Bot.PRTask, $"Completed proposal reminder task in {elapsedMilliseconds} ms. Reminded {counter} ({counter.ToWords()}) proposal submissions.", DateTime.Now);
+                            Bot.Client.Logger.LogInformation(EventIds.Services, $"Completed proposal reminder task in {elapsedMilliseconds} ms. Reminded {counter} ({counter.ToWords()}) proposal submissions.", DateTime.Now);
                         }
 
                         else
                         {
-                            Bot.Client.Logger.LogInformation(Bot.PRTask, $"Completed proposal reminder task in {elapsedMilliseconds} ms. No proposal submissions to remind.", DateTime.Now);
+                            Bot.Client.Logger.LogInformation(EventIds.Services, $"Completed proposal reminder task in {elapsedMilliseconds} ms. No proposal submissions to remind.", DateTime.Now);
                         }
 
                         stopwatch.Reset();
@@ -477,7 +476,7 @@ namespace OSISDiscordAssistant.Services
                     while (exception is AggregateException)
                         exception = exception.InnerException;
 
-                    Bot.Client.Logger.LogCritical(Bot.PRTask, $"Proposal reminder task threw an exception: {exception.GetType()}: {exception.Message}", DateTime.Now);
+                    Bot.Client.Logger.LogCritical(EventIds.Services, $"Proposal submission reminder task threw an exception: {exception.GetType()}: {exception.Message}", DateTime.Now);
 
                     await errorLogsChannel.SendMessageAsync($"{ex.Message}").ConfigureAwait(false);
                 }
@@ -485,7 +484,7 @@ namespace OSISDiscordAssistant.Services
 
             SharedData.IsProposalReminderInitialized = true;
 
-            Bot.Client.Logger.LogInformation(Bot.PRTask, "Initialized proposal reminder task.", DateTime.Now);
+            Bot.Client.Logger.LogInformation(EventIds.Services, "Initialized proposal submission reminder task.", DateTime.Now);
         }
 
         /// <summary>
@@ -540,7 +539,7 @@ namespace OSISDiscordAssistant.Services
                             break;
                     }
 
-                    Bot.Client.Logger.LogInformation(Bot.StatusUpdater, $"Presence updated: {activity.ActivityType} {activity.Name}", DateTime.Now);
+                    Bot.Client.Logger.LogInformation(EventIds.StatusUpdater, $"Presence updated: {activity.ActivityType} {activity.Name}", DateTime.Now);
 
                     await Task.Delay(TimeSpan.FromMinutes(2));
                 }
@@ -548,12 +547,12 @@ namespace OSISDiscordAssistant.Services
 
             SharedData.IsStatusUpdaterInitialized = true;
 
-            Bot.Client.Logger.LogInformation(Bot.StatusUpdater, "Initialized status updater task.", DateTime.Now);
+            Bot.Client.Logger.LogInformation(EventIds.StatusUpdater, "Initialized status updater task.", DateTime.Now);
         }
 
         public static void StartVerificationCleanupTask()
         {
-            if (SharedData.IsStartVerificationCleanupTaskInitialized)
+            if (SharedData.IsVerificationCleanupTaskInitialized)
             {
                 return;
             }
@@ -616,7 +615,7 @@ namespace OSISDiscordAssistant.Services
 
                         long elapsedMilliseconds = stopwatch.ElapsedMilliseconds;
 
-                        Bot.Client.Logger.LogInformation(new EventId(5, "VerificationCleanup"), $"Completed verification request cleanup task in {elapsedMilliseconds} ms. Removed {counter} ({counter.ToWords()}) requests.", DateTime.Now);
+                        Bot.Client.Logger.LogInformation(EventIds.Services, $"Completed verification request cleanup task in {elapsedMilliseconds} ms. Removed {counter} ({counter.ToWords()}) requests.", DateTime.Now);
 
                         counter = 0;
                         stopwatch.Reset();
@@ -630,9 +629,13 @@ namespace OSISDiscordAssistant.Services
                     while (exception is AggregateException)
                         exception = exception.InnerException;
 
-                    Bot.Client.Logger.LogCritical(new EventId(5, "VerificationCleanup"), $"Proposal reminder task threw an exception: {exception.GetType()}: {exception.Message}", DateTime.Now);
+                    Bot.Client.Logger.LogCritical(EventIds.Services, $"Verification cleanup task threw an exception: {exception.GetType()}: {exception.Message}", DateTime.Now);
                 }
             });
+
+            SharedData.IsVerificationCleanupTaskInitialized = true;
+
+            Bot.Client.Logger.LogInformation(EventIds.Services, "Initialized verification cleanup task.", DateTime.Now);
         }
     }
 }

@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using OSISDiscordAssistant.Attributes;
+using OSISDiscordAssistant.Constants;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.CommandsNext;
@@ -21,7 +22,7 @@ namespace OSISDiscordAssistant.Commands
         [Command("kill")]
         public async Task KillAsync(CommandContext ctx)
         {
-            Bot.Client.Logger.LogWarning(Bot.LogEvent, $"{ctx.Member.Username}#{ctx.Member.Discriminator} ({ctx.User.Id}) initiated a kill command.", DateTime.UtcNow.AddHours(7));
+            Bot.Client.Logger.LogWarning(EventIds.CommandHandler, $"{ctx.Member.Username}#{ctx.Member.Discriminator} ({ctx.User.Id}) initiated a kill command.", DateTime.UtcNow.AddHours(7));
             await ctx.Channel.SendMessageAsync($"Disconnecting all shards from the gateway...").ConfigureAwait(false);
             Thread.Sleep(TimeSpan.FromSeconds(1));
 
