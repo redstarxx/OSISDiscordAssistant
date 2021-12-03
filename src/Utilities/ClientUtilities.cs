@@ -5,7 +5,9 @@ using System.Text.RegularExpressions;
 using System.Linq;
 using System.IO;
 using System.Reflection;
+using System.Collections.Generic;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using DSharpPlus;
 using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.Entities;
@@ -294,6 +296,11 @@ namespace OSISDiscordAssistant.Utilities
             reminderTask.Start();
         }
 
+        /// <summary>
+        /// Handles button interactions related to the main guild verification scheme and the verification process as a whole.
+        /// </summary>
+        /// <param name="client">The client that receives the interaction.</param>
+        /// <param name="e">The event arguments passed from the event handler.</param>
         public static async void HandleVerificationRequests(DiscordClient client, ComponentInteractionCreateEventArgs e)
         {
             if (e.Id == "verify_button")
@@ -521,6 +528,80 @@ namespace OSISDiscordAssistant.Utilities
         }
 
         /// <summary>
+        /// Handles the interactions related to the available assignable divisional roles in the main guild.
+        /// </summary>
+        /// <param name="client">The client that receives the interaction.</param>
+        /// <param name="e">The event arguments passed from the event handler.</param>
+        public static async void HandleRolesInteraction(DiscordClient client, ComponentInteractionCreateEventArgs e)
+        {
+            if (e.Interaction.Data.ComponentType is ComponentType.Button)
+            {
+                await e.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
+
+                var member = await e.Guild.GetMemberAsync(e.User.Id);
+
+                DiscordFollowupMessageBuilder followupMessageBuilder = new DiscordFollowupMessageBuilder()
+                {
+                    Content = "Select either one of the options of which division you are assigned to. You can select only one option at a time.",
+                    IsEphemeral = true
+                };
+
+                var rolesDropdownOptions = new List<DiscordSelectComponentOption>();
+
+                foreach (var roles in SharedData.AvailableRoles)
+                {
+                    rolesDropdownOptions.Add(new DiscordSelectComponentOption(roles.RoleName, roles.RoleId.ToString(), null, member.Roles.Contains(e.Guild.GetRole(roles.RoleId)), new DiscordComponentEmoji(DiscordEmoji.FromName(client, SharedData.AvailableRoles.Find(x => x.RoleId == roles.RoleId).RoleEmoji))));
+                }
+
+                var rolesDropdown = new DiscordSelectComponent($"roles_dropdown_{DateTimeOffset.Now.ToUnixTimeSeconds()}", null, rolesDropdownOptions, false, 0, 1);
+
+                followupMessageBuilder.AddComponents(rolesDropdown);
+
+                await e.Interaction.CreateFollowupMessageAsync(followupMessageBuilder);
+            }
+
+            else
+            {
+                await HandleRolesDropdown(e);
+            }
+        }
+
+        /// <summary>
+        /// Handles the dropdown interactions related to the available assignable divisional roles in the main guild.
+        /// </summary>
+        /// <param name="e">The event arguments passed from the event handler.</param>
+        private static async Task HandleRolesDropdown(ComponentInteractionCreateEventArgs e)
+        {
+            await e.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
+
+            var member = await e.Guild.GetMemberAsync(e.User.Id);
+            var userRoleIds = member.Roles.Select(r => r.Id);
+
+            // Duplicate the list as a reference for which role to remove if the member owns either one from the list.
+            List<SharedData.AssignableRolesInfo> Roles = new List<SharedData.AssignableRolesInfo>(SharedData.AvailableRoles);
+
+            // Iterate over the selected dropdown option values.
+            foreach (var id in e.Values)
+            {
+                Roles.RemoveAll(x => x.RoleId == Convert.ToUInt64(id));
+
+                await member.GrantRoleAsync(e.Guild.GetRole(Convert.ToUInt64(id)));
+
+                break;
+            }
+
+            member = await e.Guild.GetMemberAsync(e.User.Id);
+
+            foreach (var roleIds in Roles.ToList())
+            {
+                if (userRoleIds.Contains(roleIds.RoleId))
+                {
+                    await member.RevokeRoleAsync(e.Guild.GetRole(roleIds.RoleId));
+                }
+            }
+        }
+
+        /// <summary>
         /// An async version of reading the content of config.json which contains the connection string to the PostgreSQL database and deserializes it.
         /// </summary>
         /// <returns>The database connection string.</returns>
@@ -555,34 +636,50 @@ namespace OSISDiscordAssistant.Utilities
         }
 
         /// <summary>
-        /// Loads the main guild ID and channel IDs required for ERTask and PRTask to function properly.
+        /// Loads the config.json file values for the bot to function properly.
         /// </summary>
-        /// <param name="configJson">The JSON struct to read from.</param>
-        public static void LoadDiscordConfigurationValues(ConfigJson configJson)
+        public static void LoadConfigurationValues()
         {
-            if (!configJson.MainGuildId.HasValue || !configJson.EventChannelId.HasValue || !configJson.ProposalChannelId.HasValue || 
-                !configJson.VerificationRequestsCommandChannelId.HasValue || !configJson.VerificationRequestsProcessingChannelId.HasValue || 
-                !configJson.ErrorChannelId.HasValue || !configJson.AccessRoleId.HasValue)
-            {
-                Console.WriteLine("One of the Discord ID values are missing. Terminating...");
-                Console.ReadLine();
+            var json = string.Empty;
 
-                Environment.Exit(0);
-            }
+            // Read the config.json file which contains the configuration values necessary for the bot to run properly.
+            using (var fileString = File.OpenRead("config.json"))
+            using (var stringReader = new StreamReader(fileString, new UTF8Encoding(false)))
+                json = stringReader.ReadToEnd();
 
-            else
-            {
-                SharedData.MainGuildId = (ulong)configJson.MainGuildId;
+            var configJson = JsonConvert.DeserializeObject<ConfigJson>(json);
 
-                SharedData.EventChannelId = (ulong)configJson.EventChannelId;
+            SharedData.Token = configJson.Token;
 
-                SharedData.ProposalChannelId = (ulong)configJson.ProposalChannelId;
+            SharedData.Prefixes = configJson.Prefix;
 
-                SharedData.VerificationRequestsProcessingChannelId = (ulong)configJson.VerificationRequestsProcessingChannelId;
+            SharedData.DbConnectionString = configJson.ConnectionString;
 
-                SharedData.ErrorChannelId = (ulong)configJson.ErrorChannelId;
+            SharedData.MainGuildId = (ulong)configJson.MainGuildId;
 
-                SharedData.AccessRoleId = (ulong)configJson.AccessRoleId;
+            SharedData.EventChannelId = (ulong)configJson.EventChannelId;
+
+            SharedData.ProposalChannelId = (ulong)configJson.ProposalChannelId;
+
+            SharedData.VerificationRequestsProcessingChannelId = (ulong)configJson.VerificationRequestsProcessingChannelId;
+
+            SharedData.ErrorChannelId = (ulong)configJson.ErrorChannelId;
+
+            SharedData.AccessRoleId = (ulong)configJson.AccessRoleId;
+
+            JObject roleArray = JObject.Parse(json);
+
+            // Read the MainGuildRoles array which contains the main guild assignable divisional roles.
+            foreach (JObject result in roleArray["MainGuildRoles"])
+            {                
+                SharedData.AssignableRolesInfo roles = new SharedData.AssignableRolesInfo() 
+                {
+                    RoleId = (ulong)result["RoleId"],
+                    RoleName = (string)result["RoleName"],
+                    RoleEmoji = (string)result["RoleEmoji"]
+                };
+
+                SharedData.AvailableRoles.Add(roles);
             }
         }
 
