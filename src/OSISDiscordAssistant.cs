@@ -46,19 +46,13 @@ namespace OSISDiscordAssistant
             var serilogFactory = new LoggerFactory().AddSerilog();
 
             Console.WriteLine("[2/9] Reading and loading config.json...");
-            var json = string.Empty;
-            using (var fileString = File.OpenRead("config.json"))
-            using (var stringReader = new StreamReader(fileString, new UTF8Encoding(false)))
-                json = await stringReader.ReadToEndAsync().ConfigureAwait(false);
 
-            var configJson = JsonConvert.DeserializeObject<ConfigJson>(json);
-
-            ClientUtilities.LoadDiscordConfigurationValues(configJson);
+            ClientUtilities.LoadConfigurationValues();
 
             Console.WriteLine("[3/9] Loading up client configuration...");
             var config = new DiscordConfiguration
             {
-                Token = configJson.Token,
+                Token = SharedData.Token,
                 TokenType = TokenType.Bot,
                 AutoReconnect = true,
                 MinimumLogLevel = LogLevel.Information,
@@ -95,15 +89,13 @@ namespace OSISDiscordAssistant
             Console.WriteLine("[6/9] Loading up CommandsNext configuration...");
             var commandsConfig = new CommandsNextConfiguration
             {
-                StringPrefixes = configJson.Prefix,
+                StringPrefixes = SharedData.Prefixes,
                 EnableMentionPrefix = true,
                 EnableDms = false,
                 EnableDefaultHelp = false,
             };
 
             Commands = await Client.UseCommandsNextAsync(commandsConfig);
-
-            SharedData.Prefixes = configJson.Prefix;
 
             Console.WriteLine("[7/9] Registering CommandsNext commands modules...");
             // Registers commands.
