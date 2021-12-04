@@ -41,12 +41,6 @@ namespace OSISDiscordAssistant
         public ulong? ProposalChannelId { get; private set; }
 
         /// <summary>
-        /// The channel ID of the new member role verification request command channel.
-        /// </summary>
-        [JsonProperty("VerificationRequestsCommandChannelId")]
-        public ulong? VerificationRequestsCommandChannelId { get; private set; }
-
-        /// <summary>
         /// The channel ID of the new member role verification request processing channel.
         /// </summary>
         [JsonProperty("VerificationRequestsProcessingChannelId")]

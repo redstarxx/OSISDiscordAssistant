@@ -1,10 +1,31 @@
 ﻿using System.Collections.Concurrent;
+using System.Collections.Generic;
 using DSharpPlus.Entities;
 
 namespace OSISDiscordAssistant.Services
 {
     public class SharedData
     {
+        /// <summary>
+        /// Represents the main guild assignable divisional roles information.
+        /// </summary>
+        public struct AssignableRolesInfo
+        {
+            public ulong RoleId;
+            public string RoleName;
+            public string RoleEmoji;
+        }
+
+        /// <summary>
+        /// The bot token provided by Discord.
+        /// </summary>
+        public static string Token;
+
+        /// <summary>
+        /// The PostgreSQL database connection string.
+        /// </summary>
+        public static string DbConnectionString;
+
         /// <summary>
         /// The prefixes used to execute a command.
         /// </summary>
@@ -19,6 +40,11 @@ namespace OSISDiscordAssistant.Services
         /// The dictionary that stores the original content of an edited message that has been previously cached.
         /// </summary>
         public static ConcurrentDictionary<ulong, DiscordMessage> EditedMessages = new ConcurrentDictionary<ulong, DiscordMessage>();
+
+        /// <summary>
+        /// The list that stores the list of the assignable divisional roles via a dropdown.
+        /// </summary>
+        public static List<AssignableRolesInfo> AvailableRoles = new List<AssignableRolesInfo>();
 
         /// <summary>
         /// The guild ID of the main OSIS private server.
