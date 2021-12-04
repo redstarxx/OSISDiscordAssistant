@@ -255,7 +255,7 @@ namespace OSISDiscordAssistant
                 ClientUtilities.HandleRolesInteraction(sender, e);
             }
 
-            Client.Logger.LogInformation(EventIds.EventHandler, $"User {e.User.Username}#{e.User.Discriminator} ({e.User.Id}) clicked '{e.Id}' button in #{e.Channel.Name} ({e.Channel.Id})", DateTime.Now);
+            Client.Logger.LogInformation(EventIds.EventHandler, $"User {e.User.Username}#{e.User.Discriminator} ({e.User.Id}) interacted with '{e.Id}' in #{e.Channel.Name} ({e.Channel.Id})", DateTime.Now);
 
             return Task.CompletedTask;
         }
