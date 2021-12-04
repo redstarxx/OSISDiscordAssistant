@@ -77,6 +77,7 @@ namespace OSISDiscordAssistant
             Client.MessageReactionRemoved += OnMessageReactionRemoved;
             Client.ComponentInteractionCreated += OnComponentInteractionCreated;
             Client.SocketErrored += OnSocketErrored;
+            Client.ClientErrored += OnClientErrored;
             Client.Heartbeated += OnHeartbeated;
             Client.UnknownEvent += OnUnknownEvent;
 
@@ -247,7 +248,7 @@ namespace OSISDiscordAssistant
                 ClientUtilities.HandleRolesInteraction(sender, e);
             }
 
-            Client.Logger.LogInformation(EventIds.EventHandler, $"User {e.User.Username}#{e.User.Discriminator} ({e.User.Id}) interacted with '{e.Id}' in #{e.Channel.Name} ({e.Channel.Id})", DateTime.Now);
+            Client.Logger.LogInformation(EventIds.EventHandler, $"User {e.User.Username}#{e.User.Discriminator} ({e.User.Id}) interacted with '{e.Id}' in #{e.Channel.Name} ({e.Channel.Id}).", DateTime.Now);
 
             return Task.CompletedTask;
         }
@@ -313,7 +314,7 @@ namespace OSISDiscordAssistant
             while (ex is AggregateException)
                 ex = ex.InnerException;
 
-            sender.Logger.LogCritical(EventIds.EventHandler, $"Socket threw an exception {ex.GetType()}: {ex.Message}", DateTime.Now);
+            sender.Logger.LogCritical(EventIds.EventHandler, e.Exception, $"Socket threw an exception.", DateTime.Now);
 
             if (ex.Message is "Could not connect to Discord.")
             {
@@ -321,6 +322,13 @@ namespace OSISDiscordAssistant
 
                 Environment.Exit(0);
             }
+
+            return Task.CompletedTask;
+        }
+
+        private Task OnClientErrored(DiscordClient sender, ClientErrorEventArgs e)
+        {
+            sender.Logger.LogWarning(EventIds.EventHandler, e.Exception, $"Client threw an exception.", DateTime.Now);
 
             return Task.CompletedTask;
         }
@@ -343,7 +351,7 @@ namespace OSISDiscordAssistant
 
         private Task CommandsNext_CommandExecuted(CommandsNextExtension sender, CommandExecutionEventArgs e)
         {
-            e.Context.Client.Logger.LogInformation(EventIds.EventHandler,
+            e.Context.Client.Logger.LogInformation(EventIds.CommandHandler,
                 $"User '{e.Context.User.Username}#{e.Context.User.Discriminator}' ({e.Context.User.Id}) " +
                 $"executed '{e.Command.QualifiedName}' in #{e.Context.Channel.Name} ({e.Context.Channel.Id}) guild '{e.Context.Guild.Name}' ({e.Context.Guild.Id})",
                 DateTime.Now);
@@ -409,9 +417,9 @@ namespace OSISDiscordAssistant
 
             //Log.Logger.ForContext(e.Command.Module.ModuleType).Warning($"User '{e.Context.User.Username}#{e.Context.User.Discriminator}' ({e.Context.User.Id}) tried to execute '{e.Command?.QualifiedName ?? "<unknown command>"}' "
             //    + $"in #{e.Context.Channel.Name} ({e.Context.Channel.Id}) guild '{e.Context.Guild.Name}' ({e.Context.Guild.Id}) and failed with {e.Exception.GetType()}: {e.Exception.Message}", EventIds.EventHandler, DateTime.Now);
-            e.Context.Client.Logger.LogError(EventIds.EventHandler,
+            e.Context.Client.Logger.LogError(EventIds.CommandHandler, e.Exception,
                 $"User '{e.Context.User.Username}#{e.Context.User.Discriminator}' ({e.Context.User.Id}) tried to execute '{e.Command?.QualifiedName ?? "<unknown command>"}' "
-                + $"in #{e.Context.Channel.Name} ({e.Context.Channel.Id}) guild '{e.Context.Guild.Name}' ({e.Context.Guild.Id}) and failed with {e.Exception.GetType()}: {e.Exception.Message}", DateTime.Now);
+                + $"in #{e.Context.Channel.Name} ({e.Context.Channel.Id}) guild '{e.Context.Guild.Name}' ({e.Context.Guild.Id}) and failed.", DateTime.Now);
 
             return Task.CompletedTask;
         }
