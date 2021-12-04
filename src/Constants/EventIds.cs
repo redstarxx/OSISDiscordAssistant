@@ -8,9 +8,8 @@ namespace OSISDiscordAssistant.Constants
         public static EventId
             Core = new(0, "Core"),
             Services = new(1, "Services"),
-            Database = new(2, "Database"),
-            EventHandler = new(3, "EventHandler"),
-            StatusUpdater = new(4, "StatusUpdater"),
-            CommandHandler = new(5, "CommandHandler");
+            EventHandler = new(2, "EventHandler"),
+            CommandHandler = new(3, "CommandHandler"),
+            StatusUpdater = new(4, "StatusUpdater");
     }
 }
