@@ -182,7 +182,7 @@ namespace OSISDiscordAssistant
 
             if (e.MessageBefore is null)
             {
-                sender.Logger.LogInformation(EventIds.EventHandler, $"Message ({e.Message.Id}) is not cached. Skipped storing previous message content.");
+                sender.Logger.LogInformation(EventIds.Core, $"Message ({e.Message.Id}) is not cached. Skipped storing previous message content.");
 
                 return Task.CompletedTask;
             }
@@ -215,7 +215,7 @@ namespace OSISDiscordAssistant
 
             catch
             {
-                sender.Logger.LogInformation(EventIds.EventHandler, $"Message ({e.Message.Id}) was not cached. Skipped logging message deleted event.");
+                sender.Logger.LogInformation(EventIds.Core, $"Message ({e.Message.Id}) was not cached. Skipped logging message deleted event.");
 
                 return Task.CompletedTask;
             }
@@ -314,11 +314,11 @@ namespace OSISDiscordAssistant
             while (ex is AggregateException)
                 ex = ex.InnerException;
 
-            sender.Logger.LogCritical(EventIds.EventHandler, e.Exception, $"Socket threw an exception.", DateTime.Now);
+            sender.Logger.LogCritical(EventIds.Core, e.Exception, $"Socket threw an exception.", DateTime.Now);
 
             if (ex.Message is "Could not connect to Discord.")
             {
-                sender.Logger.LogInformation(EventIds.EventHandler, "Terminating...", DateTime.Now);
+                sender.Logger.LogInformation(EventIds.Core, "Terminating...", DateTime.Now);
 
                 Environment.Exit(0);
             }
@@ -328,14 +328,14 @@ namespace OSISDiscordAssistant
 
         private Task OnClientErrored(DiscordClient sender, ClientErrorEventArgs e)
         {
-            sender.Logger.LogWarning(EventIds.EventHandler, e.Exception, $"Client threw an exception.", DateTime.Now);
+            sender.Logger.LogWarning(EventIds.Core, e.Exception, $"Client threw an exception.", DateTime.Now);
 
             return Task.CompletedTask;
         }
 
         private Task OnHeartbeated(DiscordClient sender, HeartbeatEventArgs e)
         {
-            sender.Logger.LogInformation(EventIds.EventHandler, $"Received heartbeat ACK: {e.Ping} ms.", DateTime.Now);
+            sender.Logger.LogInformation(EventIds.Core, $"Received heartbeat ACK: {e.Ping} ms.", DateTime.Now);
 
             return Task.CompletedTask;
         }
@@ -344,7 +344,7 @@ namespace OSISDiscordAssistant
         {
             e.Handled = true;
 
-            sender.Logger.LogWarning(EventIds.EventHandler, $"Received unknown event {e.EventName}, payload:\n{e.Json}", DateTime.Now);
+            sender.Logger.LogWarning(EventIds.Core, $"Received unknown event {e.EventName}, payload:\n{e.Json}", DateTime.Now);
 
             return Task.CompletedTask;
         }
@@ -415,8 +415,6 @@ namespace OSISDiscordAssistant
                 }               
             }
 
-            //Log.Logger.ForContext(e.Command.Module.ModuleType).Warning($"User '{e.Context.User.Username}#{e.Context.User.Discriminator}' ({e.Context.User.Id}) tried to execute '{e.Command?.QualifiedName ?? "<unknown command>"}' "
-            //    + $"in #{e.Context.Channel.Name} ({e.Context.Channel.Id}) guild '{e.Context.Guild.Name}' ({e.Context.Guild.Id}) and failed with {e.Exception.GetType()}: {e.Exception.Message}", EventIds.EventHandler, DateTime.Now);
             e.Context.Client.Logger.LogError(EventIds.CommandHandler, e.Exception,
                 $"User '{e.Context.User.Username}#{e.Context.User.Discriminator}' ({e.Context.User.Id}) tried to execute '{e.Command?.QualifiedName ?? "<unknown command>"}' "
                 + $"in #{e.Context.Channel.Name} ({e.Context.Channel.Id}) guild '{e.Context.Guild.Name}' ({e.Context.Guild.Id}) and failed.", DateTime.Now);

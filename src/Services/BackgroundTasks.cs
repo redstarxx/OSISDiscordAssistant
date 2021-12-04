@@ -231,7 +231,7 @@ namespace OSISDiscordAssistant.Services
 
                                                 dbUpdate.SaveChanges();
 
-                                                Bot.Client.Logger.LogInformation($"Marked event '{row.EventName}' (ID: {row.Id}) as expired in {processingStopWatch.ElapsedMilliseconds} ms.");
+                                                Bot.Client.Logger.LogInformation(EventIds.Services, $"Marked event '{row.EventName}' (ID: {row.Id}) as expired.", DateTime.Now);
                                             }
                                         }
                                     }
@@ -278,7 +278,7 @@ namespace OSISDiscordAssistant.Services
                                 {
                                     sentReminder = false;
 
-                                    Bot.Client.Logger.LogInformation($"Sent event reminder for '{row.EventName}' (ID: {row.Id}) in {processingStopWatch.ElapsedMilliseconds} ms. Date: {row.EventDate} (culture-info: {row.EventDateCultureInfo}), person-in-charge: {row.PersonInCharge}, proposal_reminded: {row.ProposalReminded}, previously_reminded: {row.PreviouslyReminded}, expired: {row.Expired}");
+                                    Bot.Client.Logger.LogInformation(EventIds.Services, $"Sent event reminder for '{row.EventName}' (ID: {row.Id}) in {processingStopWatch.ElapsedMilliseconds} ms.", DateTime.Now);
                                 }
 
                                 processingStopWatch.Reset();
@@ -311,7 +311,7 @@ namespace OSISDiscordAssistant.Services
                     while (exception is AggregateException)
                         exception = exception.InnerException;
 
-                    Bot.Client.Logger.LogCritical(EventIds.Services, $"Events reminder task threw an exception: {exception.GetType()}: {exception.Message}", DateTime.Now);
+                    Bot.Client.Logger.LogCritical(EventIds.Services, $"Events reminder task threw an exception: {exception.GetType()}: {exception.Message}.", DateTime.Now);
 
                     await errorLogsChannel.SendMessageAsync($"{ex.Message}").ConfigureAwait(false);
                 }
@@ -432,7 +432,7 @@ namespace OSISDiscordAssistant.Services
 
                                             dbUpdate.SaveChanges();
 
-                                            Bot.Client.Logger.LogInformation($"Marked '{row.EventName}' (ID: {row.Id}) proposal reminded column as {row.ProposalReminded}.");
+                                            Bot.Client.Logger.LogInformation(EventIds.Services, $"Marked '{row.EventName}' (ID: {row.Id}) proposal reminded column as {row.ProposalReminded}.", DateTime.Now);
                                         }
                                     }
                                 }
@@ -443,7 +443,7 @@ namespace OSISDiscordAssistant.Services
                                 {
                                     sentReminder = false;
 
-                                    Bot.Client.Logger.LogInformation($"Sent proposal reminder for '{row.EventName}' (ID: {row.Id}) in {processingStopWatch.ElapsedMilliseconds} ms. Date: {row.EventDate} (culture-info: {row.EventDateCultureInfo}), person-in-charge: {row.PersonInCharge}, proposal_reminded: {row.ProposalReminded}, previously_reminded: {row.PreviouslyReminded}, expired: {row.Expired}");
+                                    Bot.Client.Logger.LogInformation(EventIds.Services, $"Sent proposal reminder for '{row.EventName}' (ID: {row.Id}) in {processingStopWatch.ElapsedMilliseconds} ms.", DateTime.Now);
                                 }
 
                                 processingStopWatch.Reset();
@@ -476,7 +476,7 @@ namespace OSISDiscordAssistant.Services
                     while (exception is AggregateException)
                         exception = exception.InnerException;
 
-                    Bot.Client.Logger.LogCritical(EventIds.Services, $"Proposal submission reminder task threw an exception: {exception.GetType()}: {exception.Message}", DateTime.Now);
+                    Bot.Client.Logger.LogCritical(EventIds.Services, $"Proposal submission reminder task threw an exception: {exception.GetType()}: {exception.Message}.", DateTime.Now);
 
                     await errorLogsChannel.SendMessageAsync($"{ex.Message}").ConfigureAwait(false);
                 }
@@ -606,6 +606,8 @@ namespace OSISDiscordAssistant.Services
 
                                         db.Remove(request);
                                         await db.SaveChangesAsync();
+
+                                        Bot.Client.Logger.LogInformation(EventIds.Services, $"Removed verification request message ID {requestEmbed.Id}.", DateTime.Now);
                                     }
                                 }
                             }
@@ -629,7 +631,7 @@ namespace OSISDiscordAssistant.Services
                     while (exception is AggregateException)
                         exception = exception.InnerException;
 
-                    Bot.Client.Logger.LogCritical(EventIds.Services, $"Verification cleanup task threw an exception: {exception.GetType()}: {exception.Message}", DateTime.Now);
+                    Bot.Client.Logger.LogCritical(EventIds.Services, $"Verification cleanup task threw an exception: {exception.GetType()}: {exception.Message}.", DateTime.Now);
                 }
             });
 
