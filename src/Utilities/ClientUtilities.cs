@@ -18,6 +18,7 @@ using OSISDiscordAssistant.Enums;
 using OSISDiscordAssistant.Constants;
 using OSISDiscordAssistant.Models;
 using Humanizer;
+using Microsoft.Extensions.Logging;
 
 namespace OSISDiscordAssistant.Utilities
 {
@@ -404,8 +405,8 @@ namespace OSISDiscordAssistant.Utilities
                     messageBuilder.WithEmbed(embed: embedBuilder);
                     messageBuilder.AddComponents(new DiscordButtonComponent[]
                     {
-                    new DiscordButtonComponent(ButtonStyle.Success, "accept_button", "ACCEPT", false, null),
-                    new DiscordButtonComponent(ButtonStyle.Danger, "deny_button", "DECLINE", false, null)
+                        new DiscordButtonComponent(ButtonStyle.Success, "accept_button", "ACCEPT", false, null),
+                        new DiscordButtonComponent(ButtonStyle.Danger, "deny_button", "DECLINE", false, null)
                     });
 
                     DiscordChannel channel = e.Guild.GetChannel(SharedData.VerificationRequestsProcessingChannelId);
@@ -507,6 +508,8 @@ namespace OSISDiscordAssistant.Utilities
 
                     db.Remove(rowToDelete);
                     await db.SaveChangesAsync();
+
+                    Bot.Client.Logger.LogInformation(EventIds.Services, $"Removed verification request message ID {e.Message.Id}.", DateTime.Now);
                 }
             }
 
