@@ -177,7 +177,7 @@ namespace OSISDiscordAssistant
         {
             sender.Logger.LogInformation(EventIds.EventHandler,
                 $"User '{e.Message.Author.Username}#{e.Message.Author.Discriminator}' ({e.Message.Author.Id}) " +
-                $"updated message ({e.Message.Id}) in #{e.Channel.Name} ({e.Channel.Id}) guild '{e.Guild.Name}' ({e.Guild.Id})",
+                $"updated message ({e.Message.Id}) in #{e.Channel.Name} ({e.Channel.Id}) guild '{e.Guild.Name}' ({e.Guild.Id}).",
                 DateTime.Now);
 
             if (e.MessageBefore is null)
@@ -209,7 +209,7 @@ namespace OSISDiscordAssistant
             {
                 sender.Logger.LogInformation(EventIds.EventHandler,
                     $"User '{e.Message.Author.Username}#{e.Message.Author.Discriminator}' ({e.Message.Author.Id}) " +
-                    $"deleted message ({e.Message.Id}) in #{e.Channel.Name} ({e.Channel.Id}) guild '{e.Guild.Name}' ({e.Guild.Id})",
+                    $"deleted message ({e.Message.Id}) in #{e.Channel.Name} ({e.Channel.Id}) guild '{e.Guild.Name}' ({e.Guild.Id}).",
                     DateTime.Now);
             }
 
@@ -257,7 +257,7 @@ namespace OSISDiscordAssistant
         {
             Client.Logger.LogInformation(EventIds.EventHandler,
                 $"User '{e.User.Username}#{e.User.Discriminator}' ({e.User.Id}) " +
-                $"added '{e.Emoji}' in #{e.Channel.Name} ({e.Channel.Id})",
+                $"added '{e.Emoji}' in #{e.Channel.Name} ({e.Channel.Id}).",
                 DateTime.Now);
 
             return Task.CompletedTask;
@@ -267,7 +267,7 @@ namespace OSISDiscordAssistant
         {
             Client.Logger.LogInformation(EventIds.EventHandler,
                 $"User '{e.User.Username}#{e.User.Discriminator}' ({e.User.Id}) " +
-                $"removed '{e.Emoji}' in #{e.Channel.Name} ({e.Channel.Id})",
+                $"removed '{e.Emoji}' in #{e.Channel.Name} ({e.Channel.Id}).",
                 DateTime.Now);
 
             return Task.CompletedTask;
@@ -275,7 +275,7 @@ namespace OSISDiscordAssistant
 
         private Task OnGuildMemberAdded(DiscordClient sender, GuildMemberAddEventArgs e)
         {
-            sender.Logger.LogInformation(EventIds.EventHandler, $"User added: {e.Member.Username}#{e.Member.Discriminator} ({e.Member.Id}) in {e.Guild.Name} ({e.Guild.Id})", DateTime.Now);
+            sender.Logger.LogInformation(EventIds.EventHandler, $"User added: {e.Member.Username}#{e.Member.Discriminator} ({e.Member.Id}) in {e.Guild.Name} ({e.Guild.Id}).", DateTime.Now);
 
             return Task.CompletedTask;
         }
@@ -289,21 +289,21 @@ namespace OSISDiscordAssistant
 
         private Task OnGuildAvailable(DiscordClient sender, GuildCreateEventArgs e)
         {
-            sender.Logger.LogInformation(EventIds.EventHandler, $"Guild available: {e.Guild.Name} ({e.Guild.Id})", DateTime.Now);
+            sender.Logger.LogInformation(EventIds.EventHandler, $"Guild available: {e.Guild.Name} ({e.Guild.Id}).", DateTime.Now);
 
             return Task.CompletedTask;
         }
 
         private Task OnGuildCreated(DiscordClient sender, GuildCreateEventArgs e)
         {
-            sender.Logger.LogInformation(EventIds.EventHandler, $"Guild added: {e.Guild.Name} ({e.Guild.Id})", DateTime.Now);
+            sender.Logger.LogInformation(EventIds.EventHandler, $"Guild added: {e.Guild.Name} ({e.Guild.Id}).", DateTime.Now);
 
             return Task.CompletedTask;
         }
 
         private Task OnGuildDeleted(DiscordClient sender, GuildDeleteEventArgs e)
         {
-            sender.Logger.LogInformation(EventIds.EventHandler, $"Guild removed: {e.Guild.Name} ({e.Guild.Id})", DateTime.Now);
+            sender.Logger.LogInformation(EventIds.EventHandler, $"Guild removed: {e.Guild.Name} ({e.Guild.Id}).", DateTime.Now);
 
             return Task.CompletedTask;
         }
@@ -353,7 +353,7 @@ namespace OSISDiscordAssistant
         {
             e.Context.Client.Logger.LogInformation(EventIds.CommandHandler,
                 $"User '{e.Context.User.Username}#{e.Context.User.Discriminator}' ({e.Context.User.Id}) " +
-                $"executed '{e.Command.QualifiedName}' in #{e.Context.Channel.Name} ({e.Context.Channel.Id}) guild '{e.Context.Guild.Name}' ({e.Context.Guild.Id})",
+                $"executed '{e.Command.QualifiedName}' in #{e.Context.Channel.Name} ({e.Context.Channel.Id}) guild '{e.Context.Guild.Name}' ({e.Context.Guild.Id}).",
                 DateTime.Now);
 
             return Task.CompletedTask;
