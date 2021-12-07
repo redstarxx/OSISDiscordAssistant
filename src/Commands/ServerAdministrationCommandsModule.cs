@@ -255,27 +255,6 @@ namespace OSISDiscordAssistant.Commands
             await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[PRUNED]")} Pruned {messageCount} messages by {ctx.Member.Mention}. Reason: {reason}.");
         }
 
-        [Command("sendinfoembed")]
-        public async Task InfoEmbedAsync(CommandContext ctx, ulong targetChannelId)
-        {
-            DiscordChannel targetChannel = await Bot.Client.GetShard(ctx.Guild.Id).GetChannelAsync(targetChannelId);
-
-            var informationChannelEmbed = new DiscordEmbedBuilder
-            {
-                Title = "OSIS Sekolah Djuwita Batam - Discord Server",
-                Description = $"Selamat datang di server Discord {Formatter.Bold("OSIS Sekolah Djuwita Batam!")} Akses ke server ini hanya diperbolehkan untuk anggota OSIS aktif.\n\n" +
-                $"Untuk meminta verifikasi akses, ketik {Formatter.InlineCode("!requestverify")} di <#832275177160048711>. Inti OSIS akan memproses permintaan verifikasimu secepatnya. " +
-                $"Sebagai alternatif, anggota Inti OSIS dapat langsung memverifikasi aksesmu dengan {Formatter.InlineCode("!overify")}.",
-                Color = DiscordColor.MidnightBlue
-            };
-
-            string inviteLink = $"{Formatter.Bold("Invite Link:")} https://discord.gg/WC7FRsxFwb";
-
-            await targetChannel.SendMessageAsync(embed: informationChannelEmbed.Build()).ConfigureAwait(false);
-
-            await targetChannel.SendMessageAsync(inviteLink).ConfigureAwait(false);
-        }
-
         // ----------------------------------------------------------
         // COMMAND HELPERS BELOW
         // ----------------------------------------------------------
