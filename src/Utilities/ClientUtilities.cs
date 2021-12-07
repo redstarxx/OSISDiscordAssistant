@@ -439,6 +439,15 @@ namespace OSISDiscordAssistant.Utilities
             {
                 using (var db = new VerificationContext())
                 {
+                    var userDataRow = db.Verifications.FirstOrDefault(x => x.VerificationEmbedId == e.Message.Id);
+                    // TODO: EDIT THE VERIFICATION EMBED'S STATUS
+                    if (userDataRow is null)
+                    {
+                        Bot.Client.Logger.LogError(EventIds.Services, $"Aborted processing verification request embed ID {e.Message.Id}. Data does not exist in the database.");
+
+                        return;
+                    }
+
                     if (e.Id == "accept_button")
                     {
                         var member = await e.Guild.GetMemberAsync(db.Verifications.SingleOrDefault(x => x.VerificationEmbedId == e.Message.Id).UserId);
