@@ -74,19 +74,20 @@ namespace OSISDiscordAssistant.Services
 
                                 double remainingDays = Math.Round(timeSpan.TotalDays);
 
+                                reminderEmbed.Title = $"Events Manager - Reminding {row.EventName}... (Event ID: {row.Id})";
+
+                                reminderEmbed.AddField("Ketua / Wakil Ketua Event", row.PersonInCharge, true);
+                                reminderEmbed.AddField("Tanggal / Waktu Pelaksanaan", row.EventDate, true);
+                                reminderEmbed.AddField("Informasi Tambahan", row.EventDescription, true);
+
+                                reminderMessageBuilder.WithContent("@everyone");
+
                                 if (remainingDays == 7)
                                 {
                                     if (row.PreviouslyReminded == false)
                                     {
-                                        reminderEmbed.Title = $"Events Manager - Reminding {row.EventName}... (Event ID: {row.Id})";
                                         reminderEmbed.Description = $"Attention council members! Next week will be the day for {Formatter.Bold(row.EventName)}! Read below to find out more about this event.";
-
-                                        reminderEmbed.AddField("Ketua / Wakil Ketua Event", row.PersonInCharge, true);
-                                        reminderEmbed.AddField("Tanggal / Waktu Pelaksanaan", row.EventDate, true);
-                                        reminderEmbed.AddField("Informasi Tambahan", row.EventDescription, true);
-
-                                        reminderMessageBuilder.WithContent("@everyone")
-                                                              .WithEmbed(embed: reminderEmbed);
+                                        reminderMessageBuilder.WithEmbed(reminderEmbed.Build());
 
                                         await eventsChannel.SendMessageAsync(builder: reminderMessageBuilder);
                                         counter++;
@@ -112,15 +113,8 @@ namespace OSISDiscordAssistant.Services
                                 {
                                     if (row.PreviouslyReminded == false)
                                     {
-                                        reminderEmbed.Title = $"Events Manager - Reminding {row.EventName}... (Event ID: {row.Id})";
                                         reminderEmbed.Description = $"Attention council members! In {remainingDays} day(s), it will be the day for {Formatter.Bold(row.EventName)}! Read below to find out more about this event.";
-
-                                        reminderEmbed.AddField("Ketua / Wakil Ketua Event", row.PersonInCharge, true);
-                                        reminderEmbed.AddField("Tanggal / Waktu Pelaksanaan", row.EventDate, true);
-                                        reminderEmbed.AddField("Informasi Tambahan", row.EventDescription, true);
-
-                                        reminderMessageBuilder.WithContent("@everyone")
-                                                              .WithEmbed(embed: reminderEmbed);
+                                        reminderMessageBuilder.WithEmbed(reminderEmbed.Build());
 
                                         await eventsChannel.SendMessageAsync(builder: reminderMessageBuilder);
                                         counter++;
@@ -146,15 +140,8 @@ namespace OSISDiscordAssistant.Services
                                 {
                                     if (row.PreviouslyReminded == false)
                                     {
-                                        reminderEmbed.Title = $"Events Manager - Reminding {row.EventName}... (Event ID: {row.Id})";
                                         reminderEmbed.Description = $"Attention council members! Tomorrow will be the day for {Formatter.Bold(row.EventName)}! Read below to find out more about this event.";
-
-                                        reminderEmbed.AddField("Ketua / Wakil Ketua Event", row.PersonInCharge, true);
-                                        reminderEmbed.AddField("Tanggal / Waktu Pelaksanaan", row.EventDate, true);
-                                        reminderEmbed.AddField("Informasi Tambahan", row.EventDescription, true);
-
-                                        reminderMessageBuilder.WithContent("@everyone")
-                                                              .WithEmbed(embed: reminderEmbed);
+                                        reminderMessageBuilder.WithEmbed(reminderEmbed.Build());
 
                                         await eventsChannel.SendMessageAsync(builder: reminderMessageBuilder);
                                         counter++;
@@ -180,15 +167,8 @@ namespace OSISDiscordAssistant.Services
                                 {
                                     if (row.PreviouslyReminded == false)
                                     {
-                                        reminderEmbed.Title = $"Events Manager - Reminding {row.EventName}... (Event ID: {row.Id})";
                                         reminderEmbed.Description = $"Attention council members! {Formatter.Bold(row.EventName)} will be in effect in {Math.Round(timeSpan.TotalHours)} hours! Read below to find out more about this event.";
-
-                                        reminderEmbed.AddField("Ketua / Wakil Ketua Event", row.PersonInCharge, true);
-                                        reminderEmbed.AddField("Tanggal / Waktu Pelaksanaan", row.EventDate, true);
-                                        reminderEmbed.AddField("Informasi Tambahan", row.EventDescription, true);
-
-                                        reminderMessageBuilder.WithContent("@everyone")
-                                                              .WithEmbed(embed: reminderEmbed);
+                                        reminderMessageBuilder.WithEmbed(reminderEmbed.Build());
 
                                         await eventsChannel.SendMessageAsync(builder: reminderMessageBuilder);
                                         counter++;
@@ -241,15 +221,8 @@ namespace OSISDiscordAssistant.Services
                                 {
                                     if (row.Expired == false)
                                     {
-                                        reminderEmbed.Title = $"Events Manager - Reminding {row.EventName}... (Event ID: {row.Id})";
                                         reminderEmbed.Description = $"Attention council members! Today is the day for {Formatter.Bold(row.EventName)}! Read the description below to know more.";
-
-                                        reminderEmbed.AddField("Ketua / Wakil Ketua Event", row.PersonInCharge, true);
-                                        reminderEmbed.AddField("Tanggal / Waktu Pelaksanaan", row.EventDate, true);
-                                        reminderEmbed.AddField("Informasi Tambahan", row.EventDescription, true);
-
-                                        reminderMessageBuilder.WithContent("@everyone")
-                                                              .WithEmbed(embed: reminderEmbed);
+                                        reminderMessageBuilder.WithEmbed(reminderEmbed.Build());
 
                                         await eventsChannel.SendMessageAsync(builder: reminderMessageBuilder);
                                         counter++;
@@ -282,6 +255,8 @@ namespace OSISDiscordAssistant.Services
                                 }
 
                                 processingStopWatch.Reset();
+
+                                reminderEmbed.ClearFields();
                             }
 
                             await db.DisposeAsync();
