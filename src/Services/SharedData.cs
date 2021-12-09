@@ -47,6 +47,11 @@ namespace OSISDiscordAssistant.Services
         public static List<AssignableRolesInfo> AvailableRoles = new List<AssignableRolesInfo>();
 
         /// <summary>
+        /// The list that stores the list of users who have interacted with the verification button and has not filled their requested nickname.
+        /// </summary>
+        public static List<ulong> PendingVerificationData = new List<ulong>();
+
+        /// <summary>
         /// The guild ID of the main OSIS private server.
         /// </summary>
         public static ulong MainGuildId;
@@ -65,6 +70,11 @@ namespace OSISDiscordAssistant.Services
         /// The channel ID of the new member role verification request processing channel.
         /// </summary>
         public static ulong VerificationRequestsProcessingChannelId;
+
+        /// <summary>
+        /// The channel ID of the channel containing the divisional roles dropdown button.
+        /// </summary>
+        public static ulong RolesChannelId;
 
         /// <summary>
         /// The channel ID of the PRTask and ERTask exception logs channel.

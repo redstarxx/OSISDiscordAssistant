@@ -47,6 +47,12 @@ namespace OSISDiscordAssistant
         public ulong? VerificationRequestsProcessingChannelId { get; private set; }
 
         /// <summary>
+        /// The channel ID of the channel containing the divisional roles dropdown button.
+        /// </summary>
+        [JsonProperty("RolesChannelId")]
+        public ulong? RolesChannelId { get; private set; }
+
+        /// <summary>
         /// The channel ID of the PRTask and ERTask exception logs channel.
         /// </summary>
         [JsonProperty("ErrorChannelId")]
