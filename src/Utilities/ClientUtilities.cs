@@ -355,84 +355,112 @@ namespace OSISDiscordAssistant.Utilities
                     };
 
                     await e.Interaction.CreateFollowupMessageAsync(followupMessageBuilder);
+
+                    if (SharedData.PendingVerificationData.Contains(e.User.Id))
+                    {
+                        return;
+                    }
+
+                    else
+                    {
+                        SharedData.PendingVerificationData.Add(e.User.Id);
+                    }
                 }
 
                 var askMessage = await member.SendMessageAsync($"Silahkan ketik nama panggilan anda. Contoh: {Formatter.InlineCode("Kerwintiro")}.");
 
-                var nameInteractivity = await interactivity.WaitForMessageAsync(x => x.Channel is DiscordDmChannel && x.Author == e.User);
+                string requestedName = string.Empty;
 
-                if (nameInteractivity.Result.Content is not null)
+                while (true)
                 {
-                    int verificationCounterNumber = 0;
+                    var nameInteractivity = await client.GetInteractivity().WaitForMessageAsync(x => x.Channel is DiscordDmChannel && x.Author == e.User);
 
-                    using (var db = new CounterContext())
+                    if (nameInteractivity.Result.Content is not null)
                     {
-                        verificationCounterNumber = db.Counter.SingleOrDefault(x => x.Id == 1).VerifyCounter;
-
-                        Counter rowToUpdate = null;
-                        rowToUpdate = db.Counter.SingleOrDefault(x => x.Id == 1);
-
-                        if (rowToUpdate != null)
+                        if (nameInteractivity.Result.Content.Length is > 32)
                         {
-                            rowToUpdate.VerifyCounter = verificationCounterNumber + 1;
+                            await member.SendMessageAsync($"Panjang nama panggilan anda tidak boleh melebihi 32 karakter (bisa disingkat, contoh: {Formatter.InlineCode("Kerwintiro")} jadi {Formatter.InlineCode("Kerti")}). Silahkan ulangi lagi.");
                         }
 
-                        db.SaveChanges();
+                        else
+                        {
+                            requestedName = nameInteractivity.Result.Content;
+                            SharedData.PendingVerificationData.RemoveAll(x => x == e.User.Id);
+
+                            break;
+                        }
+                    }
+                }
+
+                int verificationCounterNumber = 0;
+
+                using (var db = new CounterContext())
+                {
+                    verificationCounterNumber = db.Counter.SingleOrDefault(x => x.Id == 1).VerifyCounter;
+
+                    Counter rowToUpdate = null;
+                    rowToUpdate = db.Counter.SingleOrDefault(x => x.Id == 1);
+
+                    if (rowToUpdate != null)
+                    {
+                        rowToUpdate.VerifyCounter = verificationCounterNumber + 1;
                     }
 
-                    var messageBuilder = new DiscordMessageBuilder();
+                    db.SaveChanges();
+                }
 
-                    //Sends a verification request to #verification as an embed.
-                    var embedBuilder = new DiscordEmbedBuilder
-                    {
-                        Author = new DiscordEmbedBuilder.EmbedAuthor
-                        {
-                            Name = $"{e.User.Username}#{e.User.Discriminator}",
-                            IconUrl = e.User.AvatarUrl
-                        },
-                        Title = $"Verification Request #{verificationCounterNumber} | PENDING",
-                        Description = $"{e.User.Username}#{e.User.Discriminator} has submitted a verification request.\n"
-                            + $"{Formatter.Bold("Requested Nickname:")} {nameInteractivity.Result.Content}\n{Formatter.Bold("User ID:")} {e.User.Id}\n{Formatter.Bold("Verification Status:")} PENDING.\n"
-                            + $"This request expires at {Formatter.Timestamp(DateTime.Now.AddDays(2), TimestampFormat.LongDateTime)}.\nAlternatively, use the {Formatter.InlineCode("!overify")} command to manually verify a new member.",
-                        Timestamp = DateTime.Now,
-                        Footer = new DiscordEmbedBuilder.EmbedFooter
-                        {
-                            Text = "OSIS Discord Assistant"
-                        },
-                        Color = DiscordColor.MidnightBlue
-                    };
+                var messageBuilder = new DiscordMessageBuilder();
 
-                    messageBuilder.WithEmbed(embed: embedBuilder);
-                    messageBuilder.AddComponents(new DiscordButtonComponent[]
+                //Sends a verification request to #verification as an embed.
+                var embedBuilder = new DiscordEmbedBuilder
+                {
+                    Author = new DiscordEmbedBuilder.EmbedAuthor
                     {
+                        Name = $"{e.User.Username}#{e.User.Discriminator}",
+                        IconUrl = e.User.AvatarUrl
+                    },
+                    Title = $"Verification Request #{verificationCounterNumber} | PENDING",
+                    Description = $"{e.User.Username}#{e.User.Discriminator} has submitted a verification request.\n"
+                        + $"{Formatter.Bold("Requested Nickname:")} {requestedName}\n{Formatter.Bold("User ID:")} {e.User.Id}\n{Formatter.Bold("Verification Status:")} PENDING.\n"
+                        + $"This request expires at {Formatter.Timestamp(DateTime.Now.AddDays(2), TimestampFormat.LongDateTime)}.\nAlternatively, use the {Formatter.InlineCode("!overify")} command to manually verify a new member.",
+                    Timestamp = DateTime.Now,
+                    Footer = new DiscordEmbedBuilder.EmbedFooter
+                    {
+                        Text = "OSIS Discord Assistant"
+                    },
+                    Color = DiscordColor.MidnightBlue
+                };
+
+                messageBuilder.WithEmbed(embed: embedBuilder);
+                messageBuilder.AddComponents(new DiscordButtonComponent[]
+                {
                         new DiscordButtonComponent(ButtonStyle.Success, "accept_button", "ACCEPT", false, null),
                         new DiscordButtonComponent(ButtonStyle.Danger, "deny_button", "DECLINE", false, null)
+                });
+
+                DiscordChannel channel = e.Guild.GetChannel(SharedData.VerificationRequestsProcessingChannelId);
+                var requestEmbed = await channel.SendMessageAsync(builder: messageBuilder).ConfigureAwait(false);
+
+                using (var db = new VerificationContext())
+                {
+                    db.Add(new Verification
+                    {
+                        UserId = e.User.Id,
+                        VerificationEmbedId = requestEmbed.Id,
+                        RequestedName = requestedName
                     });
 
-                    DiscordChannel channel = e.Guild.GetChannel(SharedData.VerificationRequestsProcessingChannelId);
-                    var requestEmbed = await channel.SendMessageAsync(builder: messageBuilder).ConfigureAwait(false);
-
-                    using (var db = new VerificationContext())
-                    {
-                        db.Add(new Verification
-                        {
-                            UserId = e.User.Id,
-                            VerificationEmbedId = requestEmbed.Id,
-                            RequestedName = nameInteractivity.Result.Content
-                        });
-
-                        await db.SaveChangesAsync();
-                    }
-
-                    messageBuilder.Clear();
-
-                    embedBuilder.Title = embedBuilder.Title.Replace(" | PENDING", string.Empty);
-                    embedBuilder.Description = embedBuilder.Description.Replace("Alternatively, use the `!overify` command to manually verify a new member.", string.Empty);
-                    messageBuilder.WithContent($"Your verification request has been sent successfully! Here's a copy of your verification request details.");
-                    messageBuilder.WithEmbed(embedBuilder);
-
-                    await member.SendMessageAsync(messageBuilder);
+                    await db.SaveChangesAsync();
                 }
+
+                messageBuilder.Clear();
+
+                embedBuilder.Title = embedBuilder.Title.Replace(" | PENDING", string.Empty);
+                embedBuilder.Description = embedBuilder.Description.Replace("Alternatively, use the `!overify` command to manually verify a new member.", string.Empty);
+                messageBuilder.WithContent($"Your verification request has been sent successfully! Here's a copy of your verification request details.");
+                messageBuilder.WithEmbed(embedBuilder);
+
+                await member.SendMessageAsync(messageBuilder);
             }
 
             else if (e.Id == "accept_button" || e.Id == "deny_button")
@@ -453,7 +481,7 @@ namespace OSISDiscordAssistant.Utilities
                         var member = await e.Guild.GetMemberAsync(db.Verifications.SingleOrDefault(x => x.VerificationEmbedId == e.Message.Id).UserId);
                         await member.GrantRoleAsync(e.Guild.GetRole(SharedData.AccessRoleId));
 
-                        await member.SendMessageAsync($"{Formatter.Bold("[VERIFICATION]")} Your verification request has been {Formatter.Bold("ACCEPTED")} by {e.User.Mention}! You may now access the internal channels of {e.Guild.Name} and begin your interaction!");
+                        await member.SendMessageAsync($"{Formatter.Bold("[VERIFICATION]")} Your verification request has been {Formatter.Bold("ACCEPTED")} by {e.User.Mention}! You may now access the internal channels of {e.Guild.Name} and begin your interaction! Additionally, you will want to receive your divisional roles at <#{SharedData.RolesChannelId}>.");
 
                         var getEmbed = await e.Channel.GetMessageAsync(e.Message.Id);
 
@@ -674,6 +702,8 @@ namespace OSISDiscordAssistant.Utilities
             SharedData.ProposalChannelId = (ulong)configJson.ProposalChannelId;
 
             SharedData.VerificationRequestsProcessingChannelId = (ulong)configJson.VerificationRequestsProcessingChannelId;
+
+            SharedData.RolesChannelId = (ulong)configJson.RolesChannelId;
 
             SharedData.ErrorChannelId = (ulong)configJson.ErrorChannelId;
 
