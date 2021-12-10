@@ -392,6 +392,9 @@ namespace OSISDiscordAssistant.Utilities
                     }
                 }
 
+                DiscordDmChannel discordDm = await member.CreateDmChannelAsync();
+                await discordDm.TriggerTypingAsync();
+
                 int verificationCounterNumber = 0;
 
                 using (var db = new CounterContext())
