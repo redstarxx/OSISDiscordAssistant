@@ -422,7 +422,7 @@ namespace OSISDiscordAssistant.Utilities
                     Title = $"Verification Request #{verificationCounterNumber} | PENDING",
                     Description = $"{e.User.Username}#{e.User.Discriminator} has submitted a verification request.\n"
                         + $"{Formatter.Bold("Requested Nickname:")} {requestedName}\n{Formatter.Bold("User ID:")} {e.User.Id}\n{Formatter.Bold("Verification Status:")} PENDING.\n"
-                        + $"This request expires at {Formatter.Timestamp(DateTime.Now.AddDays(2), TimestampFormat.LongDateTime)}.\nAlternatively, use the {Formatter.InlineCode("!overify")} command to manually verify a new member.",
+                        + $"This request expires at {Formatter.Timestamp(DateTime.Now.AddDays(SharedData.MaxPendingVerificationWaitingDay), TimestampFormat.LongDateTime)}.\nAlternatively, use the {Formatter.InlineCode("!overify")} command to manually verify a new member.",
                     Timestamp = DateTime.Now,
                     Footer = new DiscordEmbedBuilder.EmbedFooter
                     {
@@ -483,11 +483,11 @@ namespace OSISDiscordAssistant.Utilities
 
                         await member.SendMessageAsync($"{Formatter.Bold("[VERIFICATION]")} Your verification request has been {Formatter.Bold("ACCEPTED")} by {e.User.Mention}! You may now access the internal channels of {e.Guild.Name} and begin your interaction! Additionally, you will want to receive your divisional roles at <#{SharedData.RolesChannelId}>.");
 
-                        var getEmbed = await e.Channel.GetMessageAsync(e.Message.Id);
+                        var getEmbed = e.Message;
 
                         DiscordEmbed updatedEmbed = null;
 
-                        foreach (var embed in getEmbed.Embeds)
+                        foreach (var embed in getEmbed.Embeds.ToList())
                         {
                             DiscordEmbedBuilder embedBuilder = new DiscordEmbedBuilder(embed)
                             {
@@ -518,7 +518,7 @@ namespace OSISDiscordAssistant.Utilities
 
                         DiscordEmbed updatedEmbed = null;
 
-                        foreach (var embed in getEmbed.Embeds)
+                        foreach (var embed in getEmbed.Embeds.ToList())
                         {
                             DiscordEmbedBuilder embedBuilder = new DiscordEmbedBuilder(embed)
                             {
@@ -702,6 +702,8 @@ namespace OSISDiscordAssistant.Utilities
             SharedData.ProposalChannelId = (ulong)configJson.ProposalChannelId;
 
             SharedData.VerificationRequestsProcessingChannelId = (ulong)configJson.VerificationRequestsProcessingChannelId;
+
+            SharedData.MaxPendingVerificationWaitingDay = (int)configJson.MaxPendingVerificationWaitingDay;
 
             SharedData.RolesChannelId = (ulong)configJson.RolesChannelId;
 

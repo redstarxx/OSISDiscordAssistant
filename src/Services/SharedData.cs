@@ -72,6 +72,11 @@ namespace OSISDiscordAssistant.Services
         public static ulong VerificationRequestsProcessingChannelId;
 
         /// <summary>
+        /// The number of days a verification request stays valid.
+        /// </summary>
+        public static int MaxPendingVerificationWaitingDay;
+
+        /// <summary>
         /// The channel ID of the channel containing the divisional roles dropdown button.
         /// </summary>
         public static ulong RolesChannelId;

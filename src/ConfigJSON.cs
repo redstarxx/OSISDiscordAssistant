@@ -47,6 +47,12 @@ namespace OSISDiscordAssistant
         public ulong? VerificationRequestsProcessingChannelId { get; private set; }
 
         /// <summary>
+        /// The number of days a verification request stays valid.
+        /// </summary>
+        [JsonProperty("MaxPendingVerificationWaitingDay")]
+        public int? MaxPendingVerificationWaitingDay { get; private set; }
+
+        /// <summary>
         /// The channel ID of the channel containing the divisional roles dropdown button.
         /// </summary>
         [JsonProperty("RolesChannelId")]

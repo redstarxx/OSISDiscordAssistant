@@ -557,8 +557,8 @@ namespace OSISDiscordAssistant.Services
                                     DateTimeOffset offset = (DateTimeOffset)embed.Timestamp;
                                     DateTime embedTimestamp = offset.DateTime;
 
-                                    if (embedTimestamp.Subtract(TimeSpan.FromSeconds(DateTime.Now.Second)).AddDays(2) == DateTime.Now.Subtract(TimeSpan.FromSeconds(DateTime.Now.Second)) ||
-                                    DateTime.Now.Subtract(TimeSpan.FromSeconds(DateTime.Now.Second)) > embedTimestamp.Subtract(TimeSpan.FromSeconds(DateTime.Now.Second)).AddDays(2))
+                                    if (embedTimestamp.Subtract(TimeSpan.FromSeconds(DateTime.Now.Second)).AddDays(SharedData.MaxPendingVerificationWaitingDay) == DateTime.Now.Subtract(TimeSpan.FromSeconds(DateTime.Now.Second)) ||
+                                    DateTime.Now.Subtract(TimeSpan.FromSeconds(DateTime.Now.Second)) > embedTimestamp.Subtract(TimeSpan.FromSeconds(DateTime.Now.Second)).AddDays(SharedData.MaxPendingVerificationWaitingDay))
                                     {
                                         counter++;
 
@@ -575,7 +575,7 @@ namespace OSISDiscordAssistant.Services
                                         await requestEmbed.ModifyAsync(x => x.WithEmbed(updatedEmbed));
 
                                         await Bot.Client.GetShard(SharedData.MainGuildId).GetGuildAsync(SharedData.MainGuildId).Result
-                                        .GetMemberAsync(row.UserId).Result.SendMessageAsync($"{Formatter.Bold("[VERIFICATION]")} I'm sorry, your verification request has expired (nobody responded to it within 48 hours). Feel free to try again or reach out to a member of Inti OSIS for assistance.");
+                                        .GetMemberAsync(row.UserId).Result.SendMessageAsync($"{Formatter.Bold("[VERIFICATION]")} I'm sorry, your verification request has expired (nobody responded to it within {SharedData.MaxPendingVerificationWaitingDay} ({SharedData.MaxPendingVerificationWaitingDay.ToWords()}) days). Feel free to try again or reach out to a member of Inti OSIS for assistance.");
 
                                         var request = db.Verifications.SingleOrDefault(x => x.VerificationEmbedId == row.VerificationEmbedId);
 
