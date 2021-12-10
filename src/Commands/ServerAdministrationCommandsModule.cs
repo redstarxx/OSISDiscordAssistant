@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using OSISDiscordAssistant.Attributes;
 using OSISDiscordAssistant.Utilities;
+using OSISDiscordAssistant.Services;
 
 namespace OSISDiscordAssistant.Commands
 {
@@ -253,6 +255,70 @@ namespace OSISDiscordAssistant.Commands
             }
 
             await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[PRUNED]")} Pruned {messageCount} messages by {ctx.Member.Mention}. Reason: {reason}.");
+        }
+
+        [RequireAdminRole]
+        [Command("lockdown")]
+        public async Task LockdownChannelAsync(CommandContext ctx)
+        {
+            IReadOnlyList<DiscordOverwrite> channelPermissionOverwrites = ctx.Channel.PermissionOverwrites;
+
+            foreach (DiscordOverwrite permissions in channelPermissionOverwrites)
+            {
+                if (ctx.Guild.Id == SharedData.MainGuildId)
+                {
+                    if (permissions.Id == SharedData.AccessRoleId)
+                    {
+                        if (permissions.Denied.HasPermission(Permissions.SendMessages))
+                        {
+                            await UnlockChannel(ctx, permissions);
+
+                            break;
+                        }
+
+                        else
+                        {
+                            await LockdownChannel(ctx, permissions);
+
+                            break;
+                        }
+                    }
+                }
+
+                else
+                {
+                    if (permissions.Id == ctx.Guild.EveryoneRole.Id)
+                    {
+                        if (permissions.Denied.HasPermission(Permissions.SendMessages))
+                        {
+                            await UnlockChannel(ctx, permissions);
+
+                            break;
+                        }
+
+                        else
+                        {
+                            await LockdownChannel(ctx, permissions);
+
+                            break;
+                        }
+                    }
+                }               
+            }
+        }
+
+        internal async Task LockdownChannel(CommandContext ctx, DiscordOverwrite permissions)
+        {
+            await permissions.UpdateAsync(Permissions.AccessChannels, Permissions.SendMessages, $"{ctx.User.Username}#{ctx.User.Discriminator} has locked down {ctx.Channel.Name}.");
+
+            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[LOCKDOWN]")} This channel has been locked down for the time being. It will be unlocked as soon as the situation has been resolved. {DiscordEmoji.FromName(ctx.Client, ":man_police_officer:")}");
+        }
+
+        internal async Task UnlockChannel(CommandContext ctx, DiscordOverwrite permissions)
+        {
+            await permissions.UpdateAsync(Permissions.AccessChannels | Permissions.SendMessages, Permissions.None, $"{ctx.User.Username}#{ctx.User.Discriminator} has unlocked {ctx.Channel.Name}.");
+
+            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[UNLOCKED]")} This channel has been unlocked as the situation has been resolved. Please abide by the rules as they are in place for a reason. {DiscordEmoji.FromName(ctx.Client, ":man_police_officer:")}");
         }
 
         // ----------------------------------------------------------

@@ -51,6 +51,7 @@ namespace OSISDiscordAssistant.Commands
                 $"{Formatter.Bold("mute")} - Mutes a member.\n" +
                 $"{Formatter.Bold("unmute")} - Unmutes a member.\n" +
                 $"{Formatter.Bold("prune")} - Prunes a channel from the specified message count to delete.\n" +
+                $"{Formatter.Bold("lockdown")} - Locks down or unlocks a text channel for moderation purposes.\n" +
                 $"{Formatter.Bold("announce")} - Sends an announcement message to a specified channel and role to mention.\n";
 
             string botAdminCommands = $"{Formatter.Bold("eval")} - Evaluates a snippet of C# code.\n" +
