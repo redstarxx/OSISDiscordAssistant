@@ -18,11 +18,13 @@ Once you have installed all of the requirements listed above, you need to set yo
 ### Step One: PostgreSQL
 You will need to log into your PostgreSQL server via `psql` utility.
 
-Proceed to create a new table: `CREATE TABLE events(id SERIAL PRIMARY KEY, event_name VARCHAR(50), person_in_charge VARCHAR(100), event_date VARCHAR(50), event_date_culture_info VARCHAR(10), event_description VARCHAR(255), proposal_reminded BOOLEAN NOT NULL, previously_reminded BOOLEAN NOT NULL, expired BOOLEAN NOT NULL);` This table will later be used for the Events Manager feature.
+Proceed to create a new table: `CREATE TABLE events(id SERIAL PRIMARY KEY, event_name VARCHAR(50), person_in_charge VARCHAR(100), event_date VARCHAR(50), event_date_culture_info VARCHAR(10), event_description VARCHAR(255), proposal_reminded BOOLEAN NOT NULL, previously_reminded BOOLEAN NOT NULL, expired BOOLEAN NOT NULL);` This table is to be used for the Events Manager feature (this includes the time to event reminder and the proposal submission reminder).
 
-Then create another new table: `CREATE TABLE counter (id SERIAL PRIMARY KEY, pollcounter SMALLINT, verifycounter SMALLINT);` Insert number 1 into the counter column: `INSERT INTO counter (pollcounter, verifycounter) VALUES(1, 1);` This table will later be used to store counter numbers.
+ `CREATE TABLE counter (id SERIAL PRIMARY KEY, pollcounter SMALLINT, verifycounter SMALLINT);` Insert number 1 into each  column: `INSERT INTO counter (pollcounter, verifycounter) VALUES(1, 1);` This table is to be used to store counter numbers.
 
-Finally, create a new table again: `CREATE TABLE tags (id SERIAL PRIMARY KEY, tag_name VARCHAR(50), tag_content VARCHAR(3000));` This table will later be used for the tags feature.
+ `CREATE TABLE tags (id SERIAL PRIMARY KEY, tag_name VARCHAR(50), tag_content VARCHAR(3000));` This table is to be used for the tags feature.
+
+`CREATE TABLE verification (id SERIAL PRIMARY KEY, user_id BIGINT, verification_embed_id BIGINT, requested_nickname VARCHAR(32))` This table is to be used for the main guild verification system.
 
 ### Step Two: Discord API
 **IF YOU HAVE YOUR BOT'S CONNECTION TOKEN ALREADY, SKIP THIS STEP.**
@@ -34,15 +36,28 @@ After that, press the Copy button under the token. Save the copied token as this
 ### Step Three: Configuration
 Create a new file named `config.json` in the bot's directory. Fill that file with the following format.
 
-`{
+```json
+{
     "Token": "",
-    "Prefix": "",
+    "Prefix": [""],
     "DbConnectionString": "",
     "MainGuildId": "",
     "EventChannelId": "",
     "ProposalChannelId": "",
-    "ErrorChannelId": ""
-}`
+    "VerificationRequestsProcessingChannelId": "",
+    "MaxPendingVerificationWaitingDay": "",
+    "RolesChannelId": "",
+    "ErrorChannelId": "",
+    "AccessRoleId": "",
+    "MainGuildRoles": [
+        {
+            "RoleId": "",
+            "RoleName": "",
+            "RoleEmoji": ""
+        }
+	]
+}
+```
 
 - For the `Token` property, add your bot's connection token between the quotation marks obtained from Step Two.
 - For the `Prefix` property, add your desired command prefix between the quotation marks.
@@ -50,12 +65,17 @@ Create a new file named `config.json` in the bot's directory. Fill that file wit
 - For the `MainGuildId` property, add the guild ID that you want the event and proposal submission reminders to be sent to.
 - For the `EventChannelId` property, add the channel ID that you want the event reminders to be sent to.
 - For the `ProposalChannelId` property, add the channel ID that you want the proposal submission reminders to be sent to.
+- For the `VerificationRequestsProcessingChannelId` property, add the ID of the channel to be set as the verification requests processing channel ID (where verification request embeds are sent to).
+- For the `MaxPendingVerificationWaitingDay` property, add the number of days which a pending verification is retained before being removed automatically by the verification cleanup task.
+- For the `RolesChannelId` property, add the ID of the channel to be used to point newly verified members to self-assign their divisional roles via the provided select menu.
 - For the `ErrorChannelId` property, add the channel ID that you want the error(s) related to event and proposal submissions reminders background task to be sent to.
+- For the `AccessRoleId` property, add the ID of the role that serves as the OSIS role in the main guild.
+- For the `MainGuildRoles` array, add the array of divisional roles as needed.
 
 Make sure you have saved your changes before proceeding.
 
 ### Step Four: Running Your Bot
-Once you have done all of the steps above, you are ready to run your bot!
+Once you have done all of the steps above, you are ready to run your bot! Ensure that `config.json` is in the same directory which the bot is located in.
 
 ### Self-Hosting
 Yes, this bot can be self-hosted. And as a matter of fact, this bot is self-hosted. However, I will not provide support. You are on your own.
