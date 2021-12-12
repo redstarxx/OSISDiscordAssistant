@@ -11,9 +11,9 @@
         YesOrNo,
 
         /// <summary>
-        /// Converts the bool value to 'Expired' if true or 'Active' if false.
+        /// Converts the bool value to 'Done' if true or 'Upcoming' if false.
         /// </summary>
-        ActiveOrDone,
+        UpcomingOrDone,
 
         /// <summary>
         /// Converts the bool value to 'Stored' if true or 'Not stored' if false.

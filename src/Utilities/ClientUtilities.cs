@@ -201,14 +201,14 @@ namespace OSISDiscordAssistant.Utilities
         /// <returns>A string based on the choosen ConvertBoolOption enum.</returns>
         public static string ConvertBoolValue(bool boolValue, ConvertBoolOption convertOption)
         {
-            if (convertOption is ConvertBoolOption.ActiveOrDone)
+            if (convertOption is ConvertBoolOption.UpcomingOrDone)
             {
                 switch (boolValue)
                 {
                     case true:
                         return "Done.";
                     case false:
-                        return "Active.";
+                        return "Upcoming.";
                 }
             }
 
