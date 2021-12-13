@@ -299,10 +299,7 @@ namespace OSISDiscordAssistant.Commands
 
                                 else
                                 {
-                                    bool isProposalEmpty = events.ProposalFileTitle is null ? false : true;
-
-                                    string descriptionField = $"Status: {ClientUtilities.ConvertBoolValue(events.Expired, ConvertBoolOption.UpcomingOrDone)}\nPerson-in-charge: {events.PersonInCharge}\nProposal: {ClientUtilities.ConvertBoolValue(isProposalEmpty, ConvertBoolOption.StoredOrNotStored)}\nDescription: {events.EventDescription}";
-                                    embedBuilder.AddField($"(ID: {events.Id}) {events.EventName} [{events.EventDate}]", descriptionField, true);
+                                    embedBuilder.AddField($"(ID: {events.Id}) {events.EventName} [{events.EventDate}]", ComposeEventDescriptionField(events, eventDate), true);
 
                                     counter++;
                                 }
@@ -1014,10 +1011,9 @@ namespace OSISDiscordAssistant.Commands
 
                                     else
                                     {
-                                        bool isProposalEmpty = events.ProposalFileTitle is null ? false : true;
+                                        DateTime eventDate = DateTime.Parse(events.EventDate, new CultureInfo(events.EventDateCultureInfo));
 
-                                        string descriptionField = $"Status: {ClientUtilities.ConvertBoolValue(events.Expired, ConvertBoolOption.UpcomingOrDone)}\nPerson-in-charge: {events.PersonInCharge}\nProposal: {ClientUtilities.ConvertBoolValue(isProposalEmpty, ConvertBoolOption.StoredOrNotStored)}\nDescription: {events.EventDescription}";
-                                        embedBuilder.AddField($"(ID: {events.Id}) {events.EventName} [{events.EventDate}]", descriptionField, true);
+                                        embedBuilder.AddField($"(ID: {events.Id}) {events.EventName} [{events.EventDate}]", ComposeEventDescriptionField(events, eventDate), true);
 
                                         counter++;
                                     }
@@ -1103,10 +1099,9 @@ namespace OSISDiscordAssistant.Commands
 
                             embedBuilder.Description = $"Showing result for event ID {Formatter.InlineCode(rowID.ToString())}...";
 
-                            bool isProposalEmpty = rowToRead.ProposalFileTitle is null ? false : true;
+                            DateTime eventDate = DateTime.Parse(rowToRead.EventDate, new CultureInfo(rowToRead.EventDateCultureInfo));
 
-                            string descriptionField = $"Status: {ClientUtilities.ConvertBoolValue(rowToRead.Expired, ConvertBoolOption.UpcomingOrDone)}\nPerson-in-charge: {rowToRead.PersonInCharge}\nProposal: {ClientUtilities.ConvertBoolValue(isProposalEmpty, ConvertBoolOption.StoredOrNotStored)}\nDescription: {rowToRead.EventDescription}";
-                            embedBuilder.AddField($"(ID: {rowToRead.Id}) {rowToRead.EventName} [{rowToRead.EventDate}]", descriptionField, true);
+                            embedBuilder.AddField($"(ID: {rowToRead.Id}) {rowToRead.EventName} [{rowToRead.EventDate}]", ComposeEventDescriptionField(rowToRead, eventDate), true);
 
                             await ctx.Channel.SendMessageAsync(embed: embedBuilder).ConfigureAwait(false);
                         }
@@ -1135,10 +1130,9 @@ namespace OSISDiscordAssistant.Commands
                             {
                                 if (events.EventName.ToLowerInvariant() == toSearch)
                                 {
-                                    bool isProposalEmpty = events.ProposalFileTitle is null ? false : true;
+                                    DateTime eventDate = DateTime.Parse(events.EventDate, new CultureInfo(events.EventDateCultureInfo));
 
-                                    string descriptionField = $"Status: {ClientUtilities.ConvertBoolValue(events.Expired, ConvertBoolOption.UpcomingOrDone)}\nPerson-in-charge: {events.PersonInCharge}\nProposal: {ClientUtilities.ConvertBoolValue(isProposalEmpty, ConvertBoolOption.StoredOrNotStored)}\nDescription: {events.EventDescription}";
-                                    embedBuilder.AddField($"(ID: {events.Id}) {events.EventName} [{events.EventDate}]", descriptionField, true);
+                                    embedBuilder.AddField($"(ID: {events.Id}) {events.EventName} [{events.EventDate}]", ComposeEventDescriptionField(events, eventDate), true);
 
                                     eventFound = true;
 
@@ -1472,11 +1466,8 @@ namespace OSISDiscordAssistant.Commands
                                 }
 
                                 else
-                                {
-                                    bool isProposalEmpty = events.ProposalFileTitle is null ? false : true;
-
-                                    string descriptionField = $"Status: {ClientUtilities.ConvertBoolValue(events.Expired, ConvertBoolOption.UpcomingOrDone)}\nPerson-in-charge: {events.PersonInCharge}\nProposal: {ClientUtilities.ConvertBoolValue(isProposalEmpty, ConvertBoolOption.StoredOrNotStored)}\nDescription: {events.EventDescription}";
-                                    embedBuilder.AddField($"(ID: {events.Id}) {events.EventName} [{events.EventDate}]", descriptionField, true);
+                                {                                  
+                                    embedBuilder.AddField($"(ID: {events.Id}) {events.EventName} [{events.EventDate}]", ComposeEventDescriptionField(events, eventDate), true);
 
                                     counter++;
                                 }
@@ -1504,6 +1495,27 @@ namespace OSISDiscordAssistant.Commands
             else
             {
                 await SendHelpEmoji(ctx, operationSelection);
+            }
+        }
+
+        /// <summary>
+        /// Composes the embed field's value for the respective event.
+        /// </summary>
+        /// <returns>A string containing the details of the respective event.</returns>
+        internal string ComposeEventDescriptionField(Events events, DateTime eventDate)
+        {
+            bool isProposalEmpty = events.ProposalFileTitle is null ? false : true;
+
+            if (DateTime.Now < eventDate)
+            {
+                TimeSpan remainingDateTime = eventDate - DateTime.Now;
+
+                return $"Status: {ClientUtilities.ConvertBoolValue(events.Expired, ConvertBoolOption.UpcomingOrDone)} ({Formatter.Timestamp(remainingDateTime, TimestampFormat.RelativeTime)})\nPerson-in-charge: {events.PersonInCharge}\nProposal: {ClientUtilities.ConvertBoolValue(isProposalEmpty, ConvertBoolOption.StoredOrNotStored)}\nDescription: {events.EventDescription}";
+            }
+
+            else
+            {
+                return $"Status: {ClientUtilities.ConvertBoolValue(events.Expired, ConvertBoolOption.UpcomingOrDone)}\nPerson-in-charge: {events.PersonInCharge}\nProposal: {ClientUtilities.ConvertBoolValue(isProposalEmpty, ConvertBoolOption.StoredOrNotStored)}\nDescription: {events.EventDescription}";
             }
         }
 
