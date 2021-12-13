@@ -48,7 +48,7 @@ namespace OSISDiscordAssistant.Commands
                 }
             }
 
-            await ctx.Channel.SendMessageAsync(toSend.ToString()).ConfigureAwait(false);
+            await ctx.Channel.SendMessageAsync(toSend.ToString());
         }
 
         /// <summary>
@@ -100,7 +100,7 @@ namespace OSISDiscordAssistant.Commands
                 }
             }
 
-            await ctx.Channel.SendMessageAsync(tagContent.ToString()).ConfigureAwait(false);
+            await ctx.Channel.SendMessageAsync(tagContent.ToString());
         }
 
         /// <summary>
@@ -125,7 +125,7 @@ namespace OSISDiscordAssistant.Commands
                         if (isExist)
                         {
                             string toSend = $"The tag {Formatter.InlineCode(tagName)} already exists!";
-                            await ctx.RespondAsync(toSend).ConfigureAwait(false);
+                            await ctx.RespondAsync(toSend);
 
                             return;
                         }
@@ -133,7 +133,7 @@ namespace OSISDiscordAssistant.Commands
                         if (tagContentToWrite.Length == 0)
                         {
                             string toSend = $"{Formatter.Bold("[ERROR]")} Tag content cannot be left empty!";
-                            await ctx.RespondAsync(toSend).ConfigureAwait(false);
+                            await ctx.RespondAsync(toSend);
 
                             return;
                         }
@@ -148,7 +148,7 @@ namespace OSISDiscordAssistant.Commands
 
                         var thumbsUpEmoji = DiscordEmoji.FromName(ctx.Client, ":thumbsup:");
 
-                        await ctx.RespondAsync(thumbsUpEmoji).ConfigureAwait(false);
+                        await ctx.RespondAsync(thumbsUpEmoji);
                     }
                 }
 
@@ -161,7 +161,7 @@ namespace OSISDiscordAssistant.Commands
                         if (tagContentToWrite.Length == 0)
                         {
                             string toSend = $"{Formatter.Bold("[ERROR]")} Tag content cannot be left empty!";
-                            await ctx.RespondAsync(toSend).ConfigureAwait(false);
+                            await ctx.RespondAsync(toSend);
 
                             return;
                         }
@@ -175,7 +175,7 @@ namespace OSISDiscordAssistant.Commands
 
                         var thumbsUpEmoji = DiscordEmoji.FromName(ctx.Client, ":thumbsup:");
 
-                        await ctx.RespondAsync(thumbsUpEmoji).ConfigureAwait(false);
+                        await ctx.RespondAsync(thumbsUpEmoji);
                     }
                 }
 
@@ -192,7 +192,7 @@ namespace OSISDiscordAssistant.Commands
 
                         var thumbsUpEmoji = DiscordEmoji.FromName(ctx.Client, ":thumbsup:");
 
-                        await ctx.RespondAsync(thumbsUpEmoji).ConfigureAwait(false);
+                        await ctx.RespondAsync(thumbsUpEmoji);
                     }
                 }
 
@@ -201,9 +201,9 @@ namespace OSISDiscordAssistant.Commands
                     var helpEmoji = DiscordEmoji.FromName(ctx.Client, ":sos:");
                     string toSend = $"{Formatter.Bold("[ERROR]")} The parameter {Formatter.InlineCode(operationSelection)} is invalid. Type {Formatter.InlineCode("!tag")} to list all options. Alternatively, click the emoji below to get help.";
 
-                    var errorMessage = await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
+                    var errorMessage = await ctx.Channel.SendMessageAsync(toSend);
 
-                    await errorMessage.CreateReactionAsync(helpEmoji).ConfigureAwait(false);
+                    await errorMessage.CreateReactionAsync(helpEmoji);
 
                     var interactivity = ctx.Client.GetInteractivity();
 
@@ -214,7 +214,7 @@ namespace OSISDiscordAssistant.Commands
                     {
                         string helpMessage = $"{Formatter.Bold("[SYNTAX]")} !tag [CREATE/UPDATE/EDIT/DELETE] [TAGNAME] [TAGCONTENT]";
 
-                        await ctx.Channel.SendMessageAsync(helpMessage).ConfigureAwait(false);
+                        await ctx.Channel.SendMessageAsync(helpMessage);
                     }
                 }
             }
@@ -222,7 +222,7 @@ namespace OSISDiscordAssistant.Commands
             catch (Exception ex)
             {
                 string toSend = $"{Formatter.Bold("[ERROR]")} An error occurred. Did you tried to delete a nonexistent tag?\nError details: {Formatter.InlineCode($"{ex.Message.GetType()}: {ex.Message}")}";
-                await ctx.RespondAsync(toSend).ConfigureAwait(false);
+                await ctx.RespondAsync(toSend);
             }
         }
 
@@ -235,7 +235,7 @@ namespace OSISDiscordAssistant.Commands
         {
             string toSend = $"{Formatter.Bold("[SYNTAX]")} !tag [CREATE/UPDATE/EDIT/DELETE] [TAGNAME] [TAGCONTENT]";
 
-            await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
+            await ctx.Channel.SendMessageAsync(toSend);
         }
     }
 }

@@ -94,7 +94,7 @@ namespace OSISDiscordAssistant.Commands
                 + startTime.ToShortDateString() + " " + startTime.ToShortTimeString() + ")"
                 , runtimeOutput.Days, runtimeOutput.Hours, runtimeOutput.Minutes, runtimeOutput.Seconds);
 
-            await ctx.Channel.SendMessageAsync(formatResult).ConfigureAwait(false);
+            await ctx.Channel.SendMessageAsync(formatResult);
         }
 
         [Command("ping")]
@@ -110,15 +110,15 @@ namespace OSISDiscordAssistant.Commands
             DiscordMember memberProfilePicture = member ?? ctx.Member;
 
             var profileImageLink = memberProfilePicture.GetAvatarUrl(ImageFormat.Png);
-            await ctx.Channel.SendMessageAsync(profileImageLink).ConfigureAwait(false);
+            await ctx.Channel.SendMessageAsync(profileImageLink);
         }
 
         [Command("slap")]
         public async Task SlapAsync(CommandContext ctx, DiscordMember member)
         {
-            await ctx.Channel.SendMessageAsync("https://tenor.com/view/nope-stupid-slap-in-the-face-phone-gif-15151334").ConfigureAwait(false);
+            await ctx.Channel.SendMessageAsync("https://tenor.com/view/nope-stupid-slap-in-the-face-phone-gif-15151334");
 
-            await ctx.Channel.SendMessageAsync($"{member.Mention} has been slapped by {ctx.Member.Mention}!").ConfigureAwait(false);
+            await ctx.Channel.SendMessageAsync($"{member.Mention} has been slapped by {ctx.Member.Mention}!");
         }
 
         [Command("flip")]
@@ -265,7 +265,7 @@ namespace OSISDiscordAssistant.Commands
             embedBuilder.AddField("Server Username", ctx.Member.DisplayName, true);
             embedBuilder.AddField(roleHeader, roleList, true);
 
-            await ctx.Channel.SendMessageAsync(embed: embedBuilder).ConfigureAwait(false);
+            await ctx.Channel.SendMessageAsync(embed: embedBuilder);
         }
 
         [Command("prefix")]

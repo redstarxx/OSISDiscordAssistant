@@ -38,7 +38,7 @@ namespace OSISDiscordAssistant.Commands
             if (remindMessage.Length == 0)
             {
                 string toSend = $"{Formatter.Bold("[ERROR]")} You cannot remind someone with an empty message. Type {Formatter.InlineCode("!remind")} to get help. Alternatively, click the emoji below to get help.";
-                var errorMessage = await ctx.RespondAsync(toSend).ConfigureAwait(false);
+                var errorMessage = await ctx.RespondAsync(toSend);
 
                 await SendHelpEmoji(ctx, errorMessage);
 
@@ -77,7 +77,7 @@ namespace OSISDiscordAssistant.Commands
                     else
                     {
                         string toSend = $"{Formatter.Bold("[ERROR]")} Looks like an invalid reminder target! Type {Formatter.InlineCode("!remind")} to get help. Alternatively, click the emoji below to get help.";
-                        var errorMessage = await ctx.RespondAsync(toSend).ConfigureAwait(false);
+                        var errorMessage = await ctx.RespondAsync(toSend);
 
                         await SendHelpEmoji(ctx, errorMessage);
 
@@ -119,7 +119,7 @@ namespace OSISDiscordAssistant.Commands
                             string errorMessage =
                                 "**[ERROR]** An error occured while parsing your date. Acceptable date formats are " +
                                 "`DD/MM/YYYY`, `MM/DD/YYYY` or `DD/MMM/YYYY`. \nExample: 25/06/2019, 06/25/2019, 25/JUN/2019.";
-                            await ctx.RespondAsync(errorMessage).ConfigureAwait(false);
+                            await ctx.RespondAsync(errorMessage);
 
                             return;
                         }
@@ -132,7 +132,7 @@ namespace OSISDiscordAssistant.Commands
                 if (remainingTime.TotalSeconds < 30)
                 {
                     string errorMessage = "**[ERROR]** Minimum allowed time span is 30 seconds.";
-                    await ctx.RespondAsync(errorMessage).ConfigureAwait(false);
+                    await ctx.RespondAsync(errorMessage);
 
                     return;
                 }
@@ -142,14 +142,14 @@ namespace OSISDiscordAssistant.Commands
                     if (remainingTime.Days > 365)
                     {
                         string errorMessage = "**[ERROR]** Maximum allowed time span is one year.";
-                        await ctx.RespondAsync(errorMessage).ConfigureAwait(false);
+                        await ctx.RespondAsync(errorMessage);
 
                         return;
                     }
 
                     ClientUtilities.CreateReminderTask(remainingTime, targetChannel, remindMessage, ctx, remindTarget);
 
-                    await ctx.Channel.SendMessageAsync(ClientUtilities.CreateReminderReceiptMessage(remainingTime, remindMessage, displayTarget)).ConfigureAwait(false);                 
+                    await ctx.Channel.SendMessageAsync(ClientUtilities.CreateReminderReceiptMessage(remainingTime, remindMessage, displayTarget));                 
                 }
             }
 
@@ -166,7 +166,7 @@ namespace OSISDiscordAssistant.Commands
 
                 ClientUtilities.CreateReminderTask(remainingTime, targetChannel, remindMessage, ctx, remindTarget);
 
-                await ctx.Channel.SendMessageAsync(ClientUtilities.CreateReminderReceiptMessage(remainingTime, remindMessage, displayTarget)).ConfigureAwait(false);
+                await ctx.Channel.SendMessageAsync(ClientUtilities.CreateReminderReceiptMessage(remainingTime, remindMessage, displayTarget));
             }
 
             else
@@ -181,7 +181,7 @@ namespace OSISDiscordAssistant.Commands
                     if (remainingTime.TotalSeconds < 30)
                     {
                         string errorMessage = "**[ERROR]** Minimum allowed time span is 30 seconds.";
-                        await ctx.RespondAsync(errorMessage).ConfigureAwait(false);
+                        await ctx.RespondAsync(errorMessage);
 
                         return;
                     }
@@ -191,20 +191,20 @@ namespace OSISDiscordAssistant.Commands
                         if (remainingTime.Days > 365)
                         {
                             string errorMessage = "**[ERROR]** Maximum allowed time span is one year.";
-                            await ctx.RespondAsync(errorMessage).ConfigureAwait(false);
+                            await ctx.RespondAsync(errorMessage);
 
                             return;
                         }
 
                         ClientUtilities.CreateReminderTask(remainingTime, targetChannel, remindMessage, ctx, remindTarget);
 
-                        await ctx.Channel.SendMessageAsync(ClientUtilities.CreateReminderReceiptMessage(remainingTime, remindMessage, displayTarget)).ConfigureAwait(false);                        
+                        await ctx.Channel.SendMessageAsync(ClientUtilities.CreateReminderReceiptMessage(remainingTime, remindMessage, displayTarget));                        
                     }
                 }
 
                 catch
                 {
-                    var errorMessage = await ctx.RespondAsync($"{Formatter.Bold("[ERROR]")} An error occured. Have you tried to use the command correctly? Type {Formatter.InlineCode("!remind")} to get help. Alternatively, click the emoji below to get help.").ConfigureAwait(false);
+                    var errorMessage = await ctx.RespondAsync($"{Formatter.Bold("[ERROR]")} An error occured. Have you tried to use the command correctly? Type {Formatter.InlineCode("!remind")} to get help. Alternatively, click the emoji below to get help.");
 
                     await SendHelpEmoji(ctx, errorMessage);
                 }
@@ -230,7 +230,7 @@ namespace OSISDiscordAssistant.Commands
         {
             var helpEmoji = DiscordEmoji.FromName(ctx.Client, ":sos:");
 
-            await errorMessage.CreateReactionAsync(helpEmoji).ConfigureAwait(false);
+            await errorMessage.CreateReactionAsync(helpEmoji);
 
             var interactivity = ctx.Client.GetInteractivity();
 

@@ -21,7 +21,7 @@ namespace OSISDiscordAssistant.Commands
             // Checks whether the invoker is muting themself.
             if (member.Id == ctx.Member.Id)
             {
-                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} You cannot mute yourself.").ConfigureAwait(false);
+                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} You cannot mute yourself.");
 
                 return;
             }
@@ -29,7 +29,7 @@ namespace OSISDiscordAssistant.Commands
             // Checks whether the command is executed with a reason.
             if (muteReason is null)
             {
-                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} You must specify a reason.").ConfigureAwait(false);
+                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} You must specify a reason.");
 
                 return;
             }
@@ -67,7 +67,7 @@ namespace OSISDiscordAssistant.Commands
 
             await member.GrantRoleAsync(ctx.Guild.GetRole(mutedRoleId));
 
-            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[MUTED]")} {member.Mention} has been muted by {ctx.Member.Mention}. Reason: {muteReason}").ConfigureAwait(false);
+            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[MUTED]")} {member.Mention} has been muted by {ctx.Member.Mention}. Reason: {muteReason}");
         }
 
         [RequireAdminRole]
@@ -77,7 +77,7 @@ namespace OSISDiscordAssistant.Commands
             // Checks whether the invoker is unmuting themself.
             if (member.Id == ctx.Member.Id)
             {
-                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} You cannot unmute yourself.").ConfigureAwait(false);
+                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} You cannot unmute yourself.");
 
                 return;
             }
@@ -85,7 +85,7 @@ namespace OSISDiscordAssistant.Commands
             var mutedRole = ctx.Guild.Roles.SingleOrDefault(x => x.Value.Name == "Muted").Value.Id;
             await member.RevokeRoleAsync(ctx.Guild.GetRole(mutedRole));
 
-            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[UNMUTED]")} {member.Mention} has been unmuted by {ctx.Member.Mention}.").ConfigureAwait(false);
+            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[UNMUTED]")} {member.Mention} has been unmuted by {ctx.Member.Mention}.");
         }
 
         [RequireAdminRole]
@@ -103,7 +103,7 @@ namespace OSISDiscordAssistant.Commands
             // Checks whether the command is executed with a reason.
             if (kickReason is null)
             {
-                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} You must specify a reason.").ConfigureAwait(false);
+                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} You must specify a reason.");
 
                 return;
             }
@@ -112,12 +112,12 @@ namespace OSISDiscordAssistant.Commands
             {
                 await member.RemoveAsync(kickReason);
 
-                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[KICKED]")} {member.Mention} has been kicked from this server by {ctx.Member.Mention}. Reason: {kickReason}").ConfigureAwait(false);
+                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[KICKED]")} {member.Mention} has been kicked from this server by {ctx.Member.Mention}. Reason: {kickReason}");
             }
 
             catch
             {
-                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} An error occured. The member may not be in this server.").ConfigureAwait(false);
+                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} An error occured. The member may not be in this server.");
             }
         }
 
@@ -131,7 +131,7 @@ namespace OSISDiscordAssistant.Commands
 
                 if (!isAdmin)
                 {
-                    await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} If you are not an administrator, you cannot rename someone else's nickname!").ConfigureAwait(false);
+                    await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} If you are not an administrator, you cannot rename someone else's nickname!");
 
                     return;
                 }
@@ -140,7 +140,7 @@ namespace OSISDiscordAssistant.Commands
             // Checks whether the command is executed with a reason.
             if (newNickname is null)
             {
-                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} You must specify a new name.").ConfigureAwait(false);
+                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} You must specify a new name.");
 
                 return;
             }
@@ -150,12 +150,12 @@ namespace OSISDiscordAssistant.Commands
                 string previousNickname = member.DisplayName;
                 await member.ModifyAsync(x => x.Nickname = newNickname);
 
-                await ctx.Channel.SendMessageAsync($"{member.Mention} {previousNickname}'s server username has been changed to {newNickname} by {ctx.Member.Mention}.").ConfigureAwait(false);
+                await ctx.Channel.SendMessageAsync($"{member.Mention} {previousNickname}'s server username has been changed to {newNickname} by {ctx.Member.Mention}.");
             }
 
             catch
             {
-                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} An error occured. The member may not be in this server.").ConfigureAwait(false);
+                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} An error occured. The member may not be in this server.");
             }
         }
 
@@ -331,7 +331,7 @@ namespace OSISDiscordAssistant.Commands
         {
             string toSend =
                 "**[SYNTAX]** !mute [USERMENTION] [REASON]";
-            await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
+            await ctx.Channel.SendMessageAsync(toSend);
         }
 
         [RequireAdminRole]
@@ -340,7 +340,7 @@ namespace OSISDiscordAssistant.Commands
         {
             string toSend =
                 "**[SYNTAX]** !unmute [USERMENTION]";
-            await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
+            await ctx.Channel.SendMessageAsync(toSend);
         }
 
         [RequireAdminRole]
@@ -349,7 +349,7 @@ namespace OSISDiscordAssistant.Commands
         {
             string toSend =
                 "**[SYNTAX]** !kick [USERMENTION] [REASON]";
-            await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
+            await ctx.Channel.SendMessageAsync(toSend);
         }
 
         [RequireAdminRole]
@@ -357,7 +357,7 @@ namespace OSISDiscordAssistant.Commands
         public async Task BanHelpAsync(CommandContext ctx)
         {
             string toSend = "**[SYNTAX]** !ban [USERMENTION] [REASON]";
-            await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
+            await ctx.Channel.SendMessageAsync(toSend);
         }
 
         [RequireAdminRole]
@@ -365,7 +365,7 @@ namespace OSISDiscordAssistant.Commands
         public async Task UnbanHelpAsync(CommandContext ctx)
         {
             string toSend = "**[SYNTAX]** !unban [USERID] [REASON (optional)]";
-            await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
+            await ctx.Channel.SendMessageAsync(toSend);
         }
 
         [RequireAdminRole]
@@ -373,7 +373,7 @@ namespace OSISDiscordAssistant.Commands
         public async Task SetNameAsync(CommandContext ctx)
         {
             string toSend = "**[SYNTAX]** !setname [USERMENTION] [NEWNICKNAME]";
-            await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
+            await ctx.Channel.SendMessageAsync(toSend);
         }
 
         [RequireAdminRole]

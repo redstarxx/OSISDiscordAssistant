@@ -165,7 +165,7 @@ namespace OSISDiscordAssistant
                    {
                        string toSend = $"{Formatter.Bold("[ERROR]")} Sorry, you can only execute commands in a guild that the bot is a part of!";
 
-                       await e.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
+                       await e.Channel.SendMessageAsync(toSend);
                    }
                }
            });

@@ -65,7 +65,7 @@ namespace OSISDiscordAssistant.Commands
             embedBuilder.AddField("Bot Administration Commands", botAdminCommands, false);
             embedBuilder.Color = DiscordColor.MidnightBlue;
 
-            await ctx.Channel.SendMessageAsync(embed: embedBuilder).ConfigureAwait(false);
+            await ctx.Channel.SendMessageAsync(embed: embedBuilder);
         }
     }
 }

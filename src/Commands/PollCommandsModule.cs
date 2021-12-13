@@ -49,7 +49,7 @@ namespace OSISDiscordAssistant.Commands
                 }
             };
 
-            var pollEmbed = await ctx.Channel.SendMessageAsync(embed: pollEmbedBuilder).ConfigureAwait(false);
+            var pollEmbed = await ctx.Channel.SendMessageAsync(embed: pollEmbedBuilder);
 
             Thread.Sleep(TimeSpan.FromSeconds(1));
 
@@ -113,7 +113,7 @@ namespace OSISDiscordAssistant.Commands
                     $"{string.Join("\n", resultEmojis)}";
             }
 
-            await ctx.RespondAsync(embed: pollResultEmbedBuilder).ConfigureAwait(false);
+            await ctx.RespondAsync(embed: pollResultEmbedBuilder);
         }
 
         [Command("poll")]

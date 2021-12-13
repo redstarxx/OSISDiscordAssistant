@@ -40,7 +40,7 @@ namespace OSISDiscordAssistant.Commands
                 string eventDateCultureInfo = null;
                 string eventDescription = null;
 
-                await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention}, enter your event name. You have one minute.").ConfigureAwait(false);
+                await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention}, enter your event name. You have one minute.");
                 var interactivityModule = ctx.Client.GetInteractivity();
                 var eventNameResult = await interactivityModule.WaitForMessageAsync
                     (x => x.Author.Id == ctx.User.Id && (x.Channel.Id == ctx.Channel.Id), TimeSpan.FromMinutes(1));
@@ -66,7 +66,7 @@ namespace OSISDiscordAssistant.Commands
                         {
                             string toSend = $"{Formatter.Bold("[ERROR]")} The event {Formatter.InlineCode(eventNameResult.Result.Content)} already exists! Try again with a different name.";
 
-                            await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
+                            await ctx.Channel.SendMessageAsync(toSend);
                             
                             return;
                         }
@@ -76,11 +76,11 @@ namespace OSISDiscordAssistant.Commands
 
                     if (eventName.Length > 50)
                     {
-                        await ctx.Channel.SendMessageAsync("**[ERROR]** Maximum character limit of 50 characters exceeded. You must re-run the command to finish.").ConfigureAwait(false);
+                        await ctx.Channel.SendMessageAsync("**[ERROR]** Maximum character limit of 50 characters exceeded. You must re-run the command to finish.");
                         return;
                     }
 
-                    await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention}, tag the person-in-charge (ketua / wakil ketua acara) for {Formatter.Bold(eventNameResult.Result.Content)}. You have one minute.").ConfigureAwait(false);
+                    await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention}, tag the person-in-charge (ketua / wakil ketua acara) for {Formatter.Bold(eventNameResult.Result.Content)}. You have one minute.");
                     var personInChargeResult = await interactivityModule.WaitForMessageAsync
                         (x => x.Author.Id == ctx.User.Id && x.Channel.Id == ctx.Channel.Id, TimeSpan.FromMinutes(1));
 
@@ -89,11 +89,11 @@ namespace OSISDiscordAssistant.Commands
                         personInCharge = personInChargeResult.Result.Content;
                         if (eventName.Length > 100)
                         {
-                            await ctx.Channel.SendMessageAsync("**[ERROR]** Maximum character limit of 100 characters exceeded. You must re-run the command to finish.").ConfigureAwait(false);
+                            await ctx.Channel.SendMessageAsync("**[ERROR]** Maximum character limit of 100 characters exceeded. You must re-run the command to finish.");
                             return;
                         }
 
-                        await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention}, enter your event date for {Formatter.Bold(eventNameResult.Result.Content)}. You have one minute.").ConfigureAwait(false);
+                        await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention}, enter your event date for {Formatter.Bold(eventNameResult.Result.Content)}. You have one minute.");
                         var eventDateResult = await interactivityModule.WaitForMessageAsync
                             (x => x.Author.Id == ctx.User.Id && x.Channel.Id == ctx.Channel.Id, TimeSpan.FromMinutes(1));
 
@@ -102,7 +102,7 @@ namespace OSISDiscordAssistant.Commands
                             eventDate = eventDateResult.Result.Content;
                             if (eventDate.Length > 50)
                             {
-                                await ctx.Channel.SendMessageAsync("**[ERROR]** Maximum character limit of 50 characters exceeded. You must re-run the command to finish.").ConfigureAwait(false);
+                                await ctx.Channel.SendMessageAsync("**[ERROR]** Maximum character limit of 50 characters exceeded. You must re-run the command to finish.");
                                 return;
                             }
 
@@ -115,7 +115,7 @@ namespace OSISDiscordAssistant.Commands
                                 ulong eventDateMessageId = eventDateResult.Result.Id;
                                 var toReply = await eventDateResult.Result.Channel.GetMessageAsync(eventDateMessageId);
 
-                                await toReply.RespondAsync($"{Formatter.Bold("[ERROR]")} Oops! It looks like you did not include the year of the event. Please add it! (example: 25 Juni 2021).").ConfigureAwait(false);
+                                await toReply.RespondAsync($"{Formatter.Bold("[ERROR]")} Oops! It looks like you did not include the year of the event. Please add it! (example: 25 Juni 2021).");
 
                                 return;
                             }
@@ -136,7 +136,7 @@ namespace OSISDiscordAssistant.Commands
                                 if (calculateTimeSpan.TotalDays > 365)
                                 {
                                     string errorMessage = "**[ERROR]** Maximum allowed time span is one year (365 days). Alternatively, include the year of the event as well if you have not.";
-                                    await ctx.RespondAsync(errorMessage).ConfigureAwait(false);
+                                    await ctx.RespondAsync(errorMessage);
 
                                     return;
                                 }
@@ -144,7 +144,7 @@ namespace OSISDiscordAssistant.Commands
                                 if (calculateTimeSpan.Days < 1)
                                 {
                                     string errorMessage = "**[ERROR]** Minimum allowed date is one day before the event. Alternatively, include the year of the event as well if you have not.";
-                                    await ctx.Channel.SendMessageAsync(errorMessage).ConfigureAwait(false);
+                                    await ctx.Channel.SendMessageAsync(errorMessage);
 
                                     return;
                                 }
@@ -169,7 +169,7 @@ namespace OSISDiscordAssistant.Commands
                                     if (calculateTimeSpan.TotalDays > 365)
                                     {
                                         string errorMessage = "**[ERROR]** Maximum allowed time span is one year (365 days). Alternatively, include the year of the event as well if you have not.";
-                                        await ctx.RespondAsync(errorMessage).ConfigureAwait(false);
+                                        await ctx.RespondAsync(errorMessage);
 
                                         return;
                                     }
@@ -177,7 +177,7 @@ namespace OSISDiscordAssistant.Commands
                                     if (calculateTimeSpan.Days < 1)
                                     {
                                         string errorMessage = "**[ERROR]** Minimum allowed date is one day before the event. Alternatively, include the year of the event as well if you have not.";
-                                        await ctx.Channel.SendMessageAsync(errorMessage).ConfigureAwait(false);
+                                        await ctx.Channel.SendMessageAsync(errorMessage);
 
                                         return;
                                     }
@@ -190,13 +190,13 @@ namespace OSISDiscordAssistant.Commands
                                 {
                                     // Notify the user that the provided event date cannot be parsed.
                                     string errorMessage = $"{Formatter.Bold("[ERROR]")} An error occured. Your event date cannot be parsed. Make sure your date and time is written in English or Indonesian. Example: 25 June 2021.";
-                                    await ctx.Channel.SendMessageAsync(errorMessage).ConfigureAwait(false);
+                                    await ctx.Channel.SendMessageAsync(errorMessage);
 
                                     return;
                                 }
                             }
 
-                            await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention}, enter your event description for {Formatter.Bold(eventNameResult.Result.Content)}. You have one minute.").ConfigureAwait(false);
+                            await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention}, enter your event description for {Formatter.Bold(eventNameResult.Result.Content)}. You have one minute.");
                             var eventDescriptionResult = await interactivityModule.WaitForMessageAsync
                                 (x => x.Author.Id == ctx.User.Id && x.Channel.Id == ctx.Channel.Id, TimeSpan.FromMinutes(1));
 
@@ -205,21 +205,21 @@ namespace OSISDiscordAssistant.Commands
                                 eventDescription = eventDescriptionResult.Result.Content;
                                 if (eventDescription.Length > 255)
                                 {
-                                    await ctx.Channel.SendMessageAsync("**[ERROR]** Maximum character limit of 255 characters exceeded. You must re-run the command to finish.").ConfigureAwait(false);
+                                    await ctx.Channel.SendMessageAsync("**[ERROR]** Maximum character limit of 255 characters exceeded. You must re-run the command to finish.");
                                     return;
                                 }
                             }
 
                             else
                             {
-                                await ctx.Channel.SendMessageAsync("**[TIMED OUT]** Event description not entered within given time span. Re-run the command if you still need to create your event.").ConfigureAwait(false);
+                                await ctx.Channel.SendMessageAsync("**[TIMED OUT]** Event description not entered within given time span. Re-run the command if you still need to create your event.");
                                 return;
                             }
                         }
 
                         else
                         {
-                            await ctx.Channel.SendMessageAsync("**[TIMED OUT]** Event date not entered within given time span. Re-run the command if you still need to create your event.").ConfigureAwait(false);
+                            await ctx.Channel.SendMessageAsync("**[TIMED OUT]** Event date not entered within given time span. Re-run the command if you still need to create your event.");
                             
                             return;
                         }
@@ -227,14 +227,14 @@ namespace OSISDiscordAssistant.Commands
 
                     else
                     {
-                        await ctx.Channel.SendMessageAsync("**[TIMED OUT]** Person-in-charge not entered within given time span. Re-run the command if you still need to create your event.").ConfigureAwait(false);
+                        await ctx.Channel.SendMessageAsync("**[TIMED OUT]** Person-in-charge not entered within given time span. Re-run the command if you still need to create your event.");
                         return;
                     }
                 }
 
                 else
                 {
-                    await ctx.Channel.SendMessageAsync("**[TIMED OUT]** Event name not entered within given time span. Re-run the command if you still need to create your event.").ConfigureAwait(false);
+                    await ctx.Channel.SendMessageAsync("**[TIMED OUT]** Event name not entered within given time span. Re-run the command if you still need to create your event.");
                     return;
                 }
 
@@ -256,7 +256,7 @@ namespace OSISDiscordAssistant.Commands
                         await db.DisposeAsync();
                     }
 
-                    await ctx.Channel.SendMessageAsync($"Okay {ctx.Member.Mention}, your event, {Formatter.Bold(eventName)} has been created.").ConfigureAwait(false);
+                    await ctx.Channel.SendMessageAsync($"Okay {ctx.Member.Mention}, your event, {Formatter.Bold(eventName)} has been created.");
                 });
             }
 
@@ -273,7 +273,7 @@ namespace OSISDiscordAssistant.Commands
                     Color = DiscordColor.MidnightBlue
                 };
 
-                var notifyMessage = await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[EVENTS MANAGER]")} Give me a second to process everything...").ConfigureAwait(false);
+                var notifyMessage = await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[EVENTS MANAGER]")} Give me a second to process everything...");
                 await ctx.TriggerTypingAsync();
 
                 Task offloadToTask = Task.Run(async () =>
@@ -320,38 +320,38 @@ namespace OSISDiscordAssistant.Commands
                     }
 
                     await notifyMessage.DeleteAsync();
-                    await ctx.Channel.SendMessageAsync(embed: embedBuilder).ConfigureAwait(false);
+                    await ctx.Channel.SendMessageAsync(embed: embedBuilder);
                 });
             }
 
             else if (operationSelection == "update")
             {
                 string toSend = $"{Formatter.Bold("[SYNTAX]")} !event update [EVENT ID or EVENT NAME]\nExample: {Formatter.InlineCode("!event update LDKS 2021")}";
-                await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
+                await ctx.Channel.SendMessageAsync(toSend);
             }
 
             else if (operationSelection == "get")
             {
                 string toSend = $"{Formatter.Bold("[SYNTAX]")} !event get [EVENT ID or EVENT NAME]\nExample: {Formatter.InlineCode("!event get LDKS 2021")}";
-                await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
+                await ctx.Channel.SendMessageAsync(toSend);
             }
 
             else if (operationSelection == "search")
             {
                 string toSend = $"{Formatter.Bold("[SYNTAX]")} !event search [EVENT NAME]\nExample: {Formatter.InlineCode("!event search LDKS 2021")}";
-                await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
+                await ctx.Channel.SendMessageAsync(toSend);
             }
 
             else if (operationSelection == "delete")
             {
                 string toSend = $"{Formatter.Bold("[SYNTAX]")} !event delete [EVENT ID or EVENT NAME]\nExample: {Formatter.InlineCode("!event delete LDKS 2021")}";
-                await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
+                await ctx.Channel.SendMessageAsync(toSend);
             }
 
             else if (operationSelection == "proposal")
             {
                 string toSend = $"{Formatter.Bold("[SYNTAX]")} !event proposal [EVENT ID or EVENT NAME]\nExample: {Formatter.InlineCode("!event proposal LDKS 2021")}";
-                await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
+                await ctx.Channel.SendMessageAsync(toSend);
             }
 
             else
@@ -406,7 +406,7 @@ namespace OSISDiscordAssistant.Commands
                             if (!rowExists)
                             {
                                 string errorMessage = $"{Formatter.Bold("[ERROR]")} An error occured. You must provide the correct ID or name of the event you are updating. Refer to {Formatter.InlineCode("!event list")} or {Formatter.InlineCode("!event search")}.";
-                                await ctx.Channel.SendMessageAsync(errorMessage).ConfigureAwait(false);
+                                await ctx.Channel.SendMessageAsync(errorMessage);
 
                                 return;
                             }
@@ -433,7 +433,7 @@ namespace OSISDiscordAssistant.Commands
                             if (counter == 0)
                             {
                                 string errorMessage = $"{Formatter.Bold("[ERROR]")} An error occured. You must provide the correct ID or name of the event you are updating. Refer to {Formatter.InlineCode("!event list")} or {Formatter.InlineCode("!event search")}.";
-                                await ctx.Channel.SendMessageAsync(errorMessage).ConfigureAwait(false);
+                                await ctx.Channel.SendMessageAsync(errorMessage);
 
                                 return;
                             }
@@ -450,17 +450,17 @@ namespace OSISDiscordAssistant.Commands
                             embedBuilder.Description = $"Choose either one of the following emojis to select what are you going to change from {Formatter.Bold(previousEventName)}.\n\n" +
                                 "**[1]** Change event name;\n**[2]** Change event person-in-charge (ketua / wakil ketua acara);\n**[3]** Change event date and time;\n**[4]** Change event description.\n\n" +
                                 $"You have 5 (five) minutes to make your choice otherwise the bot will abort. To cancel your changes, type {Formatter.InlineCode("abort")}.";
-                            var updateEmbed = await ctx.Channel.SendMessageAsync(embed: embedBuilder).ConfigureAwait(false);
+                            var updateEmbed = await ctx.Channel.SendMessageAsync(embed: embedBuilder);
 
                             var numberOneEmoji = DiscordEmoji.FromName(ctx.Client, ":one:");
                             var numberTwoEmoji = DiscordEmoji.FromName(ctx.Client, ":two:");
                             var numberThreeEmoji = DiscordEmoji.FromName(ctx.Client, ":three:");
                             var numberFourEmoji = DiscordEmoji.FromName(ctx.Client, ":four:");
 
-                            await updateEmbed.CreateReactionAsync(numberOneEmoji).ConfigureAwait(false);
-                            await updateEmbed.CreateReactionAsync(numberTwoEmoji).ConfigureAwait(false);
-                            await updateEmbed.CreateReactionAsync(numberThreeEmoji).ConfigureAwait(false);
-                            await updateEmbed.CreateReactionAsync(numberFourEmoji).ConfigureAwait(false);
+                            await updateEmbed.CreateReactionAsync(numberOneEmoji);
+                            await updateEmbed.CreateReactionAsync(numberTwoEmoji);
+                            await updateEmbed.CreateReactionAsync(numberThreeEmoji);
+                            await updateEmbed.CreateReactionAsync(numberFourEmoji);
 
                             var selectionInteractivity = ctx.Client.GetInteractivity();
                             var selectionResult = await selectionInteractivity.WaitForReactionAsync
@@ -481,7 +481,7 @@ namespace OSISDiscordAssistant.Commands
 
                                     var inputInteractivity = ctx.Client.GetInteractivity();
 
-                                    var updateNameMessage = await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention}, enter your new event name for {Formatter.Bold(previousEventName)}. You have one minute.").ConfigureAwait(false);
+                                    var updateNameMessage = await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention}, enter your new event name for {Formatter.Bold(previousEventName)}. You have one minute.");
                                     var eventNameResult = await inputInteractivity.WaitForMessageAsync
                                         (x => x.Author.Id == ctx.User.Id && x.Channel.Id == ctx.Channel.Id, TimeSpan.FromMinutes(1));
 
@@ -504,7 +504,7 @@ namespace OSISDiscordAssistant.Commands
                                         {
                                             string toSend = $"{Formatter.Bold("[ERROR]")} The event {Formatter.InlineCode(eventNameResult.Result.Content)} already exists! Try again with a different name.";
 
-                                            await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
+                                            await ctx.Channel.SendMessageAsync(toSend);
 
                                             return;
                                         }
@@ -513,13 +513,13 @@ namespace OSISDiscordAssistant.Commands
 
                                         if (eventName.Length > 50)
                                         {
-                                            await ctx.Channel.SendMessageAsync("**[ERROR]** Operation aborted. Maximum character limit of 50 characters exceeded.").ConfigureAwait(false);
+                                            await ctx.Channel.SendMessageAsync("**[ERROR]** Operation aborted. Maximum character limit of 50 characters exceeded.");
                                             return;
                                         }
 
                                         if (eventName == "abort")
                                         {
-                                            await ctx.Channel.SendMessageAsync($"Update operation aborted as per your request, {ctx.Member.Mention}.").ConfigureAwait(false);
+                                            await ctx.Channel.SendMessageAsync($"Update operation aborted as per your request, {ctx.Member.Mention}.");
                                             return;
                                         }
 
@@ -544,13 +544,13 @@ namespace OSISDiscordAssistant.Commands
                                             embedBuilder.Description = $"{ctx.Member.Mention} has made update(s) to {previousEventName}.\n\n{Formatter.Bold("Changes made:")}\n• Changed event name from {Formatter.InlineCode(previousEventName)} to {Formatter.InlineCode(eventName)}.";
                                             embedBuilder.Timestamp = DateTime.Now;
 
-                                            await ctx.Channel.SendMessageAsync(embed: embedBuilder).ConfigureAwait(false);
+                                            await ctx.Channel.SendMessageAsync(embed: embedBuilder);
                                         });
                                     }
 
                                     else
                                     {
-                                        await ctx.Channel.SendMessageAsync("**[TIMED OUT]** Operation aborted. Event name not entered within given time span.").ConfigureAwait(false);
+                                        await ctx.Channel.SendMessageAsync("**[TIMED OUT]** Operation aborted. Event name not entered within given time span.");
                                         return;
                                     }
                                 }
@@ -563,7 +563,7 @@ namespace OSISDiscordAssistant.Commands
 
                                     var inputInteractivity = ctx.Client.GetInteractivity();
 
-                                    var updatePersonInChargeMessage = await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention}, enter your new person-in-charge for {Formatter.Bold(previousEventName)}. You have one minute.").ConfigureAwait(false);
+                                    var updatePersonInChargeMessage = await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention}, enter your new person-in-charge for {Formatter.Bold(previousEventName)}. You have one minute.");
                                     var eventPersonInChargeResult = await inputInteractivity.WaitForMessageAsync
                                         (x => x.Author.Id == ctx.User.Id && x.Channel.Id == ctx.Channel.Id, TimeSpan.FromMinutes(1));
 
@@ -572,13 +572,13 @@ namespace OSISDiscordAssistant.Commands
                                         personInCharge = eventPersonInChargeResult.Result.Content;
                                         if (eventName.Length > 100)
                                         {
-                                            await ctx.Channel.SendMessageAsync("**[ERROR]** Operation aborted. Maximum character limit of 100 characters exceeded.").ConfigureAwait(false);
+                                            await ctx.Channel.SendMessageAsync("**[ERROR]** Operation aborted. Maximum character limit of 100 characters exceeded.");
                                             return;
                                         }
 
                                         if (eventName == "abort")
                                         {
-                                            await ctx.Channel.SendMessageAsync($"Update operation aborted as per your request, {ctx.Member.Mention}.").ConfigureAwait(false);
+                                            await ctx.Channel.SendMessageAsync($"Update operation aborted as per your request, {ctx.Member.Mention}.");
                                             return;
                                         }
 
@@ -603,13 +603,13 @@ namespace OSISDiscordAssistant.Commands
                                             embedBuilder.Description = $"{ctx.Member.Mention} has made update(s) to {previousEventName}.\n\n{Formatter.Bold("Changes made:")}\n• Changed person-in-charge (ketua / wakil ketua event) from {Formatter.InlineCode(previousPersonInCharge)} to {Formatter.InlineCode(personInCharge)}.";
                                             embedBuilder.Timestamp = DateTime.Now;
 
-                                            await ctx.Channel.SendMessageAsync(embed: embedBuilder).ConfigureAwait(false);
+                                            await ctx.Channel.SendMessageAsync(embed: embedBuilder);
                                         });                                       
                                     }
 
                                     else
                                     {
-                                        await ctx.Channel.SendMessageAsync("**[TIMED OUT]** Operation aborted. Event name not entered within given time span.").ConfigureAwait(false);
+                                        await ctx.Channel.SendMessageAsync("**[TIMED OUT]** Operation aborted. Event name not entered within given time span.");
                                         return;
                                     }
                                 }
@@ -622,7 +622,7 @@ namespace OSISDiscordAssistant.Commands
 
                                     var inputInteractivity = ctx.Client.GetInteractivity();
 
-                                    var updateDateMessage = await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention}, enter your new event date for {Formatter.Bold(previousEventName)}. You have one minute.").ConfigureAwait(false);
+                                    var updateDateMessage = await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention}, enter your new event date for {Formatter.Bold(previousEventName)}. You have one minute.");
                                     var eventDateResult = await inputInteractivity.WaitForMessageAsync
                                         (x => x.Author.Id == ctx.User.Id && x.Channel.Id == ctx.Channel.Id, TimeSpan.FromMinutes(1));
 
@@ -631,7 +631,7 @@ namespace OSISDiscordAssistant.Commands
                                         eventDate = eventDateResult.Result.Content;
                                         if (eventDate.Length > 50)
                                         {
-                                            await ctx.Channel.SendMessageAsync("**[ERROR]** Operation aborted. Maximum character limit of 50 characters exceeded.").ConfigureAwait(false);
+                                            await ctx.Channel.SendMessageAsync("**[ERROR]** Operation aborted. Maximum character limit of 50 characters exceeded.");
                                             return;
                                         }
 
@@ -644,14 +644,14 @@ namespace OSISDiscordAssistant.Commands
                                             ulong eventDateMessageId = eventDateResult.Result.Id;
                                             var toReply = await eventDateResult.Result.Channel.GetMessageAsync(eventDateMessageId);
 
-                                            await toReply.RespondAsync($"{Formatter.Bold("[ERROR]")} Oops! It looks like you did not include the year of the event. Please add it! (example: 25 Juni 2021).").ConfigureAwait(false);
+                                            await toReply.RespondAsync($"{Formatter.Bold("[ERROR]")} Oops! It looks like you did not include the year of the event. Please add it! (example: 25 Juni 2021).");
 
                                             return;
                                         }
 
                                         if (eventDate == "abort")
                                         {
-                                            await ctx.Channel.SendMessageAsync($"Update operation aborted as per your request, {ctx.Member.Mention}.").ConfigureAwait(false);
+                                            await ctx.Channel.SendMessageAsync($"Update operation aborted as per your request, {ctx.Member.Mention}.");
                                             return;
                                         }
 
@@ -671,7 +671,7 @@ namespace OSISDiscordAssistant.Commands
                                             if (calculateTimeSpan.TotalDays > 365)
                                             {
                                                 string errorMessage = "**[ERROR]** Maximum allowed time span is one year (365 days). Alternatively, include the year of the event as well if you have not.";
-                                                await ctx.RespondAsync(errorMessage).ConfigureAwait(false);
+                                                await ctx.RespondAsync(errorMessage);
 
                                                 return;
                                             }
@@ -679,7 +679,7 @@ namespace OSISDiscordAssistant.Commands
                                             if (calculateTimeSpan.Days < 1)
                                             {
                                                 string errorMessage = "**[ERROR]** Minimum allowed date is one day before the event. Alternatively, include the year of the event as well if you have not.";
-                                                await ctx.Channel.SendMessageAsync(errorMessage).ConfigureAwait(false);
+                                                await ctx.Channel.SendMessageAsync(errorMessage);
 
                                                 return;
                                             }
@@ -704,7 +704,7 @@ namespace OSISDiscordAssistant.Commands
                                                 if (calculateTimeSpan.TotalDays > 365)
                                                 {
                                                     string errorMessage = "**[ERROR]** Maximum allowed time span is one year (365 days). Alternatively, include the year of the event as well if you have not.";
-                                                    await ctx.RespondAsync(errorMessage).ConfigureAwait(false);
+                                                    await ctx.RespondAsync(errorMessage);
 
                                                     return;
                                                 }
@@ -712,7 +712,7 @@ namespace OSISDiscordAssistant.Commands
                                                 if (calculateTimeSpan.Days < 1)
                                                 {
                                                     string errorMessage = "**[ERROR]** Minimum allowed date is one day before the event. Alternatively, include the year of the event as well if you have not.";
-                                                    await ctx.Channel.SendMessageAsync(errorMessage).ConfigureAwait(false);
+                                                    await ctx.Channel.SendMessageAsync(errorMessage);
 
                                                     return;
                                                 }
@@ -725,7 +725,7 @@ namespace OSISDiscordAssistant.Commands
                                             {
                                                 // Notify the user that the provided event date cannot be parsed.
                                                 string errorMessage = $"{Formatter.Bold("[ERROR]")} An error occured. Your event date cannot be parsed. Make sure your date and time is written in English or Indonesian. Example: 25 June 2021.";
-                                                await ctx.Channel.SendMessageAsync(errorMessage).ConfigureAwait(false);
+                                                await ctx.Channel.SendMessageAsync(errorMessage);
 
                                                 return;
                                             }
@@ -788,14 +788,14 @@ namespace OSISDiscordAssistant.Commands
                                                 embedBuilder.Description = $"{ctx.Member.Mention} has made update(s) to {previousEventName}.\n\n{Formatter.Bold("Changes made:")}\n• Changed event date from {Formatter.InlineCode(previousEventDate)} to {Formatter.InlineCode(eventDate)}.";
                                                 embedBuilder.Timestamp = DateTime.Now;
 
-                                                await ctx.Channel.SendMessageAsync(embed: embedBuilder).ConfigureAwait(false);
+                                                await ctx.Channel.SendMessageAsync(embed: embedBuilder);
                                             }
                                         });                                       
                                     }
 
                                     else
                                     {
-                                        await ctx.Channel.SendMessageAsync("**[TIMED OUT]** Operation aborted. Event date not entered within given time span.").ConfigureAwait(false);
+                                        await ctx.Channel.SendMessageAsync("**[TIMED OUT]** Operation aborted. Event date not entered within given time span.");
                                         return;
                                     }
                                 }
@@ -808,7 +808,7 @@ namespace OSISDiscordAssistant.Commands
 
                                     var inputInteractivity = ctx.Client.GetInteractivity();
 
-                                    var updateDescriptionMessage = await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention}, enter your new event description for {Formatter.Bold(previousEventName)}. You have one minute.").ConfigureAwait(false);
+                                    var updateDescriptionMessage = await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention}, enter your new event description for {Formatter.Bold(previousEventName)}. You have one minute.");
                                     var eventDescriptionResult = await inputInteractivity.WaitForMessageAsync
                                         (x => x.Author.Id == ctx.User.Id && x.Channel.Id == ctx.Channel.Id, TimeSpan.FromMinutes(1));
 
@@ -817,13 +817,13 @@ namespace OSISDiscordAssistant.Commands
                                         eventDescription = eventDescriptionResult.Result.Content;
                                         if (eventDescription.Length > 254)
                                         {
-                                            await ctx.Channel.SendMessageAsync("**[ERROR]** Operation aborted. Maximum character limit of 255 characters exceeded.").ConfigureAwait(false);
+                                            await ctx.Channel.SendMessageAsync("**[ERROR]** Operation aborted. Maximum character limit of 255 characters exceeded.");
                                             return;
                                         }
 
                                         if (eventDescription == "abort")
                                         {
-                                            await ctx.Channel.SendMessageAsync($"Update operation aborted as per your request, {ctx.Member.Mention}.").ConfigureAwait(false);
+                                            await ctx.Channel.SendMessageAsync($"Update operation aborted as per your request, {ctx.Member.Mention}.");
                                             return;
                                         }
 
@@ -847,14 +847,14 @@ namespace OSISDiscordAssistant.Commands
                                                 embedBuilder.Description = $"{ctx.Member.Mention} has made update(s) to {previousEventName}.\n\n{Formatter.Bold("Changes made:")}\n• Changed event description from {Formatter.InlineCode(previousEventDescription)} to {Formatter.InlineCode(eventDescription)}.";
                                                 embedBuilder.Timestamp = DateTime.Now;
 
-                                                await ctx.Channel.SendMessageAsync(embed: embedBuilder).ConfigureAwait(false);
+                                                await ctx.Channel.SendMessageAsync(embed: embedBuilder);
                                             }
                                         });
                                     }
 
                                     else
                                     {
-                                        await ctx.Channel.SendMessageAsync("**[TIMED OUT]** Operation aborted. Event date not entered within given time span.").ConfigureAwait(false);
+                                        await ctx.Channel.SendMessageAsync("**[TIMED OUT]** Operation aborted. Event date not entered within given time span.");
                                         return;
                                     }
                                 }
@@ -862,7 +862,7 @@ namespace OSISDiscordAssistant.Commands
 
                             else
                             {
-                                await ctx.Channel.SendMessageAsync($"**[TIMED OUT]** Update selection for {previousEventName} not selected within given time span. Re-run the command if you still need to update your event.").ConfigureAwait(false);
+                                await ctx.Channel.SendMessageAsync($"**[TIMED OUT]** Update selection for {previousEventName} not selected within given time span. Re-run the command if you still need to update your event.");
                             }
                         }
 
@@ -870,7 +870,7 @@ namespace OSISDiscordAssistant.Commands
                         {
                             embedBuilder.Title = "Events Manager - Update Error";
                             embedBuilder.Description = $"Event ID {Formatter.Bold(rowID.ToString())} does not exist. Make sure you are selecting an event ID from Events Manager - List.";
-                            await ctx.Channel.SendMessageAsync(embed: embedBuilder).ConfigureAwait(false);
+                            await ctx.Channel.SendMessageAsync(embed: embedBuilder);
                         }
 
                     }
@@ -880,7 +880,7 @@ namespace OSISDiscordAssistant.Commands
                 {
                     embedBuilder.Title = "Events Manager - Update Error";
                     embedBuilder.Description = $"An error occured while working with the database. Exception details: {ex.Message}.";
-                    await ctx.RespondAsync(embed: embedBuilder).ConfigureAwait(false);
+                    await ctx.RespondAsync(embed: embedBuilder);
                 }
             }
 
@@ -907,7 +907,7 @@ namespace OSISDiscordAssistant.Commands
                             catch
                             {
                                 string errorMessage = $"{Formatter.Bold("[ERROR]")} An error occured. You must provide the correct ID of the event you are updating. Refer to {Formatter.InlineCode("!event list")} or {Formatter.InlineCode("!event search")}.";
-                                await ctx.Channel.SendMessageAsync(errorMessage).ConfigureAwait(false);
+                                await ctx.Channel.SendMessageAsync(errorMessage);
 
                                 return;
                             }
@@ -932,7 +932,7 @@ namespace OSISDiscordAssistant.Commands
                             if (counter == 0)
                             {
                                 string errorMessage = $"{Formatter.Bold("[ERROR]")} An error occured. You must provide the correct name of the event you are updating. Refer to {Formatter.InlineCode("!event list")} or {Formatter.InlineCode("!event search")}.";
-                                await ctx.Channel.SendMessageAsync(errorMessage).ConfigureAwait(false);
+                                await ctx.Channel.SendMessageAsync(errorMessage);
 
                                 return;
                             }
@@ -944,7 +944,7 @@ namespace OSISDiscordAssistant.Commands
                         if (hasExpired)
                         {
                             string errorMessage = $"{Formatter.Bold("[ERROR]")} Oops! You can only delete events that has not yet expired.";
-                            await ctx.Channel.SendMessageAsync(errorMessage).ConfigureAwait(false);
+                            await ctx.Channel.SendMessageAsync(errorMessage);
 
                             return;
                         }
@@ -957,7 +957,7 @@ namespace OSISDiscordAssistant.Commands
                             db.Remove(rowToDelete);
                             db.SaveChanges();
 
-                            await ctx.Channel.SendMessageAsync($"{Formatter.Bold(eventNameQuery.ToString())} (Event ID: {rowID.ToString()}) successfully deleted from Events Manager.").ConfigureAwait(false);
+                            await ctx.Channel.SendMessageAsync($"{Formatter.Bold(eventNameQuery.ToString())} (Event ID: {rowID.ToString()}) successfully deleted from Events Manager.");
                         }
 
                         else
@@ -969,7 +969,7 @@ namespace OSISDiscordAssistant.Commands
 
                 catch (Exception ex)
                 {
-                    await ctx.Channel.SendMessageAsync($"An error occured while working with the database.\nException details: {ex.Message}.").ConfigureAwait(false);
+                    await ctx.Channel.SendMessageAsync($"An error occured while working with the database.\nException details: {ex.Message}.");
                 }
             }
 
@@ -1032,13 +1032,13 @@ namespace OSISDiscordAssistant.Commands
                                 embedBuilder.Description = $"Showing {counter} ({counter.ToWords()}) out of {searchResultCount} ({searchResultCount.ToWords()}) query result for keyword {Formatter.InlineCode(parseOptionalInput)}...";
                             }
 
-                            await ctx.Channel.SendMessageAsync(embed: embedBuilder).ConfigureAwait(false);
+                            await ctx.Channel.SendMessageAsync(embed: embedBuilder);
                         }
 
                         catch
                         {
                             embedBuilder.Description = $"Oops! There are no results for keyword {Formatter.InlineCode(parseOptionalInput)}! Did you typed the correct event name?";
-                            await ctx.Channel.SendMessageAsync(embed: embedBuilder).ConfigureAwait(false);
+                            await ctx.Channel.SendMessageAsync(embed: embedBuilder);
 
                             return;
                         }
@@ -1052,7 +1052,7 @@ namespace OSISDiscordAssistant.Commands
                     embedBuilder.Title = "Events Manager - Error";
                     embedBuilder.Description = $"An error occured while working with the database.\nException details: {ex.Message}.";
 
-                    await ctx.Channel.SendMessageAsync(embed: embedBuilder).ConfigureAwait(false);
+                    await ctx.Channel.SendMessageAsync(embed: embedBuilder);
                 }
 
                 catch (Exception ex)
@@ -1062,7 +1062,7 @@ namespace OSISDiscordAssistant.Commands
                     embedBuilder.Title = "Events Manager - Error";
                     embedBuilder.Description = $"An error occured while working with the database.\nException details: {ex.Message}.";
 
-                    await ctx.Channel.SendMessageAsync(embed: embedBuilder).ConfigureAwait(false);
+                    await ctx.Channel.SendMessageAsync(embed: embedBuilder);
                 }                             
             }
 
@@ -1103,13 +1103,13 @@ namespace OSISDiscordAssistant.Commands
 
                             embedBuilder.AddField($"(ID: {rowToRead.Id}) {rowToRead.EventName} [{rowToRead.EventDate}]", ComposeEventDescriptionField(rowToRead, eventDate), true);
 
-                            await ctx.Channel.SendMessageAsync(embed: embedBuilder).ConfigureAwait(false);
+                            await ctx.Channel.SendMessageAsync(embed: embedBuilder);
                         }
 
                         catch
                         {
                             embedBuilder.Description = $"Oops! There are no results for event ID {Formatter.InlineCode(rowID.ToString())}! Have you specified the correct event ID? Alternatively, use {Formatter.InlineCode("!event search")} with the event name you are looking for.";
-                            await ctx.Channel.SendMessageAsync(embed: embedBuilder).ConfigureAwait(false);
+                            await ctx.Channel.SendMessageAsync(embed: embedBuilder);
 
                             return;
                         }
@@ -1150,13 +1150,13 @@ namespace OSISDiscordAssistant.Commands
                                 embedBuilder.Description = $"Showing query result for event name {Formatter.InlineCode(parseOptionalInput)}...";
                             }
 
-                            await ctx.Channel.SendMessageAsync(embed: embedBuilder).ConfigureAwait(false);
+                            await ctx.Channel.SendMessageAsync(embed: embedBuilder);
                         }
 
                         catch
                         {
                             embedBuilder.Description = $"Oops! There are no results for event name {Formatter.InlineCode(parseOptionalInput)}! Have you typed the exact event name you are looking for? Alternatively, use {Formatter.InlineCode("!event search")} with the event name you are looking for.";
-                            await ctx.Channel.SendMessageAsync(embed: embedBuilder).ConfigureAwait(false);
+                            await ctx.Channel.SendMessageAsync(embed: embedBuilder);
 
                             return;
                         }
@@ -1186,7 +1186,7 @@ namespace OSISDiscordAssistant.Commands
                         if (!rowExists)
                         {
                             string errorMessage = $"{Formatter.Bold("[ERROR]")} An error occured. You must provide the correct ID or name of the event you are updating. Refer to {Formatter.InlineCode("!event list")} or {Formatter.InlineCode("!event search")}.";
-                            await ctx.Channel.SendMessageAsync(errorMessage).ConfigureAwait(false);
+                            await ctx.Channel.SendMessageAsync(errorMessage);
 
                             return;
                         }
@@ -1215,7 +1215,7 @@ namespace OSISDiscordAssistant.Commands
                         if (counter == 0)
                         {
                             string errorMessage = $"{Formatter.Bold("[ERROR]")} An error occured. You must provide the correct ID or name of the event you are updating. Refer to {Formatter.InlineCode("!event list")} or {Formatter.InlineCode("!event search")}.";
-                            await ctx.Channel.SendMessageAsync(errorMessage).ConfigureAwait(false);
+                            await ctx.Channel.SendMessageAsync(errorMessage);
 
                             return;
                         }
@@ -1253,15 +1253,15 @@ namespace OSISDiscordAssistant.Commands
                 embedBuilder.Description = $"Choose either one of the following emojis to select what are you going to do with {Formatter.Bold(eventName)}. This event {fileExist} have a proposal file stored.\n\n" +
                     $"{Formatter.Bold("[1]")} Get the event's proposal document;\n{Formatter.Bold("[2]")} Store / update the event's proposal.\n{Formatter.Bold("[3]")} Delete the event's proposal.\n\n" +
                     $"You have 5 (five) minutes to select your choice.";
-                var updateEmbed = await ctx.Channel.SendMessageAsync(embed: embedBuilder).ConfigureAwait(false);
+                var updateEmbed = await ctx.Channel.SendMessageAsync(embed: embedBuilder);
 
                 var numberOneEmoji = DiscordEmoji.FromName(ctx.Client, ":one:");
                 var numberTwoEmoji = DiscordEmoji.FromName(ctx.Client, ":two:");
                 var numberThreeEmoji = DiscordEmoji.FromName(ctx.Client, ":three:");
 
-                await updateEmbed.CreateReactionAsync(numberOneEmoji).ConfigureAwait(false);
-                await updateEmbed.CreateReactionAsync(numberTwoEmoji).ConfigureAwait(false);
-                await updateEmbed.CreateReactionAsync(numberThreeEmoji).ConfigureAwait(false);
+                await updateEmbed.CreateReactionAsync(numberOneEmoji);
+                await updateEmbed.CreateReactionAsync(numberTwoEmoji);
+                await updateEmbed.CreateReactionAsync(numberThreeEmoji);
 
                 var selectionInteractivity = ctx.Client.GetInteractivity();
                 var selectionResult = await selectionInteractivity.WaitForReactionAsync
@@ -1313,7 +1313,7 @@ namespace OSISDiscordAssistant.Commands
                     {
                         var interactivity = ctx.Client.GetInteractivity();
 
-                        await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention}, drop / upload the proposal file here. An acceptable file is a Microsoft Word document. You have one minute!").ConfigureAwait(false);
+                        await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention}, drop / upload the proposal file here. An acceptable file is a Microsoft Word document. You have one minute!");
 
                         var proposalResult = await interactivity.WaitForMessageAsync(x => x.Author.Id == ctx.Member.Id, TimeSpan.FromMinutes(1));
 
@@ -1377,7 +1377,7 @@ namespace OSISDiscordAssistant.Commands
 
                         else
                         {
-                            await ctx.RespondAsync($"{Formatter.Bold("[TIMED OUT]")} {ctx.Member.Mention} Proposal not uploaded within given time span. Re-run the command if you still need to update {Formatter.Bold(eventName)}'s proposal.").ConfigureAwait(false);
+                            await ctx.RespondAsync($"{Formatter.Bold("[TIMED OUT]")} {ctx.Member.Mention} Proposal not uploaded within given time span. Re-run the command if you still need to update {Formatter.Bold(eventName)}'s proposal.");
                         }
                     }
 
@@ -1408,7 +1408,7 @@ namespace OSISDiscordAssistant.Commands
 
                 else
                 {
-                    await ctx.RespondAsync($"{Formatter.Bold("[TIMED OUT]")} {ctx.Member.Mention} You did not choose an option within the given time span. Re-run the command if you still need to update {Formatter.Bold(eventName)}'s proposal.").ConfigureAwait(false);
+                    await ctx.RespondAsync($"{Formatter.Bold("[TIMED OUT]")} {ctx.Member.Mention} You did not choose an option within the given time span. Re-run the command if you still need to update {Formatter.Bold(eventName)}'s proposal.");
                 }
             }
 
@@ -1443,7 +1443,7 @@ namespace OSISDiscordAssistant.Commands
                     return;
                 }
 
-                var notifyMessage = await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[EVENTS MANAGER]")} Give me a second to process everything...").ConfigureAwait(false);
+                var notifyMessage = await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[EVENTS MANAGER]")} Give me a second to process everything...");
                 await ctx.TriggerTypingAsync();
 
                 Task offloadToTask = Task.Run(async () =>
@@ -1488,7 +1488,7 @@ namespace OSISDiscordAssistant.Commands
                     }
 
                     await notifyMessage.DeleteAsync();
-                    await ctx.Channel.SendMessageAsync(embed: embedBuilder).ConfigureAwait(false);
+                    await ctx.Channel.SendMessageAsync(embed: embedBuilder);
                 });
             }
 
@@ -1551,7 +1551,7 @@ namespace OSISDiscordAssistant.Commands
                 $"{Formatter.Bold("!event proposal")} - Gets or updates the proposal file for the respective event name or ID.\n" +
                 $"{Formatter.Bold("!event list")} - Lists all registered events for the year selected.\n";
 
-            await ctx.Channel.SendMessageAsync(embed: embedBuilder).ConfigureAwait(false);
+            await ctx.Channel.SendMessageAsync(embed: embedBuilder);
         }
 
         internal async Task SendHelpEmoji(CommandContext ctx, string operationSelection)
@@ -1559,9 +1559,9 @@ namespace OSISDiscordAssistant.Commands
             var helpEmoji = DiscordEmoji.FromName(ctx.Client, ":sos:");
             string toSend = $"{Formatter.Bold("[ERROR]")} The option {Formatter.InlineCode(operationSelection)} does not exist! Type {Formatter.InlineCode("!event")} to list all options. Alternatively, click the emoji below to get help.";
 
-            var errorMessage = await ctx.Channel.SendMessageAsync(toSend).ConfigureAwait(false);
+            var errorMessage = await ctx.Channel.SendMessageAsync(toSend);
 
-            await errorMessage.CreateReactionAsync(helpEmoji).ConfigureAwait(false);
+            await errorMessage.CreateReactionAsync(helpEmoji);
 
             var interactivity = ctx.Client.GetInteractivity();
 

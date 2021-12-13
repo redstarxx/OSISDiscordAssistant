@@ -288,7 +288,7 @@ namespace OSISDiscordAssistant.Services
 
                     Bot.Client.Logger.LogCritical(EventIds.Services, $"Events reminder task threw an exception: {exception.GetType()}: {exception.Message}.", DateTime.Now);
 
-                    await errorLogsChannel.SendMessageAsync($"{ex.Message}").ConfigureAwait(false);
+                    await errorLogsChannel.SendMessageAsync($"{ex.Message}");
                 }
             });
 
@@ -453,7 +453,7 @@ namespace OSISDiscordAssistant.Services
 
                     Bot.Client.Logger.LogCritical(EventIds.Services, $"Proposal submission reminder task threw an exception: {exception.GetType()}: {exception.Message}.", DateTime.Now);
 
-                    await errorLogsChannel.SendMessageAsync($"{ex.Message}").ConfigureAwait(false);
+                    await errorLogsChannel.SendMessageAsync($"{ex.Message}");
                 }
             });
 

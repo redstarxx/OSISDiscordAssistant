@@ -103,7 +103,7 @@ namespace OSISDiscordAssistant.Utilities
             if (ctx.User.Id == member.Id)
             {
                 string errorReason = $"{Formatter.Bold("[ERROR]")} You cannot use this command on yourself.";
-                await ctx.Channel.SendMessageAsync(errorReason).ConfigureAwait(false);
+                await ctx.Channel.SendMessageAsync(errorReason);
                 return true;
             }
 
@@ -442,7 +442,7 @@ namespace OSISDiscordAssistant.Utilities
                 });
 
                 DiscordChannel channel = e.Guild.GetChannel(SharedData.VerificationRequestsProcessingChannelId);
-                var requestEmbed = await channel.SendMessageAsync(builder: messageBuilder).ConfigureAwait(false);
+                var requestEmbed = await channel.SendMessageAsync(builder: messageBuilder);
 
                 using (var db = new VerificationContext())
                 {
@@ -653,7 +653,7 @@ namespace OSISDiscordAssistant.Utilities
             var json = string.Empty;
             using (var fileString = File.OpenRead("config.json"))
             using (var stringReader = new StreamReader(fileString, new UTF8Encoding(false)))
-                json = await stringReader.ReadToEndAsync().ConfigureAwait(false);
+                json = await stringReader.ReadToEndAsync();
 
             var configJson = JsonConvert.DeserializeObject<ConfigJson>(json);
 
