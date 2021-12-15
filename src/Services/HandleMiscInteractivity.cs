@@ -19,7 +19,7 @@ namespace OSISDiscordAssistant.Services
         /// </summary>
         /// <param name="client">The client that receives the interaction.</param>
         /// <param name="e">The event arguments passed from the event handler.</param>
-        public static async void HandleVerificationRequests(DiscordClient client, ComponentInteractionCreateEventArgs e)
+        public static async Task<Task> HandleVerificationRequests(DiscordClient client, ComponentInteractionCreateEventArgs e)
         {
             if (e.Id == "verify_button")
             {
@@ -47,7 +47,7 @@ namespace OSISDiscordAssistant.Services
 
                     await e.Interaction.CreateFollowupMessageAsync(followupMessageBuilder);
 
-                    return;
+                    return Task.CompletedTask;
                 }
 
                 if (isVerified)
@@ -60,7 +60,7 @@ namespace OSISDiscordAssistant.Services
 
                     await e.Interaction.CreateFollowupMessageAsync(followupMessageBuilder);
 
-                    return;
+                    return Task.CompletedTask;
                 }
 
                 else
@@ -75,7 +75,7 @@ namespace OSISDiscordAssistant.Services
 
                     if (SharedData.PendingVerificationData.Contains(e.User.Id))
                     {
-                        return;
+                        return Task.CompletedTask;
                     }
 
                     else
@@ -193,7 +193,7 @@ namespace OSISDiscordAssistant.Services
                     {
                         Bot.Client.Logger.LogError(EventIds.Services, $"Aborted processing verification request embed ID {e.Message.Id}. Data does not exist in the database.");
 
-                        return;
+                        return Task.CompletedTask;
                     }
 
                     if (e.Id == "accept_button")
@@ -284,7 +284,7 @@ namespace OSISDiscordAssistant.Services
                 await e.Interaction.CreateFollowupMessageAsync(followupMessageBuilder);
             }
 
-            return;
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -292,7 +292,7 @@ namespace OSISDiscordAssistant.Services
         /// </summary>
         /// <param name="client">The client that receives the interaction.</param>
         /// <param name="e">The event arguments passed from the event handler.</param>
-        public static async void HandleRolesInteraction(DiscordClient client, ComponentInteractionCreateEventArgs e)
+        public static async Task<Task> HandleRolesInteraction(DiscordClient client, ComponentInteractionCreateEventArgs e)
         {
             if (e.Interaction.Data.ComponentType is ComponentType.Button)
             {
@@ -324,13 +324,15 @@ namespace OSISDiscordAssistant.Services
             {
                 await HandleRolesDropdown(e);
             }
+
+            return Task.CompletedTask;
         }
 
         /// <summary>
         /// Handles the dropdown interactions related to the available assignable divisional roles in the main guild.
         /// </summary>
         /// <param name="e">The event arguments passed from the event handler.</param>
-        private static async Task HandleRolesDropdown(ComponentInteractionCreateEventArgs e)
+        private static async Task<Task> HandleRolesDropdown(ComponentInteractionCreateEventArgs e)
         {
             await e.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
 
@@ -359,6 +361,8 @@ namespace OSISDiscordAssistant.Services
                     await member.RevokeRoleAsync(e.Guild.GetRole(roleIds.RoleId));
                 }
             }
+
+            return Task.CompletedTask;
         }
     }
 }
