@@ -240,12 +240,12 @@ namespace OSISDiscordAssistant
         {
             if (e.Id == "verify_button" || e.Id == "accept_button" || e.Id == "deny_button" || e.Id == "why_button")
             {
-                ClientUtilities.HandleVerificationRequests(sender, e);
+                HandleMiscInteractivity.HandleVerificationRequests(sender, e);
             }
 
             else if (e.Id == "roles_button" || e.Id.Contains("roles_dropdown"))
             {
-                ClientUtilities.HandleRolesInteraction(sender, e);
+                HandleMiscInteractivity.HandleRolesInteraction(sender, e);
             }
 
             Client.Logger.LogInformation(EventIds.EventHandler, $"User {e.User.Username}#{e.User.Discriminator} ({e.User.Id}) interacted with '{e.Id}' in #{e.Channel.Name} ({e.Channel.Id}).", DateTime.Now);
