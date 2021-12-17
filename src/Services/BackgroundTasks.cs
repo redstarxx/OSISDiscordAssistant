@@ -3,6 +3,7 @@ using System.Linq;
 using System.Diagnostics;
 using System.Globalization;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using OSISDiscordAssistant.Models;
@@ -474,49 +475,41 @@ namespace OSISDiscordAssistant.Services
 
             Task statusUpdater = Task.Run(async () =>
             {
-                string gradeNumber = "VII";
-
                 Stopwatch stopwatch = new Stopwatch();
+
+                int index = 0;
+
+                string currentCustomStatus = null;
+
+                List<string> customStatusList = new List<string>();
+
+                foreach (string customStatus in SharedData.CustomStatusDiplay)
+                {
+                    customStatusList.Add(customStatus);
+                }
 
                 while (true)
                 {
                     stopwatch.Start();
 
-                    var activity = new DiscordActivity("Grade " + gradeNumber, ActivityType.Watching);
-                    await Bot.Client.UpdateStatusAsync(activity);
-
-                    switch (gradeNumber)
+                    try
                     {
-                        case "VII":
-                            gradeNumber = "VIII";
-                            break;
-                        case "VIII":
-                            gradeNumber = "IX";
-                            break;
-                        case "IX":
-                            gradeNumber = "X SCIENCE";
-                            break;
-                        case "X SCIENCE":
-                            gradeNumber = "X SOCIAL";
-                            break;
-                        case "X SOCIAL":
-                            gradeNumber = "XI SCIENCE";
-                            break;
-                        case "XI SCIENCE":
-                            gradeNumber = "XI SOCIAL";
-                            break;
-                        case "XI SOCIAL":
-                            gradeNumber = "XII SCIENCE";
-                            break;
-                        case "XII SCIENCE":
-                            gradeNumber = "XII SOCIAL";
-                            break;
-                        case "XII SOCIAL":
-                            gradeNumber = "VII";
-                            break;
-                        default:
-                            break;
+                        currentCustomStatus = customStatusList[index];
+
+                        index++;
                     }
+
+                    // Index out of range? Handle it down here.
+                    catch
+                    {
+                        index = 0;
+                        currentCustomStatus = customStatusList[index];
+
+                        index++;
+                    }
+
+                    var activity = new DiscordActivity(currentCustomStatus, ActivityType.Watching);
+                    await Bot.Client.UpdateStatusAsync(activity);                 
 
                     stopwatch.Stop();
                     long elapsedMilliseconds = stopwatch.ElapsedMilliseconds;

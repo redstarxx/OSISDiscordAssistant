@@ -348,6 +348,8 @@ namespace OSISDiscordAssistant.Utilities
 
             SharedData.MainGuildId = (ulong)configJson.MainGuildId;
 
+            SharedData.CustomStatusDiplay = configJson.CustomStatusDiplay;
+
             SharedData.EventChannelId = (ulong)configJson.EventChannelId;
 
             SharedData.ProposalChannelId = (ulong)configJson.ProposalChannelId;

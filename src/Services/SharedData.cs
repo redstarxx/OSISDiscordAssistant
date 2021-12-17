@@ -57,6 +57,11 @@ namespace OSISDiscordAssistant.Services
         public static ulong MainGuildId;
 
         /// <summary>
+        /// The list of custom statuses to be set as the custom status of the bot on a two minute basis.
+        /// </summary>
+        public static string[] CustomStatusDiplay;
+
+        /// <summary>
         /// The channel ID of the events reminder messages channel.
         /// </summary>
         public static ulong EventChannelId;
