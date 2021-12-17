@@ -276,7 +276,7 @@ namespace OSISDiscordAssistant.Services
                         }
 
                         stopwatch.Reset();
-                        await Task.Delay(TimeSpan.FromMinutes(1));
+                        await Task.Delay(TimeSpan.FromMinutes(1).Subtract(TimeSpan.FromMilliseconds(elapsedMilliseconds)));
                     }
                 }
 
@@ -441,7 +441,7 @@ namespace OSISDiscordAssistant.Services
                         }
 
                         stopwatch.Reset();
-                        await Task.Delay(TimeSpan.FromMinutes(1));
+                        await Task.Delay(TimeSpan.FromMinutes(1).Subtract(TimeSpan.FromMilliseconds(elapsedMilliseconds)));
                     }
                 }
 
@@ -476,8 +476,12 @@ namespace OSISDiscordAssistant.Services
             {
                 string gradeNumber = "VII";
 
+                Stopwatch stopwatch = new Stopwatch();
+
                 while (true)
                 {
+                    stopwatch.Start();
+
                     var activity = new DiscordActivity("Grade " + gradeNumber, ActivityType.Watching);
                     await Bot.Client.UpdateStatusAsync(activity);
 
@@ -514,9 +518,13 @@ namespace OSISDiscordAssistant.Services
                             break;
                     }
 
-                    Bot.Client.Logger.LogInformation(EventIds.StatusUpdater, $"Presence updated: {activity.ActivityType} {activity.Name}", DateTime.Now);
+                    stopwatch.Stop();
+                    long elapsedMilliseconds = stopwatch.ElapsedMilliseconds;
+                    stopwatch.Reset();
 
-                    await Task.Delay(TimeSpan.FromMinutes(2));
+                    Bot.Client.Logger.LogInformation(EventIds.StatusUpdater, $"Presence updated: '{activity.ActivityType} {activity.Name}' in {elapsedMilliseconds} ms.", DateTime.Now);
+
+                    await Task.Delay(TimeSpan.FromMinutes(2).Subtract(TimeSpan.FromMilliseconds(elapsedMilliseconds)));
                 }
             });
 
@@ -596,7 +604,7 @@ namespace OSISDiscordAssistant.Services
 
                         counter = 0;
                         stopwatch.Reset();
-                        await Task.Delay(TimeSpan.FromMinutes(1));
+                        await Task.Delay(TimeSpan.FromMinutes(1).Subtract(TimeSpan.FromMilliseconds(elapsedMilliseconds)));
                     }
                 }
 
