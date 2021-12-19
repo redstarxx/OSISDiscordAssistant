@@ -488,6 +488,32 @@ namespace OSISDiscordAssistant.Services
                     customStatusList.Add(customStatus);
                 }
 
+                ActivityType activityType = new ActivityType();
+
+                switch (SharedData.StatusActivityType)
+                {
+                    case 0:
+                        activityType = ActivityType.Playing;
+                        break;
+                    case 1:
+                        activityType = ActivityType.Streaming;
+                        break;
+                    case 2:
+                        activityType = ActivityType.ListeningTo;
+                        break;
+                    case 3:
+                        activityType = ActivityType.Watching;
+                        break;
+                    case 4:
+                        activityType = ActivityType.Custom;
+                        break;
+                    case 5:
+                        activityType = ActivityType.Competing;
+                        break;
+                    default:
+                        break;
+                }
+
                 while (true)
                 {
                     stopwatch.Start();
@@ -508,7 +534,7 @@ namespace OSISDiscordAssistant.Services
                         index++;
                     }
 
-                    var activity = new DiscordActivity(currentCustomStatus, ActivityType.Watching);
+                    var activity = new DiscordActivity(currentCustomStatus, activityType);
                     await Bot.Client.UpdateStatusAsync(activity);                 
 
                     stopwatch.Stop();

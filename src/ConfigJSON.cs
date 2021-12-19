@@ -29,6 +29,12 @@ namespace OSISDiscordAssistant
         public ulong? MainGuildId { get; private set; }
 
         /// <summary>
+        /// The type of activity type to be set as the bot's status (ex: Watching, Streaming, Listening to).
+        /// </summary>
+        [JsonProperty("StatusActivityType")]
+        public int StatusActivityType { get; private set; }
+
+        /// <summary>
         /// The list of custom statuses to be set as the custom status of the bot on a two minute basis.
         /// </summary>
         [JsonProperty("CustomStatusDisplay")]
