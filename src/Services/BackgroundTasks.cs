@@ -22,6 +22,9 @@ namespace OSISDiscordAssistant.Services
         {
             if (SharedData.IsEventReminderInitialized)
             {
+                // TODO: Ensure services always run
+                Bot.Client.Logger.LogInformation(EventIds.Services, "Events reminder task is already fired. Skipping initialization.", DateTime.Now);
+
                 return;
             }
 
@@ -305,6 +308,8 @@ namespace OSISDiscordAssistant.Services
         {
             if (SharedData.IsProposalReminderInitialized)
             {
+                Bot.Client.Logger.LogInformation(EventIds.Services, "Proposal reminder task is already fired. Skipping initialization.", DateTime.Now);
+
                 return;
             }
 
@@ -470,6 +475,8 @@ namespace OSISDiscordAssistant.Services
         {
             if (SharedData.IsStatusUpdaterInitialized)
             {
+                Bot.Client.Logger.LogInformation(EventIds.Services, "Status updater task is already fired. Skipping initialization.", DateTime.Now);
+
                 return;
             }
 
@@ -556,6 +563,8 @@ namespace OSISDiscordAssistant.Services
         {
             if (SharedData.IsVerificationCleanupTaskInitialized)
             {
+                Bot.Client.Logger.LogInformation(EventIds.Services, "Verification cleanup task is already fired. Skipping initialization.", DateTime.Now);
+
                 return;
             }
 
