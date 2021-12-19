@@ -136,16 +136,18 @@ namespace OSISDiscordAssistant
 
         private Task OnGuildDownloadCompleted(object sender, GuildDownloadCompletedEventArgs e)
         {
-            // Starts a new Discord status updater task to change the bot's display status every two minutes.
+            // Fires a new Discord status updater task to change the bot's display status every two minutes.
             BackgroundTasks.StartStatusUpdater();
 
-            // Starts the events reminder task which queries the events table on a minute-by-minute basis.
+            // Fires the events reminder task which queries the events table on a minute-by-minute basis.
+            // The code explains for itself.
             BackgroundTasks.StartEventReminders();
 
-            // Starts the proposals reminder task which queries the events table on a daily basis.
+            // Fires the proposals reminder task which queries the events table on a minute-by-minute basis.
             // Reminders are sent 30 days before or a week before the day of the event.
             BackgroundTasks.StartProposalReminders();
 
+            // Fires the verification cleanup task which removes & marks a verification request as expired that has not been processed for 7 days.
             BackgroundTasks.StartVerificationCleanupTask();
 
             Client.Logger.LogInformation(EventIds.Core, "Client is ready for tasking.", DateTime.Now);
