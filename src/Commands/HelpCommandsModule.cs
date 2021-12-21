@@ -25,7 +25,8 @@ namespace OSISDiscordAssistant.Commands
             };
 
             string councilCommands = $"{Formatter.Bold("event")} - Commands to access the Events Manager.\n" +
-                $"{Formatter.Bold("remind")} - Reminder feature to remind yourself, another member, a division, or everyone.\n";
+                $"{Formatter.Bold("remind")} - Reminder feature to remind yourself, another member, a division, or everyone.\n" +
+                $"{Formatter.Bold("assigndivrole")} - Assigns a divisional role to a member by specifying the role name.\n";
 
             string generalCommands = $"{Formatter.Bold("poll")} - Creates a poll with a set of specified emojis to choose.\n" +
                 $"{Formatter.Bold("myinfo")} - Displays the info that this bot has over you.\n" +
@@ -45,6 +46,7 @@ namespace OSISDiscordAssistant.Commands
             string verificationCommands = $"{Formatter.Bold("overify")} - Manually verifies a new member as a council member.\n";
 
             string administrationCommands = $"{Formatter.Bold("setname")} - Sets a new name for yourself or another user.\n" +
+                $"{Formatter.Bold("assignrole")} - Assigns a role to a member by specifying the role name.\n" +
                 $"{Formatter.Bold("kick")} - Kicks a member from this Discord server.\n" +
                 $"{Formatter.Bold("ban")} - Bans a member from this Discord server.\n" +
                 $"{Formatter.Bold("unban")} - Unbans a member from this Discord server.\n" +
