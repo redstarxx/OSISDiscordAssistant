@@ -25,8 +25,7 @@ namespace OSISDiscordAssistant.Commands
             };
 
             string councilCommands = $"{Formatter.Bold("event")} - Commands to access the Events Manager.\n" +
-                $"{Formatter.Bold("remind")} - Reminder feature to remind yourself, another member, a division, or everyone.\n" +
-                $"{Formatter.Bold("assigndivrole")} - Assigns a divisional role to a member by specifying the role name.\n";
+                $"{Formatter.Bold("remind")} - Reminder feature to remind yourself, another member, a division, or everyone.\n";
 
             string generalCommands = $"{Formatter.Bold("poll")} - Creates a poll with a set of specified emojis to choose.\n" +
                 $"{Formatter.Bold("myinfo")} - Displays the info that this bot has over you.\n" +

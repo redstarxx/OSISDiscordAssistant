@@ -257,49 +257,26 @@ namespace OSISDiscordAssistant.Commands
             await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[PRUNED]")} Pruned {messageCount} messages by {ctx.Member.Mention}. Reason: {reason}.");
         }
 
-        [RequireMainGuild]
-        [RequireAdminRole]
-        [Command("assigndivrole")]
-        public async Task AssignDivisionalRoleAsync(CommandContext ctx, DiscordMember member, [RemainingText] string division)
-        {
-            var selectedRole = ctx.Guild.GetRole((ulong)ClientUtilities.GetRoleID(ctx.Guild, division));
-            
-            if (member.Roles.Any(x => x.Id == selectedRole.Id))
-            {
-                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} The member has the role {Formatter.Bold($"{selectedRole.Name}")} assigned already!");
-
-                return;
-            }
-
-            if (selectedRole is null)
-            {
-                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} Role {Formatter.Bold($"{selectedRole.Name}")} does not exist! Make sure you are typing the {Formatter.Underline("exact")} name of the role you are assigning.");
-            }
-
-            else
-            {
-                await member.GrantRoleAsync(selectedRole);
-
-                await ctx.Channel.SendMessageAsync($"Assigned role {Formatter.Bold($"{selectedRole.Name}")} to {member.Mention}.");
-            }            
-        }
-
         [RequireAdminRole]
         [Command("assignrole")]
         public async Task AssignRoleAsync(CommandContext ctx, DiscordMember member, [RemainingText] string roleName)
         {
-            var selectedRole = ctx.Guild.GetRole(ctx.Guild.Roles.FirstOrDefault(x => x.Value.Name.ToLowerInvariant() == roleName.ToLowerInvariant()).Value.Id);
+            ulong? selectedRoleId = ctx.Guild.Roles.FirstOrDefault(x => x.Value.Name.ToLowerInvariant().Contains(roleName.ToLowerInvariant())).Value.Id;
+
+            if (selectedRoleId is null)
+            {
+                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} There are no roles in this server that contains the word {Formatter.Bold($"{roleName}")}! Make sure you are typing the {Formatter.Underline("exact")} name of the role you are assigning.");
+
+                return;
+            }
+
+            DiscordRole selectedRole = ctx.Guild.GetRole((ulong)selectedRoleId);
 
             if (member.Roles.Any(x => x.Id == selectedRole.Id))
             {
                 await ctx.Channel.SendMessageAsync($"The member has the role {Formatter.Bold($"{selectedRole.Name}")} assigned already!");
 
                 return;
-            }
-
-            if (selectedRole is null)
-            {
-                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} Role {Formatter.Bold($"{selectedRole.Name}")} does not exist! Make sure you are typing the {Formatter.Underline("exact")} name of the role you are assigning.");
             }
 
             else
