@@ -1,0 +1,26 @@
+version: "3.1"
+
+services:
+    database:
+      container_name: database-osis
+      image: postgres:13.5
+      restart: always
+      environment:
+        POSTGRES_USER: postgres 
+        # Should be fine as long as the database is not reachable via external network
+        POSTGRES_HOST_AUTH_METHOD: "trust"
+      expose:
+        - 5432
+      volumes:
+        - ./postgres/data:/var/lib/postgresql/data:delegated
+
+    bot:
+      container_name: bot-osis
+      image: 3rik4a/discord-bot-osis:v1.7.0 # Change image tag to target the desired version, refer to https://hub.docker.com/r/3rik4a/discord-bot-osis/tags
+      restart: unless-stopped
+      depends_on:
+        - database
+      volumes:
+        # Remove hashtag below if you intend to preserve the config.json file
+        #- ./config.json:/App/config.json
+        - ./logs:/App/logs/
