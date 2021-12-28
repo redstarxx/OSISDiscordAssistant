@@ -1,5 +1,5 @@
 # OSIS Discord Assistant
-A Discord bot created for OSIS Sekolah Djuwita Batam, written on top of DSharpPlus. Developed by the Information Technology Division. Events manager, deadline reminder, server policing. All you need for your event planning under one bot.
+A Discord bot created for OSIS Sekolah Djuwita Batam, written on top of DSharpPlus. Developed by the Information Technology Division. Events manager, automated deadline reminder and server policing. All you need for your student council's Discord server under one bot.
 
 [![.NET Core CI](https://github.com/redstarxx/DiscordBotOSIS/actions/workflows/dotnet.yml/badge.svg?branch=main)](https://github.com/redstarxx/DiscordBotOSIS/actions/workflows/dotnet.yml)
 [![Docker Image CI](https://github.com/redstarxx/DiscordBotOSIS/actions/workflows/docker-image.yml/badge.svg)](https://github.com/redstarxx/DiscordBotOSIS/actions/workflows/docker-image.yml)
@@ -10,7 +10,7 @@ Contributions are open to everyone! Please read the contributions guideline for 
 
 ## Requirements
 - [.NET Core 5](https://dotnet.microsoft.com/download/dotnet/5.0)
-- [PostgreSQL 13.3](https://www.postgresql.org/)
+- [PostgreSQL](https://www.postgresql.org/)
 
 ## Setting Up
 Once you have installed all of the requirements listed above, you need to set your environment up properly before running the bot.
@@ -42,6 +42,8 @@ Create a new file named `config.json` in the bot's directory. Fill that file wit
     "Prefix": [""],
     "DbConnectionString": "",
     "MainGuildId": "",
+    "StatusActivityType": ,
+    "CustomStatusDisplay": [""],
     "EventChannelId": "",
     "ProposalChannelId": "",
     "VerificationRequestsProcessingChannelId": "",
@@ -63,6 +65,8 @@ Create a new file named `config.json` in the bot's directory. Fill that file wit
 - For the `Prefix` property, add your desired command prefix between the quotation marks.
 - For the `DbConnectionString` property, add your database's connection string. A typical PostgreSQL connection string would look like this: `Host=host;Username=username;Password=password;Database=database` Change these values according to your database.
 - For the `MainGuildId` property, add the guild ID that you want the event and proposal submission reminders to be sent to.
+- For the `StatusActivityType` property, add the desired ActivityType enum number as specified in the D#+ documentation.
+- For the `CustomStatusDisplay` property, add the array of strings to be set as the bot's custom status which is updated on a minute basis.
 - For the `EventChannelId` property, add the channel ID that you want the event reminders to be sent to.
 - For the `ProposalChannelId` property, add the channel ID that you want the proposal submission reminders to be sent to.
 - For the `VerificationRequestsProcessingChannelId` property, add the ID of the channel to be set as the verification requests processing channel ID (where verification request embeds are sent to).
@@ -78,4 +82,6 @@ Make sure you have saved your changes before proceeding.
 Once you have done all of the steps above, you are ready to run your bot! Ensure that `config.json` is in the same directory which the bot is located in.
 
 ### Self-Hosting
-Yes, this bot can be self-hosted. And as a matter of fact, this bot is self-hosted. However, I will not provide support. You are on your own.
+Assuming that you want to run your bot in a Docker container, self-hosting should be straightforward by executing `docker-compose up` from the `docker-compose.yml` file. Upon first launch, you may encounter some errors either because you have not completed [step one](https://github.com/redstarxx/OSISDiscordAssistant#step-one-postgresql) or the `config.json` file is missing from the bot's directory. These issues should not persist once they have been resolved, therefore allowing you to launch the bot by only executing `docker-compose up` without hassle.
+
+Feel free to hit me up on Discord (RedStar#9271) for questions / support.
