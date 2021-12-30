@@ -54,8 +54,8 @@ namespace OSISDiscordAssistant.Commands
 
             var globals = new EvaluationEnvironment(ctx);
             var sopts = ScriptOptions.Default
-                .WithImports("System", "System.Collections.Generic", "System.Diagnostics", "System.Linq", "System.Net.Http", "System.Net.Http.Headers", "System.Reflection", "System.Text",
-                             "System.Threading.Tasks", "DSharpPlus", "DSharpPlus.CommandsNext", "DSharpPlus.Entities", "DSharpPlus.EventArgs", "DSharpPlus.Exceptions", "OSISDiscordAssistant")
+                .WithImports("System", "System.IO", "System.Collections.Generic", "System.Diagnostics", "System.Linq", "System.Net", "System.Net.Http", "System.Net.Http.Headers", "System.Reflection", "System.Text",
+                             "System.Threading.Tasks", "System.Globalization", "DSharpPlus", "DSharpPlus.CommandsNext", "DSharpPlus.Entities", "DSharpPlus.EventArgs", "DSharpPlus.Exceptions", "OSISDiscordAssistant")
                 .WithReferences(AppDomain.CurrentDomain.GetAssemblies().Where(xa => !xa.IsDynamic && !string.IsNullOrWhiteSpace(xa.Location)));
 
             var sw1 = Stopwatch.StartNew();
