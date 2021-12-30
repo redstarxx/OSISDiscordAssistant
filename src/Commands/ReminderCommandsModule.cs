@@ -8,7 +8,6 @@ using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.Entities;
 using DSharpPlus;
 using OSISDiscordAssistant.Utilities;
-using OSISDiscordAssistant.Enums;
 
 namespace OSISDiscordAssistant.Commands
 {
