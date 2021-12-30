@@ -650,5 +650,48 @@ namespace OSISDiscordAssistant.Services
 
             Bot.Client.Logger.LogInformation(EventIds.Services, "Initialized verification cleanup task.", DateTime.Now);
         }
+
+        /// <summary>
+        /// Fires a task that prevents zombied connection from persisting more than 5 minutes. Docker will handle the re-initialization of the bot if it is terminated.
+        /// </summary>
+        public static void StartHeartbeatMonitoringTask()
+        {
+            if (SharedData.IsHeartbeatMonitoringTaskInitialized)
+            {
+                Bot.Client.Logger.LogInformation(EventIds.Services, "Heartbeat monitoring task is already fired. Skipping initialization.", DateTime.Now);
+
+                return;
+            }
+
+            Task verificationCleaningServiceTask = Task.Run(async () =>
+            {
+                while (true)
+                {
+                    DateTime lastMonitored = DateTime.Now;
+
+                    await Task.Delay(TimeSpan.FromMinutes(5));
+
+                    if (SharedData.ReceivedHeartbeats is 0)
+                    {
+                        Bot.Client.Logger.LogCritical(EventIds.Core, $"No heartbeat has been received since {lastMonitored}. Terminating...", DateTime.Now);
+
+                        await Bot.Client.StopAsync();
+
+                        Environment.Exit(0);
+                    }
+
+                    else
+                    {
+                        Bot.Client.Logger.LogInformation(EventIds.Core, $"Received {SharedData.ReceivedHeartbeats} heartbeats since {lastMonitored}. Resetting received heartbeats counter to 0.", DateTime.Now);
+
+                        SharedData.ReceivedHeartbeats = 0;
+                    }
+                }
+            });
+
+            SharedData.IsHeartbeatMonitoringTaskInitialized = true;
+
+            Bot.Client.Logger.LogInformation(EventIds.Services, "Initialized heartbeat monitoring task.", DateTime.Now);
+        }
     }
 }

@@ -120,5 +120,15 @@ namespace OSISDiscordAssistant.Services
         /// Get or set whether verification cleaning service task has been fired.
         /// </summary>
         public static bool IsVerificationCleanupTaskInitialized = false;
+
+        /// <summary>
+        /// Get or set whether heartbeat monitoring task has been fired.
+        /// </summary>
+        public static bool IsHeartbeatMonitoringTaskInitialized = false;
+
+        /// <summary>
+        /// The number of heartbeats received from Discord. Resets back to zero every five minutes.
+        /// </summary>
+        public static int ReceivedHeartbeats = 0;
     }
 }

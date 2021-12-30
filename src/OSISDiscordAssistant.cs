@@ -34,7 +34,7 @@ namespace OSISDiscordAssistant
         public async Task RunAsync()
         {
             // Displays the current version of the bot.
-            Console.WriteLine($"DiscordBotOSIS v{ClientUtilities.GetBuildVersion()}");
+            Console.WriteLine($"OSISDiscordAssistant v{ClientUtilities.GetBuildVersion()}");
 
             // Configures Serilog's Logger instance.
             Console.WriteLine("[1/9] Configuring logger instance...");
@@ -149,6 +149,8 @@ namespace OSISDiscordAssistant
 
             // Fires the verification cleanup task which removes & marks a verification request as expired that has not been processed for 7 days.
             BackgroundTasks.StartVerificationCleanupTask();
+
+            BackgroundTasks.StartHeartbeatMonitoringTask();
 
             Client.Logger.LogInformation(EventIds.Core, "Client is ready for tasking.", DateTime.Now);
 
@@ -337,6 +339,8 @@ namespace OSISDiscordAssistant
 
         private Task OnHeartbeated(DiscordClient sender, HeartbeatEventArgs e)
         {
+            SharedData.ReceivedHeartbeats++;
+
             sender.Logger.LogInformation(EventIds.Core, $"Received heartbeat ACK: {e.Ping} ms.", DateTime.Now);
 
             return Task.CompletedTask;
