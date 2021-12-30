@@ -1404,6 +1404,8 @@ namespace OSISDiscordAssistant.Commands
 
                         await ctx.Channel.SendMessageAsync($"Event {Formatter.Bold(eventName)}'s proposal document has been deleted!");
                     }
+
+                    await fileStream.DisposeAsync();
                 }
 
                 else
