@@ -48,6 +48,7 @@ Create a new file named `config.json` in the bot's directory. Fill that file wit
     "ProposalChannelId": "",
     "VerificationRequestsProcessingChannelId": "",
     "MaxPendingVerificationWaitingDay": "",
+    "VerificationInfoChannelId": "",
     "RolesChannelId": "",
     "ErrorChannelId": "",
     "AccessRoleId": "",
@@ -71,6 +72,7 @@ Create a new file named `config.json` in the bot's directory. Fill that file wit
 - For the `ProposalChannelId` property, add the channel ID that you want the proposal submission reminders to be sent to.
 - For the `VerificationRequestsProcessingChannelId` property, add the ID of the channel to be set as the verification requests processing channel ID (where verification request embeds are sent to).
 - For the `MaxPendingVerificationWaitingDay` property, add the number of days which a pending verification is retained before being removed automatically by the verification cleanup task.
+- For the `VerificationInfoChannelId`, add the ID of the channel that contains the verification info embed.
 - For the `RolesChannelId` property, add the ID of the channel to be used to point newly verified members to self-assign their divisional roles via the provided select menu.
 - For the `ErrorChannelId` property, add the channel ID that you want the error(s) related to event and proposal submissions reminders background task to be sent to.
 - For the `AccessRoleId` property, add the ID of the role that serves as the OSIS role in the main guild.
