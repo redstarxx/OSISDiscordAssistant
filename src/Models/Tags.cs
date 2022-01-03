@@ -10,11 +10,11 @@
         /// <summary>
         /// Tag name to get or set.
         /// </summary>
-        public string TagName { get; set; }
+        public string Name { get; set; }
 
         /// <summary>
         /// Tag content to get or set.
         /// </summary>
-        public string TagContent { get; set; }
+        public string Content { get; set; }
     }
 }

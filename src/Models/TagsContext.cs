@@ -49,11 +49,11 @@ namespace OSISDiscordAssistant.Models
                     .HasColumnName("id")
                     .HasColumnType("int");
 
-                entity.Property(e => e.TagName)
+                entity.Property(e => e.Name)
                     .HasColumnName("tag_name")
                     .HasColumnType("string");
 
-                entity.Property(e => e.TagContent)
+                entity.Property(e => e.Content)
                     .HasColumnName("tag_content")
                     .HasColumnType("string");
             });
