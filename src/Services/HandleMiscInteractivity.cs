@@ -294,17 +294,26 @@ namespace OSISDiscordAssistant.Services
         /// <param name="e">The event arguments passed from the event handler.</param>
         public static async Task<Task> HandleRolesInteraction(DiscordClient client, ComponentInteractionCreateEventArgs e)
         {
+            DiscordFollowupMessageBuilder followupMessageBuilder = new DiscordFollowupMessageBuilder();
+
+            var member = await e.Guild.GetMemberAsync(e.User.Id);
+
+            if (!member.Roles.Any(x => x.Id == SharedData.AccessRoleId))
+            {
+                followupMessageBuilder.Content = $"To grant yourself a role, you must go through the verification process first. Check it at <#{SharedData.VerificationInfoChannelId}>.";
+                followupMessageBuilder.IsEphemeral = true;
+
+                await e.Interaction.CreateFollowupMessageAsync(followupMessageBuilder);
+
+                return Task.CompletedTask;
+            }
+
             if (e.Interaction.Data.ComponentType is ComponentType.Button)
             {
                 await e.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
 
-                var member = await e.Guild.GetMemberAsync(e.User.Id);
-
-                DiscordFollowupMessageBuilder followupMessageBuilder = new DiscordFollowupMessageBuilder()
-                {
-                    Content = "Select either one of the options of which division you are assigned to. You can select only one option at a time.",
-                    IsEphemeral = true
-                };
+                followupMessageBuilder.Content = "Select either one of the options of which division you are assigned to. You can select only one option at a time.";
+                followupMessageBuilder.IsEphemeral = true;
 
                 var rolesDropdownOptions = new List<DiscordSelectComponentOption>();
 
