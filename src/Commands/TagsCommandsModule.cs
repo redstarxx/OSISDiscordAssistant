@@ -18,37 +18,16 @@ namespace OSISDiscordAssistant.Commands
         /// Gets all stored tag names.
         /// </summary>
         [Command("tags")]
-        public async Task GetAllTagsAsync(CommandContext ctx)
+        public async Task ShowAllTagsAsync(CommandContext ctx)
         {
-            int counter = 0;
-            StringBuilder toSend = new StringBuilder();
+            StringBuilder stringBuilder = new StringBuilder();
 
-            using (var db = new TagsContext())
-            {
-                toSend.Append("Following tags matching your query were found:\n\n");
+            stringBuilder.Append("List of all created tags:\n\n");
 
-                foreach (var tag in db.Tags)
-                {
-                    if (counter == 0)
-                    {
-                        toSend.Append($"{Formatter.InlineCode(tag.TagName)}");
-                    }
+            var tags = await GetAllTagsAsync();
+            stringBuilder.Append(tags);
 
-                    else
-                    {
-                        toSend.Append($", {Formatter.InlineCode(tag.TagName)}");
-                    }
-
-                    counter++;
-                }
-
-                if (counter == 0)
-                {
-                    toSend.Append("There are no tags to show!");
-                }
-            }
-
-            await ctx.Channel.SendMessageAsync(toSend.ToString());
+            await ctx.Channel.SendMessageAsync(stringBuilder.ToString());
         }
 
         /// <summary>
@@ -59,48 +38,39 @@ namespace OSISDiscordAssistant.Commands
         public async Task ShowTagsAsync(CommandContext ctx, string tagName)
         {
             StringBuilder tagContent = new StringBuilder();
-            int counter = 0;
 
             using (var db = new TagsContext())
             {
                 try
                 {
-                    tagContent.Append(db.Tags.SingleOrDefault(x => x.TagName == tagName).TagContent);
+                    var tag = db.Tags.SingleOrDefault(x => x.Name == tagName);
+
+                    if (tag is null)
+                    {
+                        throw new Exception();
+                    }
+
+                    tagContent.Append(tag.Content);
                 }
 
                 catch
                 {
                     tagContent.Append("Specified tag was not found. Here are some suggestions:\n\n");
 
-                    foreach (var tag in db.Tags)
-                    {
-
-                        if (tag.TagName.Contains(tagName))
-                        {
-                            if (counter == 0)
-                            {
-                                tagContent.Append($"{Formatter.InlineCode(tag.TagName)}");
-                            }
-
-                            else
-                            {
-                                tagContent.Append($", {Formatter.InlineCode(tag.TagName)}");
-                            }
-
-                            counter++;
-                        }
-                    }
-
-                    if (counter == 0)
-                    {
-                        tagContent.Clear();
-
-                        tagContent.Append($"The tag {Formatter.InlineCode(tagName)} does not exist!");
-                    }
+                    var allTags = await GetAllTagsAsync();
+                    tagContent.Append(allTags);
                 }
             }
 
-            await ctx.Channel.SendMessageAsync(tagContent.ToString());
+            if (ctx.Message.ReferencedMessage is not null)
+            {
+                await ctx.Message.ReferencedMessage.RespondAsync(tagContent.ToString());
+            }
+
+            else
+            {
+                await ctx.Channel.SendMessageAsync(tagContent.ToString());
+            }
         }
 
         /// <summary>
@@ -119,7 +89,7 @@ namespace OSISDiscordAssistant.Commands
                 {
                     using (var db = new TagsContext())
                     {
-                        bool isExist = db.Tags.Any(x => x.TagName == tagName);
+                        bool isExist = db.Tags.Any(x => x.Name == tagName);
                         string tagContentToWrite = string.Join(" ", tagContent);
 
                         if (isExist)
@@ -140,8 +110,8 @@ namespace OSISDiscordAssistant.Commands
 
                         db.Add(new Tags
                         {
-                            TagName = tagName,
-                            TagContent = tagContentToWrite
+                            Name = tagName,
+                            Content = tagContentToWrite
                         });
 
                         db.SaveChanges();
@@ -167,9 +137,9 @@ namespace OSISDiscordAssistant.Commands
                         }
 
                         Tags tagToUpdate = null;
-                        tagToUpdate = db.Tags.SingleOrDefault(x => x.TagName == tagName);
+                        tagToUpdate = db.Tags.SingleOrDefault(x => x.Name == tagName);
 
-                        tagToUpdate.TagContent = string.Join(" ", tagContent);
+                        tagToUpdate.Content = string.Join(" ", tagContent);
 
                         db.SaveChanges();
 
@@ -184,7 +154,7 @@ namespace OSISDiscordAssistant.Commands
                     using (var db = new TagsContext())
                     {
                         Tags tagToDelete = null;
-                        tagToDelete = db.Tags.SingleOrDefault(x => x.TagName == tagName);
+                        tagToDelete = db.Tags.SingleOrDefault(x => x.Name == tagName);
 
                         db.Remove(tagToDelete);
 
@@ -224,6 +194,41 @@ namespace OSISDiscordAssistant.Commands
                 string toSend = $"{Formatter.Bold("[ERROR]")} An error occurred. Did you tried to delete a nonexistent tag?\nError details: {Formatter.InlineCode($"{ex.Message.GetType()}: {ex.Message}")}";
                 await ctx.RespondAsync(toSend);
             }
+        }
+
+        /// <summary>
+        /// Retrieves all names of created tags.
+        /// </summary>
+        /// <returns>The list of tag names.</returns>
+        internal async Task<string> GetAllTagsAsync()
+        {
+            StringBuilder tags = new StringBuilder();
+            int counter = 0;
+
+            using (var db = new TagsContext())
+            {
+                foreach (var tag in db.Tags)
+                {
+                    if (counter == 0)
+                    {
+                        tags.Append($"{Formatter.InlineCode(tag.Name)}");
+                    }
+
+                    else
+                    {
+                        tags.Append($", {Formatter.InlineCode(tag.Name)}");
+                    }
+
+                    counter++;
+                }
+
+                if (counter == 0)
+                {
+                    tags.Append("There are no tags to show!");
+                }
+            }
+
+            return tags.ToString();
         }
 
         // ----------------------------------------------------------
