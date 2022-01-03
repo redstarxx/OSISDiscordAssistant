@@ -65,6 +65,12 @@ namespace OSISDiscordAssistant
         public int? MaxPendingVerificationWaitingDay { get; private set; }
 
         /// <summary>
+        /// The channel ID of the channel that contains the verification info embed.
+        /// </summary>
+        [JsonProperty("VerificationInfoChannelId")]
+        public ulong? VerificationInfoChannelId { get; private set; }
+
+        /// <summary>
         /// The channel ID of the channel containing the divisional roles dropdown button.
         /// </summary>
         [JsonProperty("RolesChannelId")]

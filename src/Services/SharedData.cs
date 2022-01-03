@@ -87,6 +87,11 @@ namespace OSISDiscordAssistant.Services
         public static int MaxPendingVerificationWaitingDay;
 
         /// <summary>
+        /// The channel ID of the channel that contains the verification info embed.
+        /// </summary>
+        public static ulong VerificationInfoChannelId;
+
+        /// <summary>
         /// The channel ID of the channel containing the divisional roles dropdown button.
         /// </summary>
         public static ulong RolesChannelId;

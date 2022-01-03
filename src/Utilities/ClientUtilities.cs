@@ -347,6 +347,8 @@ namespace OSISDiscordAssistant.Utilities
 
             SharedData.MaxPendingVerificationWaitingDay = (int)configJson.MaxPendingVerificationWaitingDay;
 
+            SharedData.VerificationInfoChannelId = (ulong)configJson.VerificationInfoChannelId;
+
             SharedData.RolesChannelId = (ulong)configJson.RolesChannelId;
 
             SharedData.ErrorChannelId = (ulong)configJson.ErrorChannelId;
