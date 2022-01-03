@@ -19,7 +19,6 @@ namespace OSISDiscordAssistant.Commands
 {
     class MiscCommandsModule : BaseCommandModule
     {
-        // Add 7 hours ahead because for some reason Linux doesn't pick the user preferred timezone.
         DateTime startTime = DateTime.UtcNow.AddHours(7);
 
         [Command("about")]
@@ -86,15 +85,26 @@ namespace OSISDiscordAssistant.Commands
             await ctx.Channel.SendMessageAsync(embed: embedBuilder);
         }
 
-        [Command("uptime")]
+        [Command("stats")]
         public async Task UptimeAsync(CommandContext ctx)
         {
-            TimeSpan runtimeOutput = DateTime.UtcNow.AddHours(7) - startTime;
-            string formatResult = string.Format("Been up for: **{0} days, {1} hours, {2} minutes, {3} seconds** (since "
-                + startTime.ToShortDateString() + " " + startTime.ToShortTimeString() + ")"
-                , runtimeOutput.Days, runtimeOutput.Hours, runtimeOutput.Minutes, runtimeOutput.Seconds);
+            DiscordEmbedBuilder embedBuilder = new DiscordEmbedBuilder()
+            {
+            };
 
-            await ctx.Channel.SendMessageAsync(formatResult);
+            Process currentProcess = Process.GetCurrentProcess();
+            TimeSpan runtime = DateTime.Now - Process.GetCurrentProcess().StartTime;
+
+            embedBuilder.WithTitle("Statistics for OSIS Discord Assistant")
+                        .WithColor(DiscordColor.DarkBlue)
+                        .AddField("Latency", $"{ctx.Client.Ping} ms", true)
+                        .AddField("Total Guilds", ctx.Client.Guilds.Count().ToString(), true)
+                        .AddField("Total Members", ctx.Client.Guilds.Values.SelectMany(x => x.Members.Keys).Count().ToString(), true)
+                        .AddField("Shards", ctx.Client.ShardCount.ToString(), true)
+                        .AddField("Uptime", $"{runtime.Days} days, {runtime.Hours} hours, {runtime.Minutes} minutes, {runtime.Seconds} seconds (since {Formatter.Timestamp(currentProcess.StartTime, TimestampFormat.LongDateTime)})")
+                        .AddField("Memory Usage", $"{GC.GetTotalMemory(true) / 1024 / 1024:n2} MB", true);
+
+            await ctx.Channel.SendMessageAsync(embed: embedBuilder);
         }
 
         [Command("ping")]

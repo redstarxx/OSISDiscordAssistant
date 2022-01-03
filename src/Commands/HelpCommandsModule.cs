@@ -30,7 +30,7 @@ namespace OSISDiscordAssistant.Commands
             string generalCommands = $"{Formatter.Bold("poll")} - Creates a poll with a set of specified emojis to choose.\n" +
                 $"{Formatter.Bold("myinfo")} - Displays the info that this bot has over you.\n" +
                 $"{Formatter.Bold("avatar")} - Shows a Discord profile picture of your account or another user.\n" +
-                $"{Formatter.Bold("uptime")} - Displays how long has the bot been running.\n" +
+                $"{Formatter.Bold("stats")} - Display statistics related to the bot.\n" +
                 $"{Formatter.Bold("ping")} - Displays the WebSocket connection latency in milliseconds.\n" +
                 $"{Formatter.Bold("prefix")} - Displays the bot's prefixes.\n" +
                 $"{Formatter.Bold("about")} - Shows the bot's information.\n";
