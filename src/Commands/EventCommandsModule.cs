@@ -10,7 +10,9 @@ using System.Collections.Generic;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
+using DSharpPlus.Interactivity;
 using DSharpPlus.Interactivity.Extensions;
+using DSharpPlus.Interactivity.Enums;
 using DSharpPlus.Entities;
 using Npgsql;
 using Humanizer;
@@ -280,9 +282,7 @@ namespace OSISDiscordAssistant.Commands
                 {
                     int counter = 0;
 
-                    int additionalCounter = 0;
-
-                    int currentYear = DateTime.Now.Year;
+                    List<DiscordEmbedBuilder> eventEmbeds = new List<DiscordEmbedBuilder>();
 
                     using (var db = new EventContext())
                     {
@@ -290,37 +290,49 @@ namespace OSISDiscordAssistant.Commands
                         {
                             DateTime eventDate = DateTime.Parse(events.EventDate, new CultureInfo(events.EventDateCultureInfo));
 
-                            if (eventDate.Year == currentYear)
+                            if (DateTime.Now.Year == eventDate.Year)
                             {
-                                if (counter > 25)
+                                var embedBuilder = new DiscordEmbedBuilder
                                 {
-                                    additionalCounter++;
-                                }
+                                    Title = "Events Manager - Listing All Events...",
+                                    Description = "To navigate around the search results, interact with the buttons below, if any.",
+                                    Timestamp = DateTime.Now,
+                                    Footer = new DiscordEmbedBuilder.EmbedFooter
+                                    {
+                                        Text = "OSIS Discord Assistant"
+                                    },
+                                    Color = DiscordColor.MidnightBlue
+                                };
 
-                                else
-                                {
-                                    embedBuilder.AddField($"(ID: {events.Id}) {events.EventName} [{events.EventDate}]", ComposeEventDescriptionField(events, eventDate), true);
+                                embedBuilder.AddField($"(ID: {events.Id}) {events.EventName} [{events.EventDate}]", ComposeEventDescriptionField(events, eventDate), true);
 
-                                    counter++;
-                                }
+                                eventEmbeds.Add(embedBuilder);
+                                counter++;
                             }
                         }
                     }
 
+                    await notifyMessage.DeleteAsync();
+
                     if (counter == 0)
                     {
-                        embedBuilder.Description = $"There are no events registered for this year. Alternatively, use {Formatter.InlineCode("!event list [YEAR]")}.";
+                        embedBuilder.Description = $"There are no events registered for the year {Formatter.Underline(DateTime.Now.Year.ToString())}.";
+
+                        await ctx.Channel.SendMessageAsync(embed: embedBuilder);
+                    }
+
+                    else if (counter == 1)
+                    {
+                        await ctx.Channel.SendMessageAsync(eventEmbeds.First());
                     }
 
                     else
                     {
-                        int searchResultCount = counter + additionalCounter;
+                        var pga = eventEmbeds.Select(x => new Page($"List of all registered events for the year {Formatter.Underline(DateTime.Now.Year.ToString())}. Indexed {counter} ({counter.ToWords()}) events.", x)).ToArray();
 
-                        embedBuilder.Description = $"List of all registered events for this year. Showing {counter} ({counter.ToWords()}) out of {searchResultCount} ({searchResultCount.ToWords()}) events. Alternatively, use {Formatter.InlineCode("!event list [YEAR]")}.";
+                        var interactivity = ctx.Client.GetInteractivity();
+                        await interactivity.SendPaginatedMessageAsync(ctx.Channel, ctx.User, pga, PaginationBehaviour.WrapAround, ButtonPaginationBehavior.Disable);
                     }
-
-                    await notifyMessage.DeleteAsync();
-                    await ctx.Channel.SendMessageAsync(embed: embedBuilder);
                 });
             }
 
@@ -1450,9 +1462,9 @@ namespace OSISDiscordAssistant.Commands
 
                 Task offloadToTask = Task.Run(async () =>
                 {
-                    int counter = 0;
+                    var eventEmbeds = new List<DiscordEmbedBuilder>();
 
-                    int additionalCounter = 0;
+                    int counter = 0;
 
                     using (var db = new EventContext())
                     {
@@ -1462,35 +1474,47 @@ namespace OSISDiscordAssistant.Commands
 
                             if (year == eventDate.Year)
                             {
-                                if (counter > 25)
+                                var embedBuilder = new DiscordEmbedBuilder
                                 {
-                                    additionalCounter++;
-                                }
+                                    Title = "Events Manager - Listing All Events...",
+                                    Description = "To navigate around the search results, interact with the buttons below, if any.",
+                                    Timestamp = DateTime.Now,
+                                    Footer = new DiscordEmbedBuilder.EmbedFooter
+                                    {
+                                        Text = "OSIS Discord Assistant"
+                                    },
+                                    Color = DiscordColor.MidnightBlue
+                                };
 
-                                else
-                                {                                  
-                                    embedBuilder.AddField($"(ID: {events.Id}) {events.EventName} [{events.EventDate}]", ComposeEventDescriptionField(events, eventDate), true);
+                                embedBuilder.AddField($"(ID: {events.Id}) {events.EventName} [{events.EventDate}]", ComposeEventDescriptionField(events, eventDate), true);
 
-                                    counter++;
-                                }
+                                eventEmbeds.Add(embedBuilder);
+                                counter++;
                             }
                         }
                     }
 
+                    await notifyMessage.DeleteAsync();
+
                     if (counter == 0)
                     {
                         embedBuilder.Description = $"There are no events registered for the year {Formatter.Underline(year.ToString())}.";
+
+                        await ctx.Channel.SendMessageAsync(embed: embedBuilder);
+                    }
+
+                    else if (counter == 1)
+                    {
+                        await ctx.Channel.SendMessageAsync(eventEmbeds.First());
                     }
 
                     else
                     {
-                        int searchResultCount = counter + additionalCounter;
+                        var pga = eventEmbeds.Select(x => new Page($"List of all registered events for the year {Formatter.Underline(year.ToString())}. Indexed {counter} ({counter.ToWords()}) events.", x)).ToArray();
 
-                        embedBuilder.Description = $"List of all registered events for the year {Formatter.Underline(year.ToString())}. Showing {counter} ({counter.ToWords()}) out of {searchResultCount} ({searchResultCount.ToWords()}) events.";
+                        var interactivity = ctx.Client.GetInteractivity();
+                        await interactivity.SendPaginatedMessageAsync(ctx.Channel, ctx.User, pga, PaginationBehaviour.WrapAround, ButtonPaginationBehavior.Disable);
                     }
-
-                    await notifyMessage.DeleteAsync();
-                    await ctx.Channel.SendMessageAsync(embed: embedBuilder);
                 });
             }
 

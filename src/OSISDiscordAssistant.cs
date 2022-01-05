@@ -84,7 +84,8 @@ namespace OSISDiscordAssistant
             Console.WriteLine("[5/9] Loading up interactivity configuration...");
             await Client.UseInteractivityAsync(new InteractivityConfiguration
             {
-                Timeout = TimeSpan.FromDays(7)
+                Timeout = TimeSpan.FromDays(7),
+                AckPaginationButtons = true,
             });
 
             Console.WriteLine("[6/9] Loading up CommandsNext configuration...");
