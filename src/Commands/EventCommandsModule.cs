@@ -323,7 +323,12 @@ namespace OSISDiscordAssistant.Commands
 
                     else if (counter == 1)
                     {
-                        await ctx.Channel.SendMessageAsync(eventEmbeds.First());
+                        var messageBuilder = new DiscordMessageBuilder();
+
+                        messageBuilder.WithContent($"List of all registered events for the year {Formatter.Underline(DateTime.Now.Year.ToString())}. Indexed {counter} ({counter.ToWords()}) events.")
+                                      .WithEmbed(eventEmbeds.First().WithDescription(string.Empty));
+
+                        await ctx.Channel.SendMessageAsync(builder: messageBuilder);
                     }
 
                     else
@@ -1505,7 +1510,12 @@ namespace OSISDiscordAssistant.Commands
 
                     else if (counter == 1)
                     {
-                        await ctx.Channel.SendMessageAsync(eventEmbeds.First());
+                        var messageBuilder = new DiscordMessageBuilder();
+
+                        messageBuilder.WithContent($"List of all registered events for the year {Formatter.Underline(year.ToString())}. Indexed {counter} ({counter.ToWords()}) events.")
+                                      .WithEmbed(eventEmbeds.First().WithDescription(string.Empty));
+
+                        await ctx.Channel.SendMessageAsync(builder: messageBuilder);
                     }
 
                     else
