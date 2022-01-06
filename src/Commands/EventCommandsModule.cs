@@ -1015,41 +1015,57 @@ namespace OSISDiscordAssistant.Commands
                         {
                             int counter = 0;
 
-                            int additionalCounter = 0;
+                            List<DiscordEmbedBuilder> eventEmbeds = new List<DiscordEmbedBuilder>();
 
                             foreach (var events in db.Events)
                             {
                                 if (events.EventName.ToLowerInvariant().Contains(toSearch))
                                 {
-                                    if (counter > 25)
+                                    var resultEmbed = new DiscordEmbedBuilder
                                     {
-                                        additionalCounter++;
-                                    }
+                                        Title = "Events Manager - Search Results",
+                                        Description = "To navigate around the search results, interact with the buttons below, if any.",
+                                        Timestamp = DateTime.Now,
+                                        Footer = new DiscordEmbedBuilder.EmbedFooter
+                                        {
+                                            Text = "OSIS Discord Assistant"
+                                        },
+                                        Color = DiscordColor.MidnightBlue
+                                    };
 
-                                    else
-                                    {
-                                        DateTime eventDate = DateTime.Parse(events.EventDate, new CultureInfo(events.EventDateCultureInfo));
+                                    DateTime eventDate = DateTime.Parse(events.EventDate, new CultureInfo(events.EventDateCultureInfo));
 
-                                        embedBuilder.AddField($"(ID: {events.Id}) {events.EventName} [{events.EventDate}]", ComposeEventDescriptionField(events, eventDate), true);
+                                    resultEmbed.AddField($"(ID: {events.Id}) {events.EventName} [{events.EventDate}]", ComposeEventDescriptionField(events, eventDate), true);
 
-                                        counter++;
-                                    }
+                                    eventEmbeds.Add(resultEmbed);
+                                    counter++;
                                 }
                             }
 
                             if (counter == 0)
                             {
                                 embedBuilder.Description = $"Oops! There are no results for keyword {Formatter.InlineCode(parseOptionalInput)}! If you are getting an event by ID, use {Formatter.InlineCode("!event get")}.";
+
+                                await ctx.Channel.SendMessageAsync(embed: embedBuilder);
+                            }
+
+                            else if (counter == 1)
+                            {
+                                var messageBuilder = new DiscordMessageBuilder();
+
+                                messageBuilder.WithContent($"Showing {counter} ({counter.ToWords()}) search result for keyword {Formatter.InlineCode(parseOptionalInput)}...")
+                                              .WithEmbed(eventEmbeds.First().WithDescription(string.Empty));
+
+                                await ctx.Channel.SendMessageAsync(builder: messageBuilder);
                             }
 
                             else
                             {
-                                int searchResultCount = counter + additionalCounter;
+                                var pga = eventEmbeds.Select(x => new Page($"Showing {counter} ({counter.ToWords()}) search results for keyword {Formatter.InlineCode(parseOptionalInput)}...", x)).ToArray();
 
-                                embedBuilder.Description = $"Showing {counter} ({counter.ToWords()}) out of {searchResultCount} ({searchResultCount.ToWords()}) query result for keyword {Formatter.InlineCode(parseOptionalInput)}...";
+                                var interactivity = ctx.Client.GetInteractivity();
+                                await interactivity.SendPaginatedMessageAsync(ctx.Channel, ctx.User, pga, PaginationBehaviour.WrapAround, ButtonPaginationBehavior.Disable);
                             }
-
-                            await ctx.Channel.SendMessageAsync(embed: embedBuilder);
                         }
 
                         catch
