@@ -304,7 +304,7 @@ namespace OSISDiscordAssistant.Commands
                                     Color = DiscordColor.MidnightBlue
                                 };
 
-                                embedBuilder.AddField($"(ID: {events.Id}) {events.EventName} [{events.EventDate}]", ComposeEventDescriptionField(events, eventDate), true);
+                                embedBuilder.AddField($"(ID: {events.Id}) {events.EventName} [{events.EventDate}]", ComposeEventDescriptionField(events), true);
 
                                 eventEmbeds.Add(embedBuilder);
                                 counter++;
@@ -1035,7 +1035,7 @@ namespace OSISDiscordAssistant.Commands
 
                                     DateTime eventDate = DateTime.Parse(events.EventDate, new CultureInfo(events.EventDateCultureInfo));
 
-                                    resultEmbed.AddField($"(ID: {events.Id}) {events.EventName} [{events.EventDate}]", ComposeEventDescriptionField(events, eventDate), true);
+                                    resultEmbed.AddField($"(ID: {events.Id}) {events.EventName} [{events.EventDate}]", ComposeEventDescriptionField(events), true);
 
                                     eventEmbeds.Add(resultEmbed);
                                     counter++;
@@ -1134,7 +1134,7 @@ namespace OSISDiscordAssistant.Commands
 
                             DateTime eventDate = DateTime.Parse(rowToRead.EventDate, new CultureInfo(rowToRead.EventDateCultureInfo));
 
-                            embedBuilder.AddField($"(ID: {rowToRead.Id}) {rowToRead.EventName} [{rowToRead.EventDate}]", ComposeEventDescriptionField(rowToRead, eventDate), true);
+                            embedBuilder.AddField($"(ID: {rowToRead.Id}) {rowToRead.EventName} [{rowToRead.EventDate}]", ComposeEventDescriptionField(rowToRead), true);
 
                             await ctx.Channel.SendMessageAsync(embed: embedBuilder);
                         }
@@ -1165,7 +1165,7 @@ namespace OSISDiscordAssistant.Commands
                                 {
                                     DateTime eventDate = DateTime.Parse(events.EventDate, new CultureInfo(events.EventDateCultureInfo));
 
-                                    embedBuilder.AddField($"(ID: {events.Id}) {events.EventName} [{events.EventDate}]", ComposeEventDescriptionField(events, eventDate), true);
+                                    embedBuilder.AddField($"(ID: {events.Id}) {events.EventName} [{events.EventDate}]", ComposeEventDescriptionField(events), true);
 
                                     eventFound = true;
 
@@ -1507,7 +1507,7 @@ namespace OSISDiscordAssistant.Commands
                                     Color = DiscordColor.MidnightBlue
                                 };
 
-                                embedBuilder.AddField($"(ID: {events.Id}) {events.EventName} [{events.EventDate}]", ComposeEventDescriptionField(events, eventDate), true);
+                                embedBuilder.AddField($"(ID: {events.Id}) {events.EventName} [{events.EventDate}]", ComposeEventDescriptionField(events), true);
 
                                 eventEmbeds.Add(embedBuilder);
                                 counter++;
@@ -1554,8 +1554,10 @@ namespace OSISDiscordAssistant.Commands
         /// Composes the embed field's value for the respective event.
         /// </summary>
         /// <returns>A string containing the details of the respective event.</returns>
-        internal string ComposeEventDescriptionField(Events events, DateTime eventDate)
+        internal string ComposeEventDescriptionField(Events events)
         {
+            DateTime eventDate = DateTime.Parse(events.EventDate, new CultureInfo(events.EventDateCultureInfo));
+
             bool isProposalEmpty = events.ProposalFileTitle is null ? false : true;
 
             if (DateTime.Now < eventDate)
