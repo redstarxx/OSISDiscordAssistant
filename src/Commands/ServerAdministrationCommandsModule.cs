@@ -359,51 +359,42 @@ namespace OSISDiscordAssistant.Commands
         [Command("mute")]
         public async Task MuteHelpAsync(CommandContext ctx)
         {
-            string toSend =
-                "**[SYNTAX]** !mute [USERMENTION] [REASON]";
-            await ctx.Channel.SendMessageAsync(toSend);
+            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[SYNTAX]")} !mute [USER MENTION] [REASON]");
         }
 
         [RequireAdminRole]
         [Command("unmute")]
         public async Task UnmuteHelpAsync(CommandContext ctx)
         {
-            string toSend =
-                "**[SYNTAX]** !unmute [USERMENTION]";
-            await ctx.Channel.SendMessageAsync(toSend);
+            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[SYNTAX]")} !unmute [USER MENTION]");
         }
 
         [RequireAdminRole]
         [Command("kick")]
         public async Task KickHelpAsync(CommandContext ctx)
         {
-            string toSend =
-                "**[SYNTAX]** !kick [USERMENTION] [REASON]";
-            await ctx.Channel.SendMessageAsync(toSend);
+            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[SYNTAX]")} !kick [USER MENTION] [REASON]");
         }
 
         [RequireAdminRole]
         [Command("ban")]
         public async Task BanHelpAsync(CommandContext ctx)
         {
-            string toSend = "**[SYNTAX]** !ban [USERMENTION] [REASON]";
-            await ctx.Channel.SendMessageAsync(toSend);
+            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[SYNTAX]")} !ban [USER MENTION] [REASON]");
         }
 
         [RequireAdminRole]
         [Command("unban")]
         public async Task UnbanHelpAsync(CommandContext ctx)
         {
-            string toSend = "**[SYNTAX]** !unban [USERID] [REASON (optional)]";
-            await ctx.Channel.SendMessageAsync(toSend);
+            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[SYNTAX]")} !unban [USER ID] [REASON (optional)]");
         }
 
         [RequireAdminRole]
         [Command("setname")]
         public async Task SetNameAsync(CommandContext ctx)
         {
-            string toSend = "**[SYNTAX]** !setname [USERMENTION] [NEWNICKNAME]";
-            await ctx.Channel.SendMessageAsync(toSend);
+            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[SYNTAX]")} !setname [USER MENTION] [NEW NICKNAME]");
         }
 
         [RequireAdminRole]
@@ -418,14 +409,6 @@ namespace OSISDiscordAssistant.Commands
         public async Task PruneHelpAsync(CommandContext ctx)
         {
             await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[SYNTAX]")} !prune [MESSAGE COUNT] [REASON (optional)]");
-        }
-
-        [RequireMainGuild]
-        [RequireAdminRole]
-        [Command("assigndivrole")]
-        public async Task AssignDivRoleHelpAsync(CommandContext ctx)
-        {
-            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[SYNTAX]")} !assigndivrole [USER MENTION] [DIVISION NAME]");
         }
 
         [RequireAdminRole]

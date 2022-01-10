@@ -66,9 +66,7 @@ namespace OSISDiscordAssistant.Commands
 
                         if (eventNameExists)
                         {
-                            string toSend = $"{Formatter.Bold("[ERROR]")} The event {Formatter.InlineCode(eventNameResult.Result.Content)} already exists! Try again with a different name.";
-
-                            await ctx.Channel.SendMessageAsync(toSend);
+                            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} The event {Formatter.InlineCode(eventNameResult.Result.Content)} already exists! Try again with a different name.");
                             
                             return;
                         }
@@ -342,33 +340,28 @@ namespace OSISDiscordAssistant.Commands
             }
 
             else if (operationSelection == "update")
-            {
-                string toSend = $"{Formatter.Bold("[SYNTAX]")} !event update [EVENT ID or EVENT NAME]\nExample: {Formatter.InlineCode("!event update LDKS 2021")}";
-                await ctx.Channel.SendMessageAsync(toSend);
+            {                
+                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[SYNTAX]")} !event update [EVENT ID or EVENT NAME]\nExample: {Formatter.InlineCode("!event update LDKS 2021")}");
             }
 
             else if (operationSelection == "get")
-            {
-                string toSend = $"{Formatter.Bold("[SYNTAX]")} !event get [EVENT ID or EVENT NAME]\nExample: {Formatter.InlineCode("!event get LDKS 2021")}";
-                await ctx.Channel.SendMessageAsync(toSend);
+            {               
+                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[SYNTAX]")} !event get [EVENT ID or EVENT NAME]\nExample: {Formatter.InlineCode("!event get LDKS 2021")}");
             }
 
             else if (operationSelection == "search")
-            {
-                string toSend = $"{Formatter.Bold("[SYNTAX]")} !event search [EVENT NAME]\nExample: {Formatter.InlineCode("!event search LDKS 2021")}";
-                await ctx.Channel.SendMessageAsync(toSend);
+            {            
+                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[SYNTAX]")} !event search [EVENT NAME]\nExample: {Formatter.InlineCode("!event search LDKS 2021")}");
             }
 
             else if (operationSelection == "delete")
-            {
-                string toSend = $"{Formatter.Bold("[SYNTAX]")} !event delete [EVENT ID or EVENT NAME]\nExample: {Formatter.InlineCode("!event delete LDKS 2021")}";
-                await ctx.Channel.SendMessageAsync(toSend);
+            {                
+                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[SYNTAX]")} !event delete [EVENT ID or EVENT NAME]\nExample: {Formatter.InlineCode("!event delete LDKS 2021")}");
             }
 
             else if (operationSelection == "proposal")
-            {
-                string toSend = $"{Formatter.Bold("[SYNTAX]")} !event proposal [EVENT ID or EVENT NAME]\nExample: {Formatter.InlineCode("!event proposal LDKS 2021")}";
-                await ctx.Channel.SendMessageAsync(toSend);
+            {                
+                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[SYNTAX]")} !event proposal [EVENT ID or EVENT NAME]\nExample: {Formatter.InlineCode("!event proposal LDKS 2021")}");
             }
 
             else
@@ -535,9 +528,7 @@ namespace OSISDiscordAssistant.Commands
 
                                         if (eventNameExists)
                                         {
-                                            string toSend = $"{Formatter.Bold("[ERROR]")} The event {Formatter.InlineCode(eventNameResult.Result.Content)} already exists! Try again with a different name.";
-
-                                            await ctx.Channel.SendMessageAsync(toSend);
+                                            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} The event {Formatter.InlineCode(eventNameResult.Result.Content)} already exists! Try again with a different name.");
 
                                             return;
                                         }
@@ -1627,9 +1618,8 @@ namespace OSISDiscordAssistant.Commands
         internal async Task SendHelpEmoji(CommandContext ctx, string operationSelection)
         {
             var helpEmoji = DiscordEmoji.FromName(ctx.Client, ":sos:");
-            string toSend = $"{Formatter.Bold("[ERROR]")} The option {Formatter.InlineCode(operationSelection)} does not exist! Type {Formatter.InlineCode("!event")} to list all options. Alternatively, click the emoji below to get help.";
 
-            var errorMessage = await ctx.Channel.SendMessageAsync(toSend);
+            var errorMessage = await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} The option {Formatter.InlineCode(operationSelection)} does not exist! Type {Formatter.InlineCode("!event")} to list all options. Alternatively, click the emoji below to get help.");
 
             await errorMessage.CreateReactionAsync(helpEmoji);
 

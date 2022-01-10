@@ -36,8 +36,7 @@ namespace OSISDiscordAssistant.Commands
 
             if (remindMessage.Length == 0)
             {
-                string toSend = $"{Formatter.Bold("[ERROR]")} You cannot remind someone with an empty message. Type {Formatter.InlineCode("!remind")} to get help. Alternatively, click the emoji below to get help.";
-                var errorMessage = await ctx.RespondAsync(toSend);
+                var errorMessage = await ctx.RespondAsync($"{Formatter.Bold("[ERROR]")} You cannot remind someone with an empty message. Type {Formatter.InlineCode("!remind")} to get help. Alternatively, click the emoji below to get help.");
 
                 await SendHelpEmoji(ctx, errorMessage);
 
@@ -75,8 +74,7 @@ namespace OSISDiscordAssistant.Commands
 
                     else
                     {
-                        string toSend = $"{Formatter.Bold("[ERROR]")} Looks like an invalid reminder target! Type {Formatter.InlineCode("!remind")} to get help. Alternatively, click the emoji below to get help.";
-                        var errorMessage = await ctx.RespondAsync(toSend);
+                        var errorMessage = await ctx.RespondAsync($"{Formatter.Bold("[ERROR]")} Looks like an invalid reminder target! Type {Formatter.InlineCode("!remind")} to ensure you are following the command syntax correctly. Alternatively, click the emoji below to get help.");
 
                         await SendHelpEmoji(ctx, errorMessage);
 
