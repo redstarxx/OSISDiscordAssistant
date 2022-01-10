@@ -19,8 +19,6 @@ namespace OSISDiscordAssistant.Commands
 {
     class MiscCommandsModule : BaseCommandModule
     {
-        DateTime startTime = DateTime.UtcNow.AddHours(7);
-
         [Command("about")]
         public async Task AboutAsync(CommandContext ctx)
         {
