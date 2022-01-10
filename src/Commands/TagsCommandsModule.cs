@@ -94,16 +94,14 @@ namespace OSISDiscordAssistant.Commands
 
                         if (isExist)
                         {
-                            string toSend = $"The tag {Formatter.InlineCode(tagName)} already exists!";
-                            await ctx.RespondAsync(toSend);
+                            await ctx.RespondAsync($"The tag {Formatter.InlineCode(tagName)} already exists!");
 
                             return;
                         }
 
                         if (tagContentToWrite.Length == 0)
                         {
-                            string toSend = $"{Formatter.Bold("[ERROR]")} Tag content cannot be left empty!";
-                            await ctx.RespondAsync(toSend);
+                            await ctx.RespondAsync($"{Formatter.Bold("[ERROR]")} Tag content cannot be left empty!");
 
                             return;
                         }
@@ -130,8 +128,7 @@ namespace OSISDiscordAssistant.Commands
 
                         if (tagContentToWrite.Length == 0)
                         {
-                            string toSend = $"{Formatter.Bold("[ERROR]")} Tag content cannot be left empty!";
-                            await ctx.RespondAsync(toSend);
+                            await ctx.RespondAsync($"{Formatter.Bold("[ERROR]")} Tag content cannot be left empty!");
 
                             return;
                         }
@@ -169,9 +166,8 @@ namespace OSISDiscordAssistant.Commands
                 else
                 {
                     var helpEmoji = DiscordEmoji.FromName(ctx.Client, ":sos:");
-                    string toSend = $"{Formatter.Bold("[ERROR]")} The parameter {Formatter.InlineCode(operationSelection)} is invalid. Type {Formatter.InlineCode("!tag")} to list all options. Alternatively, click the emoji below to get help.";
 
-                    var errorMessage = await ctx.Channel.SendMessageAsync(toSend);
+                    var errorMessage = await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} The parameter {Formatter.InlineCode(operationSelection)} is invalid. Type {Formatter.InlineCode("!tag")} to list all options. Alternatively, click the emoji below to get help.");
 
                     await errorMessage.CreateReactionAsync(helpEmoji);
 
@@ -191,8 +187,7 @@ namespace OSISDiscordAssistant.Commands
 
             catch (Exception ex)
             {
-                string toSend = $"{Formatter.Bold("[ERROR]")} An error occurred. Did you tried to delete a nonexistent tag?\nError details: {Formatter.InlineCode($"{ex.Message.GetType()}: {ex.Message}")}";
-                await ctx.RespondAsync(toSend);
+                await ctx.RespondAsync($"{Formatter.Bold("[ERROR]")} An error occurred. Did you tried to delete a nonexistent tag?\nError details: {Formatter.InlineCode($"{ex.Message.GetType()}: {ex.Message}")}");
             }
         }
 
@@ -238,9 +233,7 @@ namespace OSISDiscordAssistant.Commands
         [Command("tag")]
         public async Task TagHelpAsync(CommandContext ctx)
         {
-            string toSend = $"{Formatter.Bold("[SYNTAX]")} !tag [CREATE/UPDATE/EDIT/DELETE] [TAGNAME] [TAGCONTENT]";
-
-            await ctx.Channel.SendMessageAsync(toSend);
+            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[SYNTAX]")} !tag [CREATE/UPDATE/EDIT/DELETE] [TAGNAME] [TAGCONTENT]");
         }
     }
 }
