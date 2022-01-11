@@ -293,7 +293,6 @@ namespace OSISDiscordAssistant.Commands
                                 var embedBuilder = new DiscordEmbedBuilder
                                 {
                                     Title = "Events Manager - Listing All Events...",
-                                    Description = "To navigate around the search results, interact with the buttons below, if any.",
                                     Timestamp = DateTime.Now,
                                     Footer = new DiscordEmbedBuilder.EmbedFooter
                                     {
@@ -314,24 +313,22 @@ namespace OSISDiscordAssistant.Commands
 
                     if (counter == 0)
                     {
-                        embedBuilder.Description = $"There are no events registered for the year {Formatter.Underline(DateTime.Now.Year.ToString())}.";
-
-                        await ctx.Channel.SendMessageAsync(embed: embedBuilder);
+                        await ctx.Channel.SendMessageAsync(embedBuilder.WithDescription($"There are no events registered for the year {Formatter.Underline(DateTime.Now.Year.ToString())}."));
                     }
 
                     else if (counter == 1)
                     {
-                        var messageBuilder = new DiscordMessageBuilder();
-
-                        messageBuilder.WithContent($"List of all registered events for the year {Formatter.Underline(DateTime.Now.Year.ToString())}. Indexed {counter} ({counter.ToWords()}) events.")
-                                      .WithEmbed(eventEmbeds.First().WithDescription(string.Empty));
-
-                        await ctx.Channel.SendMessageAsync(builder: messageBuilder);
+                        await ctx.Channel.SendMessageAsync(eventEmbeds.First().WithDescription($"List of all registered events for the year {Formatter.Underline(DateTime.Now.Year.ToString())}. Indexed {counter} ({counter.ToWords()}) events."));
                     }
 
                     else
                     {
-                        var pga = eventEmbeds.Select(x => new Page($"List of all registered events for the year {Formatter.Underline(DateTime.Now.Year.ToString())}. Indexed {counter} ({counter.ToWords()}) events.", x)).ToArray();
+                        foreach (var embed in eventEmbeds)
+                        {
+                            embed.WithDescription($"List of all registered events for the year {Formatter.Underline(DateTime.Now.Year.ToString())}. Indexed {counter} ({counter.ToWords()}) events. To navigate around the search results, interact with the buttons below.");
+                        }
+
+                        var pga = eventEmbeds.Select(x => new Page(string.Empty, x)).ToArray();
 
                         var interactivity = ctx.Client.GetInteractivity();
                         await interactivity.SendPaginatedMessageAsync(ctx.Channel, ctx.User, pga, PaginationBehaviour.WrapAround, ButtonPaginationBehavior.Disable);
@@ -1031,7 +1028,6 @@ namespace OSISDiscordAssistant.Commands
                                     var resultEmbed = new DiscordEmbedBuilder
                                     {
                                         Title = "Events Manager - Search Results",
-                                        Description = "To navigate around the search results, interact with the buttons below, if any.",
                                         Timestamp = DateTime.Now,
                                         Footer = new DiscordEmbedBuilder.EmbedFooter
                                         {
@@ -1051,24 +1047,22 @@ namespace OSISDiscordAssistant.Commands
 
                             if (counter == 0)
                             {
-                                embedBuilder.Description = $"Oops! There are no results for keyword {Formatter.InlineCode(parseOptionalInput)}! If you are getting an event by ID, use {Formatter.InlineCode("!event get")}.";
-
-                                await ctx.Channel.SendMessageAsync(embed: embedBuilder);
+                                await ctx.Channel.SendMessageAsync(embedBuilder.WithDescription($"Oops! There are no results for keyword {Formatter.InlineCode(parseOptionalInput)}! If you are getting an event by ID, use {Formatter.InlineCode("!event get")}."));
                             }
 
                             else if (counter == 1)
                             {
-                                var messageBuilder = new DiscordMessageBuilder();
-
-                                messageBuilder.WithContent($"Showing {counter} ({counter.ToWords()}) search result for keyword {Formatter.InlineCode(parseOptionalInput)}...")
-                                              .WithEmbed(eventEmbeds.First().WithDescription(string.Empty));
-
-                                await ctx.Channel.SendMessageAsync(builder: messageBuilder);
+                                await ctx.Channel.SendMessageAsync(eventEmbeds.First().WithDescription($"Showing {counter} ({counter.ToWords()}) search result for keyword {Formatter.InlineCode(parseOptionalInput)}."));
                             }
 
                             else
                             {
-                                var pga = eventEmbeds.Select(x => new Page($"Showing {counter} ({counter.ToWords()}) search results for keyword {Formatter.InlineCode(parseOptionalInput)}...", x)).ToArray();
+                                foreach (var embed in eventEmbeds)
+                                {
+                                    embed.WithDescription($"Showing {counter} ({counter.ToWords()}) search results for keyword {Formatter.InlineCode(parseOptionalInput)}. To navigate around the search results, interact with the buttons below.");
+                                }
+
+                                var pga = eventEmbeds.Select(x => new Page(string.Empty, x)).ToArray();
 
                                 var interactivity = ctx.Client.GetInteractivity();
                                 await interactivity.SendPaginatedMessageAsync(ctx.Channel, ctx.User, pga, PaginationBehaviour.WrapAround, ButtonPaginationBehavior.Disable);
@@ -1505,7 +1499,6 @@ namespace OSISDiscordAssistant.Commands
                                 var embedBuilder = new DiscordEmbedBuilder
                                 {
                                     Title = "Events Manager - Listing All Events...",
-                                    Description = "To navigate around the search results, interact with the buttons below, if any.",
                                     Timestamp = DateTime.Now,
                                     Footer = new DiscordEmbedBuilder.EmbedFooter
                                     {
@@ -1526,24 +1519,22 @@ namespace OSISDiscordAssistant.Commands
 
                     if (counter == 0)
                     {
-                        embedBuilder.Description = $"There are no events registered for the year {Formatter.Underline(year.ToString())}.";
-
-                        await ctx.Channel.SendMessageAsync(embed: embedBuilder);
+                        await ctx.Channel.SendMessageAsync(embed: embedBuilder.WithDescription($"There are no events registered for the year {Formatter.Underline(year.ToString())}."));
                     }
 
                     else if (counter == 1)
                     {
-                        var messageBuilder = new DiscordMessageBuilder();
-
-                        messageBuilder.WithContent($"List of all registered events for the year {Formatter.Underline(year.ToString())}. Indexed {counter} ({counter.ToWords()}) events.")
-                                      .WithEmbed(eventEmbeds.First().WithDescription(string.Empty));
-
-                        await ctx.Channel.SendMessageAsync(builder: messageBuilder);
+                        await ctx.Channel.SendMessageAsync(eventEmbeds.First().WithDescription($"List of all registered events for the year {Formatter.Underline(year.ToString())}. Indexed {counter} ({counter.ToWords()}) events."));
                     }
 
                     else
                     {
-                        var pga = eventEmbeds.Select(x => new Page($"List of all registered events for the year {Formatter.Underline(year.ToString())}. Indexed {counter} ({counter.ToWords()}) events.", x)).ToArray();
+                        foreach (var embed in eventEmbeds)
+                        {
+                            embed.WithDescription($"List of all registered events for the year {Formatter.Underline(year.ToString())}. Indexed {counter} ({counter.ToWords()}) events. To navigate around the search results, interact with the buttons below.");
+                        }
+
+                        var pga = eventEmbeds.Select(x => new Page(string.Empty, x)).ToArray();
 
                         var interactivity = ctx.Client.GetInteractivity();
                         await interactivity.SendPaginatedMessageAsync(ctx.Channel, ctx.User, pga, PaginationBehaviour.WrapAround, ButtonPaginationBehavior.Disable);
