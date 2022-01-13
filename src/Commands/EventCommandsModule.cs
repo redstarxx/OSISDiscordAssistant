@@ -80,7 +80,7 @@ namespace OSISDiscordAssistant.Commands
                         return;
                     }
 
-                    await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention}, tag the person-in-charge (ketua / wakil ketua acara) for {Formatter.Bold(eventNameResult.Result.Content)}. You have one minute.");
+                    await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention}, tag the Ketua / Wakil Ketua Acara for {Formatter.Bold(eventNameResult.Result.Content)}. You have one minute.");
                     var personInChargeResult = await interactivityModule.WaitForMessageAsync
                         (x => x.Author.Id == ctx.User.Id && x.Channel.Id == ctx.Channel.Id, TimeSpan.FromMinutes(1));
 
@@ -227,7 +227,7 @@ namespace OSISDiscordAssistant.Commands
 
                     else
                     {
-                        await ctx.Channel.SendMessageAsync("**[TIMED OUT]** Person-in-charge not entered within given time span. Re-run the command if you still need to create your event.");
+                        await ctx.Channel.SendMessageAsync("**[TIMED OUT]** Ketua / Wakil Ketua Acara not entered within given time span. Re-run the command if you still need to create your event.");
                         return;
                     }
                 }
@@ -527,7 +527,7 @@ namespace OSISDiscordAssistant.Commands
 
                             var inputInteractivity = ctx.Client.GetInteractivity();
 
-                            var updatePersonInChargeMessage = await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention}, enter your new person-in-charge for {Formatter.Bold(previousEventName)}. You have one minute.");
+                            var updatePersonInChargeMessage = await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention}, enter your new Ketua / Wakil Ketua Acara for {Formatter.Bold(previousEventName)}. You have one minute.");
                             var eventPersonInChargeResult = await inputInteractivity.WaitForMessageAsync
                                 (x => x.Author.Id == ctx.User.Id && x.Channel.Id == ctx.Channel.Id, TimeSpan.FromMinutes(1));
 
@@ -564,7 +564,7 @@ namespace OSISDiscordAssistant.Commands
                                     }
 
                                     embedBuilder.Title = $"Events Manager - {previousEventName} Update Details";
-                                    embedBuilder.Description = $"{ctx.Member.Mention} has made update(s) to {previousEventName}.\n\n{Formatter.Bold("Changes made:")}\n• Changed person-in-charge (ketua / wakil ketua event) from {Formatter.InlineCode(previousPersonInCharge)} to {Formatter.InlineCode(personInCharge)}.";
+                                    embedBuilder.Description = $"{ctx.Member.Mention} has made update(s) to {previousEventName}.\n\n{Formatter.Bold("Changes made:")}\n• Changed Ketua / Wakil Ketua Acara from {Formatter.InlineCode(previousPersonInCharge)} to {Formatter.InlineCode(personInCharge)}.";
                                     embedBuilder.Timestamp = DateTime.Now;
 
                                     await ctx.Channel.SendMessageAsync(embed: embedBuilder);
@@ -1343,12 +1343,12 @@ namespace OSISDiscordAssistant.Commands
             {
                 TimeSpan remainingDateTime = eventDate - DateTime.Now;
 
-                return $"Status: {ClientUtilities.ConvertBoolValue(events.Expired, ConvertBoolOption.UpcomingOrDone)} ({Formatter.Timestamp(remainingDateTime, TimestampFormat.RelativeTime)})\nPerson-in-charge: {events.PersonInCharge}\nProposal: {ClientUtilities.ConvertBoolValue(isProposalEmpty, ConvertBoolOption.StoredOrNotStored)}\nDescription: {events.EventDescription}";
+                return $"Status: {ClientUtilities.ConvertBoolValue(events.Expired, ConvertBoolOption.UpcomingOrDone)} ({Formatter.Timestamp(remainingDateTime, TimestampFormat.RelativeTime)})\nKetua / Wakil Ketua Acara: {events.PersonInCharge}\nProposal: {ClientUtilities.ConvertBoolValue(isProposalEmpty, ConvertBoolOption.StoredOrNotStored)}\nDescription: {events.EventDescription}";
             }
 
             else
             {
-                return $"Status: {ClientUtilities.ConvertBoolValue(events.Expired, ConvertBoolOption.UpcomingOrDone)}\nPerson-in-charge: {events.PersonInCharge}\nProposal: {ClientUtilities.ConvertBoolValue(isProposalEmpty, ConvertBoolOption.StoredOrNotStored)}\nDescription: {events.EventDescription}";
+                return $"Status: {ClientUtilities.ConvertBoolValue(events.Expired, ConvertBoolOption.UpcomingOrDone)}\nKetua / Wakil Ketua Acara: {events.PersonInCharge}\nProposal: {ClientUtilities.ConvertBoolValue(isProposalEmpty, ConvertBoolOption.StoredOrNotStored)}\nDescription: {events.EventDescription}";
             }
         }
 
