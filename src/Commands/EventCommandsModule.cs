@@ -1067,19 +1067,19 @@ namespace OSISDiscordAssistant.Commands
 
                 if (isNumber)
                 {
-                    return db.Events.SingleOrDefault(x => x.Id == rowIDRaw);
+                    return db.Events.FirstOrDefault(x => x.Id == rowIDRaw);
                 }
 
                 else
                 {
                     if (searchMode is EventSearchMode.Exact)
                     {
-                        return db.Events.SingleOrDefault(x => x.EventName == keyword.ToLowerInvariant());
+                        return db.Events.FirstOrDefault(x => x.EventName == keyword.ToLowerInvariant());
                     }
 
                     else if (searchMode is EventSearchMode.ClosestMatching)
                     {
-                        return db.Events.SingleOrDefault(x => x.EventName.Contains(keyword.ToLowerInvariant()));
+                        return db.Events.FirstOrDefault(x => x.EventName.Contains(keyword.ToLowerInvariant()));
                     }
                 }
             }
