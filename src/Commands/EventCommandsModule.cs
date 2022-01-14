@@ -195,31 +195,25 @@ namespace OSISDiscordAssistant.Commands
 
                     List<DiscordEmbedBuilder> eventEmbeds = new List<DiscordEmbedBuilder>();
 
-                    using (var db = new EventContext())
+                    List<Events> eventsData = new List<Events>();
+
+                    foreach (var events in eventsData)
                     {
-                        foreach (var events in db.Events)
+                        var embedBuilder = new DiscordEmbedBuilder
                         {
-                            DateTime eventDate = DateTime.Parse(events.EventDate, new CultureInfo(events.EventDateCultureInfo));
-
-                            if (DateTime.Now.Year == eventDate.Year)
+                            Title = "Events Manager - Listing All Events...",
+                            Timestamp = DateTime.Now,
+                            Footer = new DiscordEmbedBuilder.EmbedFooter
                             {
-                                var embedBuilder = new DiscordEmbedBuilder
-                                {
-                                    Title = "Events Manager - Listing All Events...",
-                                    Timestamp = DateTime.Now,
-                                    Footer = new DiscordEmbedBuilder.EmbedFooter
-                                    {
-                                        Text = "OSIS Discord Assistant"
-                                    },
-                                    Color = DiscordColor.MidnightBlue
-                                };
+                                Text = "OSIS Discord Assistant"
+                            },
+                            Color = DiscordColor.MidnightBlue
+                        };
 
-                                embedBuilder.AddField($"(ID: {events.Id}) {events.EventName} [{events.EventDate}]", ComposeEventDescriptionField(events), true);
+                        embedBuilder.AddField($"(ID: {events.Id}) {events.EventName} [{events.EventDate}]", ComposeEventDescriptionField(events), true);
 
-                                eventEmbeds.Add(embedBuilder);
-                                counter++;
-                            }
-                        }
+                        eventEmbeds.Add(embedBuilder);
+                        counter++;
                     }
 
                     await notifyMessage.DeleteAsync();
@@ -285,10 +279,10 @@ namespace OSISDiscordAssistant.Commands
         /// </summary>
         /// <param name="ctx">The respective context that the command belongs to.</param>
         /// <param name="operationSelection">Operation type to run.</param>
-        /// <param name="optionalInput">Row number or event name from the events table to update or delete or search. Optional.</param>
+        /// <param name="keyword">Row number or event name from the events table to update or delete or search. Optional.</param>
         [RequireMainGuild, RequireAccessRole]
         [Command("event")]
-        public async Task Event(CommandContext ctx, string operationSelection, params string[] optionalInput)
+        public async Task Event(CommandContext ctx, string operationSelection, [RemainingText] string keyword)
         {
             if (operationSelection == "create")
             {
@@ -309,7 +303,7 @@ namespace OSISDiscordAssistant.Commands
                     Color = DiscordColor.MidnightBlue
                 };
 
-                Events eventData = FetchEventData(string.Join(" ", optionalInput), EventSearchMode.ClosestMatching);
+                Events eventData = FetchEventData(keyword, EventSearchMode.ClosestMatching);
 
                 if (eventData is null)
                 {
@@ -653,7 +647,7 @@ namespace OSISDiscordAssistant.Commands
 
             else if (operationSelection == "delete")
             {
-                Events eventData = FetchEventData(string.Join(" ", optionalInput), EventSearchMode.Exact);
+                Events eventData = FetchEventData(keyword, EventSearchMode.Exact);
 
                 if (eventData is null)
                 {
@@ -681,8 +675,6 @@ namespace OSISDiscordAssistant.Commands
 
             else if (operationSelection == "search")
             {
-                string keyword = string.Join(" ", optionalInput);
-
                 var embedBuilder = new DiscordEmbedBuilder
                 {
                     Title = "Events Manager - Search Result",
@@ -694,79 +686,60 @@ namespace OSISDiscordAssistant.Commands
                     Color = DiscordColor.MidnightBlue
                 };
 
-                string toSearch = keyword.ToLowerInvariant();
+                int counter = 0;
 
-                using (var db = new EventContext())
+                List<DiscordEmbedBuilder> eventEmbeds = new List<DiscordEmbedBuilder>();
+
+                List<Events> eventsData = FetchAllEventsData(false, keyword);
+
+                foreach (var events in eventsData)
                 {
-                    try
+                    var resultEmbed = new DiscordEmbedBuilder
                     {
-                        int counter = 0;
-
-                        List<DiscordEmbedBuilder> eventEmbeds = new List<DiscordEmbedBuilder>();
-
-                        foreach (var events in db.Events)
+                        Title = "Events Manager - Search Results",
+                        Timestamp = DateTime.Now,
+                        Footer = new DiscordEmbedBuilder.EmbedFooter
                         {
-                            if (events.EventName.ToLowerInvariant().Contains(toSearch))
-                            {
-                                var resultEmbed = new DiscordEmbedBuilder
-                                {
-                                    Title = "Events Manager - Search Results",
-                                    Timestamp = DateTime.Now,
-                                    Footer = new DiscordEmbedBuilder.EmbedFooter
-                                    {
-                                        Text = "OSIS Discord Assistant"
-                                    },
-                                    Color = DiscordColor.MidnightBlue
-                                };
+                            Text = "OSIS Discord Assistant"
+                        },
+                        Color = DiscordColor.MidnightBlue
+                    };
 
-                                DateTime eventDate = DateTime.Parse(events.EventDate, new CultureInfo(events.EventDateCultureInfo));
+                    DateTime eventDate = DateTime.Parse(events.EventDate, new CultureInfo(events.EventDateCultureInfo));
 
-                                resultEmbed.AddField($"(ID: {events.Id}) {events.EventName} [{events.EventDate}]", ComposeEventDescriptionField(events), true);
+                    resultEmbed.AddField($"(ID: {events.Id}) {events.EventName} [{events.EventDate}]", ComposeEventDescriptionField(events), true);
 
-                                eventEmbeds.Add(resultEmbed);
-                                counter++;
-                            }
-                        }
+                    eventEmbeds.Add(resultEmbed);
+                    counter++;
+                }
 
-                        if (counter == 0)
-                        {
-                            await ctx.Channel.SendMessageAsync(embedBuilder.WithDescription($"Oops! There are no results for keyword {Formatter.InlineCode(keyword)}! If you are getting an event by ID, use {Formatter.InlineCode("!event get")}."));
-                        }
+                if (counter == 0)
+                {
+                    await ctx.Channel.SendMessageAsync(embedBuilder.WithDescription($"Oops! There are no results for keyword {Formatter.InlineCode(keyword)}! If you are getting an event by ID, use {Formatter.InlineCode("!event get")}."));
+                }
 
-                        else if (counter == 1)
-                        {
-                            await ctx.Channel.SendMessageAsync(eventEmbeds.First().WithDescription($"Showing {counter} ({counter.ToWords()}) search result for keyword {Formatter.InlineCode(keyword)}."));
-                        }
+                else if (counter == 1)
+                {
+                    await ctx.Channel.SendMessageAsync(eventEmbeds.First().WithDescription($"Showing {counter} ({counter.ToWords()}) search result for keyword {Formatter.InlineCode(keyword)}."));
+                }
 
-                        else
-                        {
-                            foreach (var embed in eventEmbeds)
-                            {
-                                embed.WithDescription($"Showing {counter} ({counter.ToWords()}) search results for keyword {Formatter.InlineCode(keyword)}. To navigate around the search results, interact with the buttons below.");
-                            }
-
-                            var pga = eventEmbeds.Select(x => new Page(string.Empty, x)).ToArray();
-
-                            var interactivity = ctx.Client.GetInteractivity();
-                            await interactivity.SendPaginatedMessageAsync(ctx.Channel, ctx.User, pga, PaginationBehaviour.WrapAround, ButtonPaginationBehavior.Disable);
-                        }
+                else
+                {
+                    foreach (var embed in eventEmbeds)
+                    {
+                        embed.WithDescription($"Showing {counter} ({counter.ToWords()}) search results for keyword {Formatter.InlineCode(keyword)}. To navigate around the search results, interact with the buttons below.");
                     }
 
-                    catch
-                    {
-                        embedBuilder.Description = $"Oops! There are no results for keyword {Formatter.InlineCode(keyword)}! Have you typed the correct event name or ID?";
-                        await ctx.Channel.SendMessageAsync(embed: embedBuilder);
+                    var pga = eventEmbeds.Select(x => new Page(string.Empty, x)).ToArray();
 
-                        return;
-                    }
+                    var interactivity = ctx.Client.GetInteractivity();
+                    await interactivity.SendPaginatedMessageAsync(ctx.Channel, ctx.User, pga, PaginationBehaviour.WrapAround, ButtonPaginationBehavior.Disable);
                 }
             }
 
             else if (operationSelection == "get")
             {
-                bool isNumber = int.TryParse(string.Join(" ", optionalInput), out int rowIDRaw);
-
-                string keyword = string.Join(" ", optionalInput);
+                bool isNumber = int.TryParse(keyword, out int rowIDRaw);
 
                 Events eventData = FetchEventData(keyword, EventSearchMode.Exact);
 
@@ -807,7 +780,7 @@ namespace OSISDiscordAssistant.Commands
 
             else if (operationSelection == "proposal")
             {
-                Events eventData = FetchEventData(string.Join(" ", optionalInput), EventSearchMode.ClosestMatching);
+                Events eventData = FetchEventData(keyword, EventSearchMode.ClosestMatching);
 
                 if (eventData is null)
                 {
@@ -1005,8 +978,6 @@ namespace OSISDiscordAssistant.Commands
 
             else if (operationSelection == "list")
             {
-                int year;
-
                 var embedBuilder = new DiscordEmbedBuilder
                 {
                     Title = "Events Manager - Listing All Events...",
@@ -1018,22 +989,6 @@ namespace OSISDiscordAssistant.Commands
                     Color = DiscordColor.MidnightBlue
                 };
 
-                try
-                {
-                    year = Convert.ToInt32(string.Join(" ", optionalInput));
-                }
-
-                catch
-                {
-                    embedBuilder.Title = "Events Manager - Error";
-
-                    embedBuilder.Description = $"I can only accept numbers (not dates!) and that number must be a year. Example: {Formatter.InlineCode("!event list 2019")}";
-
-                    await ctx.Channel.SendMessageAsync(embedBuilder.Build());
-
-                    return;
-                }
-
                 var notifyMessage = await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[EVENTS MANAGER]")} Give me a second to process everything...");
                 await ctx.TriggerTypingAsync();
 
@@ -1043,50 +998,44 @@ namespace OSISDiscordAssistant.Commands
 
                     int counter = 0;
 
-                    using (var db = new EventContext())
+                    List<Events> eventsData = FetchAllEventsData(true, keyword);
+
+                    foreach (var events in eventsData)
                     {
-                        foreach (var events in db.Events)
+                        var embedBuilder = new DiscordEmbedBuilder
                         {
-                            DateTime eventDate = DateTime.Parse(events.EventDate, new CultureInfo(events.EventDateCultureInfo));
-
-                            if (year == eventDate.Year)
+                            Title = "Events Manager - Listing All Events...",
+                            Timestamp = DateTime.Now,
+                            Footer = new DiscordEmbedBuilder.EmbedFooter
                             {
-                                var embedBuilder = new DiscordEmbedBuilder
-                                {
-                                    Title = "Events Manager - Listing All Events...",
-                                    Timestamp = DateTime.Now,
-                                    Footer = new DiscordEmbedBuilder.EmbedFooter
-                                    {
-                                        Text = "OSIS Discord Assistant"
-                                    },
-                                    Color = DiscordColor.MidnightBlue
-                                };
+                                Text = "OSIS Discord Assistant"
+                            },
+                            Color = DiscordColor.MidnightBlue
+                        };
 
-                                embedBuilder.AddField($"(ID: {events.Id}) {events.EventName} [{events.EventDate}]", ComposeEventDescriptionField(events), true);
+                        embedBuilder.AddField($"(ID: {events.Id}) {events.EventName} [{events.EventDate}]", ComposeEventDescriptionField(events), true);
 
-                                eventEmbeds.Add(embedBuilder);
-                                counter++;
-                            }
-                        }
+                        eventEmbeds.Add(embedBuilder);
+                        counter++;
                     }
 
                     await notifyMessage.DeleteAsync();
 
                     if (counter == 0)
                     {
-                        await ctx.Channel.SendMessageAsync(embed: embedBuilder.WithDescription($"There are no events registered for the year {Formatter.Underline(year.ToString())}."));
+                        await ctx.Channel.SendMessageAsync(embed: embedBuilder.WithDescription($"There are no events registered for the year {Formatter.Underline(keyword)}."));
                     }
 
                     else if (counter == 1)
                     {
-                        await ctx.Channel.SendMessageAsync(eventEmbeds.First().WithDescription($"List of all registered events for the year {Formatter.Underline(year.ToString())}. Indexed {counter} ({counter.ToWords()}) events."));
+                        await ctx.Channel.SendMessageAsync(eventEmbeds.First().WithDescription($"List of all registered events for the year {Formatter.Underline(keyword)}. Indexed {counter} ({counter.ToWords()}) events."));
                     }
 
                     else
                     {
                         foreach (var embed in eventEmbeds)
                         {
-                            embed.WithDescription($"List of all registered events for the year {Formatter.Underline(year.ToString())}. Indexed {counter} ({counter.ToWords()}) events. To navigate around the search results, interact with the buttons below.");
+                            embed.WithDescription($"List of all registered events for the year {Formatter.Underline(keyword)}. Indexed {counter} ({counter.ToWords()}) events. To navigate around the search results, interact with the buttons below.");
                         }
 
                         var pga = eventEmbeds.Select(x => new Page(string.Empty, x)).ToArray();
@@ -1105,18 +1054,16 @@ namespace OSISDiscordAssistant.Commands
 
         /// <summary>
         /// Fetches the event data by the given name or ID. This function returns a single <see cref="Events" /> object once it matches with the given criteria.
-        /// Not to be confused with indexing a list of events (searching, listing, etc.) whereas these operations returns more than one <see cref="Events" />.
+        /// Not to be confused with indexing a list of events (<see cref="FetchAllEventsData(bool, string)" />) where this function returns more than one <see cref="Events" /> object.
         /// </summary>
         /// <param name="eventNameOrId">The name of the event or the row ID.</param>
         /// <param name="searchMode">The search strategy that tells how to search the event, when fetching via name.</param>
         /// <returns>The <see cref="Events" /> object.</returns>
-        internal Events FetchEventData(string eventNameOrId, EventSearchMode searchMode)
+        internal Events FetchEventData(string keyword, EventSearchMode searchMode)
         {
             using (var db = new EventContext())
             {
-                bool isNumber = int.TryParse(string.Join(" ", eventNameOrId), out int rowIDRaw);
-
-                string inputEventName = string.Join(" ", eventNameOrId);
+                bool isNumber = int.TryParse(keyword, out int rowIDRaw);
 
                 if (isNumber)
                 {
@@ -1125,28 +1072,66 @@ namespace OSISDiscordAssistant.Commands
 
                 else
                 {
+                    if (searchMode is EventSearchMode.Exact)
+                    {
+                        return db.Events.SingleOrDefault(x => x.EventName == keyword.ToLowerInvariant());
+                    }
+
+                    else if (searchMode is EventSearchMode.ClosestMatching)
+                    {
+                        return db.Events.SingleOrDefault(x => x.EventName.Contains(keyword.ToLowerInvariant()));
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Fetches a list of events data by the given keyword. This function returns a list of <see cref="Events" /> object.
+        /// </summary>
+        /// <param name="indexYear">Sets whether to search events based on the year or process them as a whole.</param>
+        /// <param name="keyword">The keyword of the search.</param>
+        /// <returns>A <see cref="List{T}" /> of <see cref="Events" /> object.</returns>
+        internal List<Events> FetchAllEventsData(bool indexYear, string keyword)
+        {
+            List<Events> eventsData = new List<Events>();
+
+            using (var db = new EventContext())
+            {
+                if (indexYear)
+                {
+                    bool conversionSuccessful = int.TryParse(keyword, out int year);
+
+                    if (!conversionSuccessful)
+                    {
+                        throw new Exception($"I can only accept years, not dates! Example: !event list 2019");
+                    }
+
                     foreach (var events in db.Events)
                     {
-                        if (searchMode is EventSearchMode.Exact)
-                        {
-                            if (events.EventName.ToLowerInvariant() == inputEventName.ToLowerInvariant())
-                            {
-                                return events;
-                            }
-                        }
+                        DateTime eventDate = DateTime.Parse(events.EventDate, new CultureInfo(events.EventDateCultureInfo));
 
-                        else if (searchMode is EventSearchMode.ClosestMatching)
+                        if (year == eventDate.Year)
                         {
-                            if (events.EventName.ToLowerInvariant().Contains(inputEventName.ToLowerInvariant()))
-                            {
-                                return events;
-                            }
+                            eventsData.Add(events);
                         }
                     }
                 }
 
-                return null;
+                else
+                {
+                    foreach (var events in db.Events)
+                    {
+                        if (events.EventName.ToLowerInvariant().Contains(keyword.ToLowerInvariant()))
+                        {
+                            eventsData.Add(events);
+                        }
+                    }
+                }
             }
+
+            return eventsData;
         }
 
         /// <summary>
