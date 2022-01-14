@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading;
 using System.Globalization;
 using System.Threading.Tasks;
-using System.Text.RegularExpressions;
 using System.Net;
 using System.IO;
 using System.Collections.Generic;
@@ -14,12 +13,12 @@ using DSharpPlus.Interactivity;
 using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.Interactivity.Enums;
 using DSharpPlus.Entities;
-using Npgsql;
 using Humanizer;
 using OSISDiscordAssistant.Attributes;
 using OSISDiscordAssistant.Models;
 using OSISDiscordAssistant.Utilities;
 using OSISDiscordAssistant.Enums;
+using OSISDiscordAssistant.Entities;
 
 namespace OSISDiscordAssistant.Commands
 {
@@ -106,94 +105,20 @@ namespace OSISDiscordAssistant.Commands
                                 return;
                             }
 
-                            // Checks whether the provided date specifies the year. This assumes that there are no numbers up to 4 digits occuring more than once.
-                            Regex regex = new Regex(@"\d{4}");
+                            VerifiedEventDateEntity verifiedEventDateEntity = new VerifiedEventDateEntity();
 
-                            Match yearExist = regex.Match(eventDate);
-                            if (!yearExist.Success)
+                            verifiedEventDateEntity = verifiedEventDateEntity.Verify(eventDateResult.Result.Content);
+
+                            if (!verifiedEventDateEntity.Passed)
                             {
-                                ulong eventDateMessageId = eventDateResult.Result.Id;
-                                var toReply = await eventDateResult.Result.Channel.GetMessageAsync(eventDateMessageId);
-
-                                await toReply.RespondAsync($"{Formatter.Bold("[ERROR]")} Oops! It looks like you did not include the year of the event. Please add it! (example: 25 Juni 2021).");
+                                await ctx.Channel.SendMessageAsync(verifiedEventDateEntity.ErrorMessage);
 
                                 return;
                             }
 
-                            // The following try-catch blocks will attempt to parse the given date time. 
-                            // If it fails, the event creation is canceled as it would not allow the bot to parse them for event reminders.
-                            try
+                            else
                             {
-                                var cultureInfoUS = new CultureInfo("en-US");
-
-                                // Add 7 hours ahead because for some reason Linux doesn't pick the user preferred timezone.
-                                DateTime currentTime = DateTime.Now;
-
-                                DateTime toConvert = DateTime.Parse(eventDate, cultureInfoUS);
-
-                                TimeSpan calculateTimeSpan = toConvert - currentTime;
-
-                                if (calculateTimeSpan.TotalDays > 365)
-                                {
-                                    string errorMessage = "**[ERROR]** Maximum allowed time span is one year (365 days). Alternatively, include the year of the event as well if you have not.";
-                                    await ctx.RespondAsync(errorMessage);
-
-                                    return;
-                                }
-
-                                if (calculateTimeSpan.Days < 1)
-                                {
-                                    string errorMessage = "**[ERROR]** Minimum allowed date is one day before the event. Alternatively, include the year of the event as well if you have not.";
-                                    await ctx.Channel.SendMessageAsync(errorMessage);
-
-                                    return;
-                                }
-
-                                // Set the culture info to store.
-                                eventDateCultureInfo = "en-US";
-                            }
-
-                            catch
-                            {
-                                try
-                                {
-                                    var cultureInfoID = new CultureInfo("id-ID");
-
-                                    // Add 7 hours ahead because for some reason Linux doesn't pick the user preferred timezone.
-                                    DateTime currentTime = DateTime.Now;
-
-                                    DateTime toConvert = DateTime.Parse(eventDate, cultureInfoID);
-
-                                    TimeSpan calculateTimeSpan = toConvert - currentTime;
-
-                                    if (calculateTimeSpan.TotalDays > 365)
-                                    {
-                                        string errorMessage = "**[ERROR]** Maximum allowed time span is one year (365 days). Alternatively, include the year of the event as well if you have not.";
-                                        await ctx.RespondAsync(errorMessage);
-
-                                        return;
-                                    }
-
-                                    if (calculateTimeSpan.Days < 1)
-                                    {
-                                        string errorMessage = "**[ERROR]** Minimum allowed date is one day before the event. Alternatively, include the year of the event as well if you have not.";
-                                        await ctx.Channel.SendMessageAsync(errorMessage);
-
-                                        return;
-                                    }
-
-                                    // Set the culture info to store.
-                                    eventDateCultureInfo = "id-ID";
-                                }
-
-                                catch
-                                {
-                                    // Notify the user that the provided event date cannot be parsed.
-                                    string errorMessage = $"{Formatter.Bold("[ERROR]")} An error occured. Your event date cannot be parsed. Make sure your date and time is written in English or Indonesian. Example: 25 June 2021.";
-                                    await ctx.Channel.SendMessageAsync(errorMessage);
-
-                                    return;
-                                }
+                                eventDateCultureInfo = verifiedEventDateEntity.DateCultureInfo;
                             }
 
                             await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention}, enter your event description for {Formatter.Bold(eventNameResult.Result.Content)}. You have one minute.");
@@ -396,108 +321,260 @@ namespace OSISDiscordAssistant.Commands
                     Color = DiscordColor.MidnightBlue
                 };
 
-                using (var db = new EventContext())
+                Events eventData = FetchEventData(string.Join(" ", optionalInput), EventSearchMode.ClosestMatching);
+
+                if (eventData is null)
                 {
-                    Events eventData = FetchEventData(string.Join(" ", optionalInput), EventSearchMode.ClosestMatching);
+                    await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} An error occured. You must provide the correct ID or name of the event you are updating. Refer to {Formatter.InlineCode("!event list")} or {Formatter.InlineCode("!event search")}.");
 
-                    if (eventData is null)
+                    return;
+                }
+
+                // Checks whether the selected event has already expired.
+                bool hasExpired = eventData.Expired;
+
+                string previousEventName = eventData.EventName;
+
+                embedBuilder.Title = $"Events Manager - Updating {previousEventName}...";
+                embedBuilder.Description = $"Choose either one of the following emojis to select what are you going to change from {Formatter.Bold(previousEventName)}.\n\n" +
+                    "**[1]** Change event name;\n**[2]** Change event person-in-charge (ketua / wakil ketua acara);\n**[3]** Change event date and time;\n**[4]** Change event description.\n\n" +
+                    $"You have 5 (five) minutes to make your choice otherwise the bot will abort. To cancel your changes, type {Formatter.InlineCode("abort")}.";
+                var updateEmbed = await ctx.Channel.SendMessageAsync(embed: embedBuilder);
+
+                var numberOneEmoji = DiscordEmoji.FromName(ctx.Client, ":one:");
+                var numberTwoEmoji = DiscordEmoji.FromName(ctx.Client, ":two:");
+                var numberThreeEmoji = DiscordEmoji.FromName(ctx.Client, ":three:");
+                var numberFourEmoji = DiscordEmoji.FromName(ctx.Client, ":four:");
+
+                await updateEmbed.CreateReactionAsync(numberOneEmoji);
+                await updateEmbed.CreateReactionAsync(numberTwoEmoji);
+                await updateEmbed.CreateReactionAsync(numberThreeEmoji);
+                await updateEmbed.CreateReactionAsync(numberFourEmoji);
+
+                var selectionInteractivity = ctx.Client.GetInteractivity();
+                var selectionResult = await selectionInteractivity.WaitForReactionAsync
+                    (x => x.Message == updateEmbed && (x.User.Id == ctx.User.Id) && (x.Emoji == numberOneEmoji || x.Emoji == numberTwoEmoji ||
+                    x.Emoji == numberThreeEmoji || x.Emoji == numberFourEmoji), TimeSpan.FromMinutes(5));
+
+                if (!selectionResult.TimedOut)
+                {
+                    string eventName = null;
+                    string personInCharge = null;
+                    string eventDate = null;
+                    string eventDateCultureInfo = null;
+                    string eventDescription = null;
+
+                    if (selectionResult.Result.Emoji == numberOneEmoji)
                     {
-                        await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} An error occured. You must provide the correct ID or name of the event you are updating. Refer to {Formatter.InlineCode("!event list")} or {Formatter.InlineCode("!event search")}.");
+                        await updateEmbed.DeleteAllReactionsAsync();
 
-                        return;
+                        var inputInteractivity = ctx.Client.GetInteractivity();
+
+                        var updateNameMessage = await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention}, enter your new event name for {Formatter.Bold(previousEventName)}. You have one minute.");
+                        var eventNameResult = await inputInteractivity.WaitForMessageAsync
+                            (x => x.Author.Id == ctx.User.Id && x.Channel.Id == ctx.Channel.Id, TimeSpan.FromMinutes(1));
+
+                        if (!eventNameResult.TimedOut)
+                        {
+                            Events getExistingEventName = FetchEventData(eventNameResult.Result.Content, EventSearchMode.Exact);
+
+                            if (getExistingEventName.EventName is not null)
+                            {
+                                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} The event {Formatter.InlineCode(eventNameResult.Result.Content)} already exists! Try again with a different name.");
+
+                                return;
+                            }
+
+                            eventName = eventNameResult.Result.Content;
+
+                            if (eventName.Length > 50)
+                            {
+                                await ctx.Channel.SendMessageAsync("**[ERROR]** Operation aborted. Maximum character limit of 50 characters exceeded.");
+                                return;
+                            }
+
+                            if (eventName == "abort")
+                            {
+                                await ctx.Channel.SendMessageAsync($"Update operation aborted as per your request, {ctx.Member.Mention}.");
+                                return;
+                            }
+
+                            Task offloadToTask = Task.Run(async () =>
+                            {
+                                using (var dbUpdate = new EventContext())
+                                {
+                                    Events rowToUpdate = null;
+                                    rowToUpdate = dbUpdate.Events.SingleOrDefault(x => x.Id == eventData.Id);
+
+                                    if (rowToUpdate != null)
+                                    {
+                                        rowToUpdate.EventName = eventName;
+                                    }
+
+                                    dbUpdate.SaveChanges();
+
+                                    await dbUpdate.DisposeAsync();
+                                }
+
+                                embedBuilder.Title = $"Events Manager - {previousEventName} Update Details";
+                                embedBuilder.Description = $"{ctx.Member.Mention} has made update(s) to {previousEventName}.\n\n{Formatter.Bold("Changes made:")}\n• Changed event name from {Formatter.InlineCode(previousEventName)} to {Formatter.InlineCode(eventName)}.";
+                                embedBuilder.Timestamp = DateTime.Now;
+
+                                await ctx.Channel.SendMessageAsync(embed: embedBuilder);
+                            });
+                        }
+
+                        else
+                        {
+                            await ctx.Channel.SendMessageAsync("**[TIMED OUT]** Operation aborted. Event name not entered within given time span.");
+                            return;
+                        }
                     }
 
-                    // Checks whether the selected event has already expired.
-                    bool hasExpired = eventData.Expired;
-
-                    string previousEventName = eventData.EventName;
-
-                    embedBuilder.Title = $"Events Manager - Updating {previousEventName}...";
-                    embedBuilder.Description = $"Choose either one of the following emojis to select what are you going to change from {Formatter.Bold(previousEventName)}.\n\n" +
-                        "**[1]** Change event name;\n**[2]** Change event person-in-charge (ketua / wakil ketua acara);\n**[3]** Change event date and time;\n**[4]** Change event description.\n\n" +
-                        $"You have 5 (five) minutes to make your choice otherwise the bot will abort. To cancel your changes, type {Formatter.InlineCode("abort")}.";
-                    var updateEmbed = await ctx.Channel.SendMessageAsync(embed: embedBuilder);
-
-                    var numberOneEmoji = DiscordEmoji.FromName(ctx.Client, ":one:");
-                    var numberTwoEmoji = DiscordEmoji.FromName(ctx.Client, ":two:");
-                    var numberThreeEmoji = DiscordEmoji.FromName(ctx.Client, ":three:");
-                    var numberFourEmoji = DiscordEmoji.FromName(ctx.Client, ":four:");
-
-                    await updateEmbed.CreateReactionAsync(numberOneEmoji);
-                    await updateEmbed.CreateReactionAsync(numberTwoEmoji);
-                    await updateEmbed.CreateReactionAsync(numberThreeEmoji);
-                    await updateEmbed.CreateReactionAsync(numberFourEmoji);
-
-                    var selectionInteractivity = ctx.Client.GetInteractivity();
-                    var selectionResult = await selectionInteractivity.WaitForReactionAsync
-                        (x => x.Message == updateEmbed && (x.User.Id == ctx.User.Id) && (x.Emoji == numberOneEmoji || x.Emoji == numberTwoEmoji ||
-                        x.Emoji == numberThreeEmoji || x.Emoji == numberFourEmoji), TimeSpan.FromMinutes(5));
-
-                    if (!selectionResult.TimedOut)
+                    else if (selectionResult.Result.Emoji == numberTwoEmoji)
                     {
-                        string eventName = null;
-                        string personInCharge = null;
-                        string eventDate = null;
-                        string eventDateCultureInfo = null;
-                        string eventDescription = null;
+                        await updateEmbed.DeleteAllReactionsAsync();
 
-                        if (selectionResult.Result.Emoji == numberOneEmoji)
+                        string previousPersonInCharge = eventData.PersonInCharge;
+
+                        var inputInteractivity = ctx.Client.GetInteractivity();
+
+                        var updatePersonInChargeMessage = await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention}, enter your new Ketua / Wakil Ketua Acara for {Formatter.Bold(previousEventName)}. You have one minute.");
+                        var eventPersonInChargeResult = await inputInteractivity.WaitForMessageAsync
+                            (x => x.Author.Id == ctx.User.Id && x.Channel.Id == ctx.Channel.Id, TimeSpan.FromMinutes(1));
+
+                        if (!eventPersonInChargeResult.TimedOut)
                         {
-                            await updateEmbed.DeleteAllReactionsAsync();
+                            personInCharge = eventPersonInChargeResult.Result.Content;
 
-                            var inputInteractivity = ctx.Client.GetInteractivity();
-
-                            var updateNameMessage = await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention}, enter your new event name for {Formatter.Bold(previousEventName)}. You have one minute.");
-                            var eventNameResult = await inputInteractivity.WaitForMessageAsync
-                                (x => x.Author.Id == ctx.User.Id && x.Channel.Id == ctx.Channel.Id, TimeSpan.FromMinutes(1));
-
-                            if (!eventNameResult.TimedOut)
+                            if (eventName.Length > 100)
                             {
-                                // Checks whether the given event name matches with another event that has the exact name as given.
-                                bool eventNameExists = false;
+                                await ctx.Channel.SendMessageAsync("**[ERROR]** Operation aborted. Maximum character limit of 100 characters exceeded.");
+                                return;
+                            }
 
-                                foreach (var events in db.Events)
+                            if (eventName == "abort")
+                            {
+                                await ctx.Channel.SendMessageAsync($"Update operation aborted as per your request, {ctx.Member.Mention}.");
+                                return;
+                            }
+
+                            Task offloadToTask = Task.Run(async () =>
+                            {
+                                using (var dbUpdate = new EventContext())
                                 {
-                                    if (events.EventName.ToLowerInvariant() == eventNameResult.Result.Content.ToLowerInvariant())
-                                    {
-                                        eventNameExists = true;
+                                    Events rowToUpdate = null;
+                                    rowToUpdate = dbUpdate.Events.SingleOrDefault(x => x.Id == eventData.Id);
 
-                                        break;
+                                    if (rowToUpdate != null)
+                                    {
+                                        rowToUpdate.PersonInCharge = personInCharge;
                                     }
+
+                                    dbUpdate.SaveChanges();
+
+                                    await dbUpdate.DisposeAsync();
                                 }
 
-                                if (eventNameExists)
+                                embedBuilder.Title = $"Events Manager - {previousEventName} Update Details";
+                                embedBuilder.Description = $"{ctx.Member.Mention} has made update(s) to {previousEventName}.\n\n{Formatter.Bold("Changes made:")}\n• Changed Ketua / Wakil Ketua Acara from {Formatter.InlineCode(previousPersonInCharge)} to {Formatter.InlineCode(personInCharge)}.";
+                                embedBuilder.Timestamp = DateTime.Now;
+
+                                await ctx.Channel.SendMessageAsync(embed: embedBuilder);
+                            });
+                        }
+
+                        else
+                        {
+                            await ctx.Channel.SendMessageAsync("**[TIMED OUT]** Operation aborted. Event name not entered within given time span.");
+                            return;
+                        }
+                    }
+
+                    else if (selectionResult.Result.Emoji == numberThreeEmoji)
+                    {
+                        await updateEmbed.DeleteAllReactionsAsync();
+
+                        string previousEventDate = eventData.EventDate;
+
+                        var inputInteractivity = ctx.Client.GetInteractivity();
+
+                        var updateDateMessage = await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention}, enter your new event date for {Formatter.Bold(previousEventName)}. You have one minute.");
+                        var eventDateResult = await inputInteractivity.WaitForMessageAsync
+                            (x => x.Author.Id == ctx.User.Id && x.Channel.Id == ctx.Channel.Id, TimeSpan.FromMinutes(1));
+
+                        if (!eventDateResult.TimedOut)
+                        {
+                            eventDate = eventDateResult.Result.Content;
+                            if (eventDate.Length > 50)
+                            {
+                                await ctx.Channel.SendMessageAsync("**[ERROR]** Operation aborted. Maximum character limit of 50 characters exceeded.");
+                                return;
+                            }
+
+                            VerifiedEventDateEntity verifiedEventDateEntity = new VerifiedEventDateEntity();
+
+                            verifiedEventDateEntity = verifiedEventDateEntity.Verify(eventDateResult.Result.Content);
+
+                            if (!verifiedEventDateEntity.Passed)
+                            {
+                                await ctx.Channel.SendMessageAsync(verifiedEventDateEntity.ErrorMessage);
+
+                                return;
+                            }
+
+                            else
+                            {
+                                eventDateCultureInfo = verifiedEventDateEntity.DateCultureInfo;
+                            }
+
+                            var warningMessage = await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[WARNING]")} By updating the date of {Formatter.Bold(previousEventName)}, it will reset the reminder for this event and all members may be pinged again to remind them if a reminder for this event was sent previously. Proceed?");
+
+                            DiscordEmoji checkMarkEmoji = DiscordEmoji.FromName(ctx.Client, ":white_check_mark:");
+                            DiscordEmoji crossMarkEmoji = DiscordEmoji.FromName(ctx.Client, ":x:");
+
+                            await warningMessage.CreateReactionAsync(checkMarkEmoji);
+                            await warningMessage.CreateReactionAsync(crossMarkEmoji);
+
+                            var warningInteractivityResult = await ctx.Client.GetInteractivity().WaitForReactionAsync
+                                (x => x.Message == warningMessage && (x.User.Id == ctx.User.Id) && (x.Emoji == checkMarkEmoji || x.Emoji == crossMarkEmoji), TimeSpan.FromMinutes(15));
+
+                            if (!warningInteractivityResult.TimedOut)
+                            {
+                                if (warningInteractivityResult.Result.Emoji == checkMarkEmoji)
                                 {
-                                    await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} The event {Formatter.InlineCode(eventNameResult.Result.Content)} already exists! Try again with a different name.");
+                                    await ctx.Channel.SendMessageAsync("Okay.");
+                                }
+
+                                else if (warningInteractivityResult.Result.Emoji == crossMarkEmoji)
+                                {
+                                    await ctx.Channel.SendMessageAsync($"Cancellation acknowledged. Aborted updating {Formatter.Bold(previousEventName)}.");
 
                                     return;
                                 }
+                            }
 
-                                eventName = eventNameResult.Result.Content;
+                            else
+                            {
+                                await ctx.RespondAsync($"You're taking too long to react. Feel free to retry updating {Formatter.Bold(previousEventName)} again.");
 
-                                if (eventName.Length > 50)
+                                return;
+                            }
+
+                            Task offloadToTask = Task.Run(async () =>
+                            {
+                                using (var dbUpdate = new EventContext())
                                 {
-                                    await ctx.Channel.SendMessageAsync("**[ERROR]** Operation aborted. Maximum character limit of 50 characters exceeded.");
-                                    return;
-                                }
+                                    Events rowToUpdate = null;
+                                    rowToUpdate = dbUpdate.Events.SingleOrDefault(x => x.Id == eventData.Id);
 
-                                if (eventName == "abort")
-                                {
-                                    await ctx.Channel.SendMessageAsync($"Update operation aborted as per your request, {ctx.Member.Mention}.");
-                                    return;
-                                }
-
-                                Task offloadToTask = Task.Run(async () =>
-                                {
-                                    using (var dbUpdate = new EventContext())
+                                    if (rowToUpdate != null)
                                     {
-                                        Events rowToUpdate = null;
-                                        rowToUpdate = dbUpdate.Events.SingleOrDefault(x => x.Id == eventData.Id);
-
-                                        if (rowToUpdate != null)
-                                        {
-                                            rowToUpdate.EventName = eventName;
-                                        }
+                                        rowToUpdate.EventDate = eventDate;
+                                        rowToUpdate.EventDateCultureInfo = eventDateCultureInfo;
+                                        rowToUpdate.PreviouslyReminded = false;
+                                        rowToUpdate.Expired = false;
+                                        rowToUpdate.ProposalReminded = false;
 
                                         dbUpdate.SaveChanges();
 
@@ -505,58 +582,58 @@ namespace OSISDiscordAssistant.Commands
                                     }
 
                                     embedBuilder.Title = $"Events Manager - {previousEventName} Update Details";
-                                    embedBuilder.Description = $"{ctx.Member.Mention} has made update(s) to {previousEventName}.\n\n{Formatter.Bold("Changes made:")}\n• Changed event name from {Formatter.InlineCode(previousEventName)} to {Formatter.InlineCode(eventName)}.";
+                                    embedBuilder.Description = $"{ctx.Member.Mention} has made update(s) to {previousEventName}.\n\n{Formatter.Bold("Changes made:")}\n• Changed event date from {Formatter.InlineCode(previousEventDate)} to {Formatter.InlineCode(eventDate)}.";
                                     embedBuilder.Timestamp = DateTime.Now;
 
                                     await ctx.Channel.SendMessageAsync(embed: embedBuilder);
-                                });
-                            }
-
-                            else
-                            {
-                                await ctx.Channel.SendMessageAsync("**[TIMED OUT]** Operation aborted. Event name not entered within given time span.");
-                                return;
-                            }
+                                }
+                            });
                         }
 
-                        else if (selectionResult.Result.Emoji == numberTwoEmoji)
+                        else
                         {
-                            await updateEmbed.DeleteAllReactionsAsync();
+                            await ctx.Channel.SendMessageAsync("**[TIMED OUT]** Operation aborted. Event date not entered within given time span.");
+                            return;
+                        }
+                    }
 
-                            string previousPersonInCharge = db.Events.SingleOrDefault(x => x.Id == eventData.Id).PersonInCharge;
+                    else if (selectionResult.Result.Emoji == numberFourEmoji)
+                    {
+                        await updateEmbed.DeleteAllReactionsAsync();
 
-                            var inputInteractivity = ctx.Client.GetInteractivity();
+                        string previousEventDescription = eventData.EventDescription;
 
-                            var updatePersonInChargeMessage = await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention}, enter your new Ketua / Wakil Ketua Acara for {Formatter.Bold(previousEventName)}. You have one minute.");
-                            var eventPersonInChargeResult = await inputInteractivity.WaitForMessageAsync
-                                (x => x.Author.Id == ctx.User.Id && x.Channel.Id == ctx.Channel.Id, TimeSpan.FromMinutes(1));
+                        var inputInteractivity = ctx.Client.GetInteractivity();
 
-                            if (!eventPersonInChargeResult.TimedOut)
+                        var updateDescriptionMessage = await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention}, enter your new event description for {Formatter.Bold(previousEventName)}. You have one minute.");
+                        var eventDescriptionResult = await inputInteractivity.WaitForMessageAsync
+                            (x => x.Author.Id == ctx.User.Id && x.Channel.Id == ctx.Channel.Id, TimeSpan.FromMinutes(1));
+
+                        if (!eventDescriptionResult.TimedOut)
+                        {
+                            eventDescription = eventDescriptionResult.Result.Content;
+                            if (eventDescription.Length > 254)
                             {
-                                personInCharge = eventPersonInChargeResult.Result.Content;
-                                if (eventName.Length > 100)
-                                {
-                                    await ctx.Channel.SendMessageAsync("**[ERROR]** Operation aborted. Maximum character limit of 100 characters exceeded.");
-                                    return;
-                                }
+                                await ctx.Channel.SendMessageAsync("**[ERROR]** Operation aborted. Maximum character limit of 255 characters exceeded.");
+                                return;
+                            }
 
-                                if (eventName == "abort")
-                                {
-                                    await ctx.Channel.SendMessageAsync($"Update operation aborted as per your request, {ctx.Member.Mention}.");
-                                    return;
-                                }
+                            if (eventDescription == "abort")
+                            {
+                                await ctx.Channel.SendMessageAsync($"Update operation aborted as per your request, {ctx.Member.Mention}.");
+                                return;
+                            }
 
-                                Task offloadToTask = Task.Run(async () =>
+                            Task offloadToTask = Task.Run(async () =>
+                            {
+                                using (var dbUpdate = new EventContext())
                                 {
-                                    using (var dbUpdate = new EventContext())
+                                    Events rowToUpdate = null;
+                                    rowToUpdate = dbUpdate.Events.SingleOrDefault(x => x.Id == eventData.Id);
+
+                                    if (rowToUpdate != null)
                                     {
-                                        Events rowToUpdate = null;
-                                        rowToUpdate = dbUpdate.Events.SingleOrDefault(x => x.Id == eventData.Id);
-
-                                        if (rowToUpdate != null)
-                                        {
-                                            rowToUpdate.PersonInCharge = personInCharge;
-                                        }
+                                        rowToUpdate.EventDescription = eventDescription;
 
                                         dbUpdate.SaveChanges();
 
@@ -564,270 +641,25 @@ namespace OSISDiscordAssistant.Commands
                                     }
 
                                     embedBuilder.Title = $"Events Manager - {previousEventName} Update Details";
-                                    embedBuilder.Description = $"{ctx.Member.Mention} has made update(s) to {previousEventName}.\n\n{Formatter.Bold("Changes made:")}\n• Changed Ketua / Wakil Ketua Acara from {Formatter.InlineCode(previousPersonInCharge)} to {Formatter.InlineCode(personInCharge)}.";
+                                    embedBuilder.Description = $"{ctx.Member.Mention} has made update(s) to {previousEventName}.\n\n{Formatter.Bold("Changes made:")}\n• Changed event description from {Formatter.InlineCode(previousEventDescription)} to {Formatter.InlineCode(eventDescription)}.";
                                     embedBuilder.Timestamp = DateTime.Now;
 
                                     await ctx.Channel.SendMessageAsync(embed: embedBuilder);
-                                });
-                            }
-
-                            else
-                            {
-                                await ctx.Channel.SendMessageAsync("**[TIMED OUT]** Operation aborted. Event name not entered within given time span.");
-                                return;
-                            }
+                                }
+                            });
                         }
 
-                        else if (selectionResult.Result.Emoji == numberThreeEmoji)
+                        else
                         {
-                            await updateEmbed.DeleteAllReactionsAsync();
-
-                            string previousEventDate = db.Events.SingleOrDefault(x => x.Id == eventData.Id).EventDate;
-
-                            var inputInteractivity = ctx.Client.GetInteractivity();
-
-                            var updateDateMessage = await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention}, enter your new event date for {Formatter.Bold(previousEventName)}. You have one minute.");
-                            var eventDateResult = await inputInteractivity.WaitForMessageAsync
-                                (x => x.Author.Id == ctx.User.Id && x.Channel.Id == ctx.Channel.Id, TimeSpan.FromMinutes(1));
-
-                            if (!eventDateResult.TimedOut)
-                            {
-                                eventDate = eventDateResult.Result.Content;
-                                if (eventDate.Length > 50)
-                                {
-                                    await ctx.Channel.SendMessageAsync("**[ERROR]** Operation aborted. Maximum character limit of 50 characters exceeded.");
-                                    return;
-                                }
-
-                                // Checks whether the provided date specifies the year. This assumes that there are no numbers up to 4 digits occuring more than once.
-                                Regex regex = new Regex(@"\d{4}");
-
-                                Match yearExist = regex.Match(eventDate);
-                                if (!yearExist.Success)
-                                {
-                                    ulong eventDateMessageId = eventDateResult.Result.Id;
-                                    var toReply = await eventDateResult.Result.Channel.GetMessageAsync(eventDateMessageId);
-
-                                    await toReply.RespondAsync($"{Formatter.Bold("[ERROR]")} Oops! It looks like you did not include the year of the event. Please add it! (example: 25 Juni 2021).");
-
-                                    return;
-                                }
-
-                                if (eventDate == "abort")
-                                {
-                                    await ctx.Channel.SendMessageAsync($"Update operation aborted as per your request, {ctx.Member.Mention}.");
-                                    return;
-                                }
-
-                                // The following try-catch blocks will attempt to parse the given date time.
-                                // If it fails, the event creation is canceled as it would not allow the bot to parse them for event reminders.
-                                try
-                                {
-                                    var cultureInfoUS = new CultureInfo("en-US");
-
-                                    // Add 7 hours ahead because for some reason Linux doesn't pick the user preferred timezone.
-                                    DateTime currentTime = DateTime.Now;
-
-                                    DateTime toConvert = DateTime.Parse(eventDate, cultureInfoUS);
-
-                                    TimeSpan calculateTimeSpan = toConvert - currentTime;
-
-                                    if (calculateTimeSpan.TotalDays > 365)
-                                    {
-                                        string errorMessage = "**[ERROR]** Maximum allowed time span is one year (365 days). Alternatively, include the year of the event as well if you have not.";
-                                        await ctx.RespondAsync(errorMessage);
-
-                                        return;
-                                    }
-
-                                    if (calculateTimeSpan.Days < 1)
-                                    {
-                                        string errorMessage = "**[ERROR]** Minimum allowed date is one day before the event. Alternatively, include the year of the event as well if you have not.";
-                                        await ctx.Channel.SendMessageAsync(errorMessage);
-
-                                        return;
-                                    }
-
-                                    // Set the culture info to store.
-                                    eventDateCultureInfo = "en-US";
-                                }
-
-                                catch
-                                {
-                                    try
-                                    {
-                                        var cultureInfoID = new CultureInfo("id-ID");
-
-                                        // Add 7 hours ahead because for some reason Linux doesn't pick the user preferred timezone.
-                                        DateTime currentTime = DateTime.Now;
-
-                                        DateTime toConvert = DateTime.Parse(eventDate, cultureInfoID);
-
-                                        TimeSpan calculateTimeSpan = toConvert - currentTime;
-
-                                        if (calculateTimeSpan.TotalDays > 365)
-                                        {
-                                            string errorMessage = "**[ERROR]** Maximum allowed time span is one year (365 days). Alternatively, include the year of the event as well if you have not.";
-                                            await ctx.RespondAsync(errorMessage);
-
-                                            return;
-                                        }
-
-                                        if (calculateTimeSpan.Days < 1)
-                                        {
-                                            string errorMessage = "**[ERROR]** Minimum allowed date is one day before the event. Alternatively, include the year of the event as well if you have not.";
-                                            await ctx.Channel.SendMessageAsync(errorMessage);
-
-                                            return;
-                                        }
-
-                                        // Set the culture info to store.
-                                        eventDateCultureInfo = "id-ID";
-                                    }
-
-                                    catch
-                                    {
-                                        // Notify the user that the provided event date cannot be parsed.
-                                        string errorMessage = $"{Formatter.Bold("[ERROR]")} An error occured. Your event date cannot be parsed. Make sure your date and time is written in English or Indonesian. Example: 25 June 2021.";
-                                        await ctx.Channel.SendMessageAsync(errorMessage);
-
-                                        return;
-                                    }
-                                }
-
-                                var warningMessage = await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[WARNING]")} By updating the date of {Formatter.Bold(previousEventName)}, it will reset the reminder for this event and all members may be pinged again to remind them if a reminder for this event was sent previously. Proceed?");
-
-                                DiscordEmoji checkMarkEmoji = DiscordEmoji.FromName(ctx.Client, ":white_check_mark:");
-                                DiscordEmoji crossMarkEmoji = DiscordEmoji.FromName(ctx.Client, ":x:");
-
-                                await warningMessage.CreateReactionAsync(checkMarkEmoji);
-                                await warningMessage.CreateReactionAsync(crossMarkEmoji);
-
-                                var warningInteractivityResult = await ctx.Client.GetInteractivity().WaitForReactionAsync
-                                    (x => x.Message == warningMessage && (x.User.Id == ctx.User.Id) && (x.Emoji == checkMarkEmoji || x.Emoji == crossMarkEmoji), TimeSpan.FromMinutes(15));
-
-                                if (!warningInteractivityResult.TimedOut)
-                                {
-                                    if (warningInteractivityResult.Result.Emoji == checkMarkEmoji)
-                                    {
-                                        await ctx.Channel.SendMessageAsync("Okay.");
-                                    }
-
-                                    else if (warningInteractivityResult.Result.Emoji == crossMarkEmoji)
-                                    {
-                                        await ctx.Channel.SendMessageAsync($"Cancellation acknowledged. Aborted updating {Formatter.Bold(previousEventName)}.");
-
-                                        return;
-                                    }
-                                }
-
-                                else
-                                {
-                                    await ctx.RespondAsync($"You're taking too long to react. Feel free to retry updating {Formatter.Bold(previousEventName)} again.");
-
-                                    return;
-                                }
-
-                                Task offloadToTask = Task.Run(async () =>
-                                {
-                                    using (var dbUpdate = new EventContext())
-                                    {
-                                        Events rowToUpdate = null;
-                                        rowToUpdate = dbUpdate.Events.SingleOrDefault(x => x.Id == eventData.Id);
-
-                                        if (rowToUpdate != null)
-                                        {
-                                            rowToUpdate.EventDate = eventDate;
-                                            rowToUpdate.EventDateCultureInfo = eventDateCultureInfo;
-                                            rowToUpdate.PreviouslyReminded = false;
-                                            rowToUpdate.Expired = false;
-                                            rowToUpdate.ProposalReminded = false;
-
-                                            dbUpdate.SaveChanges();
-
-                                            await dbUpdate.DisposeAsync();
-                                        }
-
-                                        embedBuilder.Title = $"Events Manager - {previousEventName} Update Details";
-                                        embedBuilder.Description = $"{ctx.Member.Mention} has made update(s) to {previousEventName}.\n\n{Formatter.Bold("Changes made:")}\n• Changed event date from {Formatter.InlineCode(previousEventDate)} to {Formatter.InlineCode(eventDate)}.";
-                                        embedBuilder.Timestamp = DateTime.Now;
-
-                                        await ctx.Channel.SendMessageAsync(embed: embedBuilder);
-                                    }
-                                });
-                            }
-
-                            else
-                            {
-                                await ctx.Channel.SendMessageAsync("**[TIMED OUT]** Operation aborted. Event date not entered within given time span.");
-                                return;
-                            }
-                        }
-
-                        else if (selectionResult.Result.Emoji == numberFourEmoji)
-                        {
-                            await updateEmbed.DeleteAllReactionsAsync();
-
-                            string previousEventDescription = db.Events.SingleOrDefault(x => x.Id == eventData.Id).EventDescription;
-
-                            var inputInteractivity = ctx.Client.GetInteractivity();
-
-                            var updateDescriptionMessage = await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention}, enter your new event description for {Formatter.Bold(previousEventName)}. You have one minute.");
-                            var eventDescriptionResult = await inputInteractivity.WaitForMessageAsync
-                                (x => x.Author.Id == ctx.User.Id && x.Channel.Id == ctx.Channel.Id, TimeSpan.FromMinutes(1));
-
-                            if (!eventDescriptionResult.TimedOut)
-                            {
-                                eventDescription = eventDescriptionResult.Result.Content;
-                                if (eventDescription.Length > 254)
-                                {
-                                    await ctx.Channel.SendMessageAsync("**[ERROR]** Operation aborted. Maximum character limit of 255 characters exceeded.");
-                                    return;
-                                }
-
-                                if (eventDescription == "abort")
-                                {
-                                    await ctx.Channel.SendMessageAsync($"Update operation aborted as per your request, {ctx.Member.Mention}.");
-                                    return;
-                                }
-
-                                Task offloadToTask = Task.Run(async () =>
-                                {
-                                    using (var dbUpdate = new EventContext())
-                                    {
-                                        Events rowToUpdate = null;
-                                        rowToUpdate = dbUpdate.Events.SingleOrDefault(x => x.Id == eventData.Id);
-
-                                        if (rowToUpdate != null)
-                                        {
-                                            rowToUpdate.EventDescription = eventDescription;
-
-                                            dbUpdate.SaveChanges();
-
-                                            await dbUpdate.DisposeAsync();
-                                        }
-
-                                        embedBuilder.Title = $"Events Manager - {previousEventName} Update Details";
-                                        embedBuilder.Description = $"{ctx.Member.Mention} has made update(s) to {previousEventName}.\n\n{Formatter.Bold("Changes made:")}\n• Changed event description from {Formatter.InlineCode(previousEventDescription)} to {Formatter.InlineCode(eventDescription)}.";
-                                        embedBuilder.Timestamp = DateTime.Now;
-
-                                        await ctx.Channel.SendMessageAsync(embed: embedBuilder);
-                                    }
-                                });
-                            }
-
-                            else
-                            {
-                                await ctx.Channel.SendMessageAsync("**[TIMED OUT]** Operation aborted. Event date not entered within given time span.");
-                                return;
-                            }
+                            await ctx.Channel.SendMessageAsync("**[TIMED OUT]** Operation aborted. Event date not entered within given time span.");
+                            return;
                         }
                     }
+                }
 
-                    else
-                    {
-                        await ctx.Channel.SendMessageAsync($"**[TIMED OUT]** Update selection for {previousEventName} not selected within given time span. Re-run the command if you still need to update your event.");
-                    }
+                else
+                {
+                    await ctx.Channel.SendMessageAsync($"**[TIMED OUT]** Update selection for {previousEventName} not selected within given time span. Re-run the command if you still need to update your event.");
                 }
             }
 
@@ -1284,12 +1116,12 @@ namespace OSISDiscordAssistant.Commands
         }
 
         /// <summary>
-        /// Fetches the event data by the given name or ID. This function returns a single event only once it matches with the given criteria.
-        /// Not to be confused with indexing a list of events (searching, listing, etc.) whereas these operations returns more than one event.
+        /// Fetches the event data by the given name or ID. This function returns a single <see cref="Events" /> object once it matches with the given criteria.
+        /// Not to be confused with indexing a list of events (searching, listing, etc.) whereas these operations returns more than one <see cref="Events" />.
         /// </summary>
         /// <param name="eventNameOrId">The name of the event or the row ID.</param>
-        /// <param name="searchMode">The search strategy that tells how to search the event.</param>
-        /// <returns>The event object.</returns>
+        /// <param name="searchMode">The search strategy that tells how to search the event, when fetching via name.</param>
+        /// <returns>The <see cref="Events" /> object.</returns>
         internal Events FetchEventData(string eventNameOrId, EventSearchMode searchMode)
         {
             using (var db = new EventContext())
