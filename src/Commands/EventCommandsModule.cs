@@ -49,33 +49,21 @@ namespace OSISDiscordAssistant.Commands
                 if (!eventNameResult.TimedOut)
                 {
                     // Checks whether the given event name matches with another event that has the exact name as given.
-                    using (var db = new EventContext())
-                    {                       
-                        bool eventNameExists = false;
 
-                        foreach (var events in db.Events)
-                        {
-                            if (events.EventName.ToLowerInvariant() == eventNameResult.Result.Content.ToLowerInvariant())
-                            {
-                                eventNameExists = true;
+                    Events eventData = FetchEventData(eventNameResult.Result.Content, EventSearchMode.Exact);
 
-                                break;
-                            }
-                        }
+                    if (eventData.EventName is not null)
+                    {
+                        await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} The event {Formatter.InlineCode(eventNameResult.Result.Content)} already exists! Try again with a different name.");
 
-                        if (eventNameExists)
-                        {
-                            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} The event {Formatter.InlineCode(eventNameResult.Result.Content)} already exists! Try again with a different name.");
-                            
-                            return;
-                        }
+                        return;
                     }
 
                     eventName = eventNameResult.Result.Content;
 
                     if (eventName.Length > 50)
                     {
-                        await ctx.Channel.SendMessageAsync("**[ERROR]** Maximum character limit of 50 characters exceeded. You must re-run the command to finish.");
+                        await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} Maximum character limit of 50 characters exceeded. You must re-run the command to finish.");
                         return;
                     }
 
@@ -88,7 +76,7 @@ namespace OSISDiscordAssistant.Commands
                         personInCharge = personInChargeResult.Result.Content;
                         if (eventName.Length > 100)
                         {
-                            await ctx.Channel.SendMessageAsync("**[ERROR]** Maximum character limit of 100 characters exceeded. You must re-run the command to finish.");
+                            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} Maximum character limit of 100 characters exceeded. You must re-run the command to finish.");
                             return;
                         }
 
@@ -101,7 +89,7 @@ namespace OSISDiscordAssistant.Commands
                             eventDate = eventDateResult.Result.Content;
                             if (eventDate.Length > 50)
                             {
-                                await ctx.Channel.SendMessageAsync("**[ERROR]** Maximum character limit of 50 characters exceeded. You must re-run the command to finish.");
+                                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} Maximum character limit of 50 characters exceeded. You must re-run the command to finish.");
                                 return;
                             }
 
@@ -130,21 +118,21 @@ namespace OSISDiscordAssistant.Commands
                                 eventDescription = eventDescriptionResult.Result.Content;
                                 if (eventDescription.Length > 255)
                                 {
-                                    await ctx.Channel.SendMessageAsync("**[ERROR]** Maximum character limit of 255 characters exceeded. You must re-run the command to finish.");
+                                    await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} Maximum character limit of 255 characters exceeded. You must re-run the command to finish.");
                                     return;
                                 }
                             }
 
                             else
                             {
-                                await ctx.Channel.SendMessageAsync("**[TIMED OUT]** Event description not entered within given time span. Re-run the command if you still need to create your event.");
+                                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[TIMED OUT]")} Event description not entered within given time span. Re-run the command if you still need to create your event.");
                                 return;
                             }
                         }
 
                         else
                         {
-                            await ctx.Channel.SendMessageAsync("**[TIMED OUT]** Event date not entered within given time span. Re-run the command if you still need to create your event.");
+                            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[TIMED OUT]")} Event date not entered within given time span. Re-run the command if you still need to create your event.");
                             
                             return;
                         }
@@ -152,14 +140,14 @@ namespace OSISDiscordAssistant.Commands
 
                     else
                     {
-                        await ctx.Channel.SendMessageAsync("**[TIMED OUT]** Ketua / Wakil Ketua Acara not entered within given time span. Re-run the command if you still need to create your event.");
+                        await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[TIMED OUT]")} Ketua / Wakil Ketua Acara not entered within given time span. Re-run the command if you still need to create your event.");
                         return;
                     }
                 }
 
                 else
                 {
-                    await ctx.Channel.SendMessageAsync("**[TIMED OUT]** Event name not entered within given time span. Re-run the command if you still need to create your event.");
+                    await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[TIMED OUT]")} Event name not entered within given time span. Re-run the command if you still need to create your event.");
                     return;
                 }
 
@@ -389,7 +377,7 @@ namespace OSISDiscordAssistant.Commands
 
                             if (eventName.Length > 50)
                             {
-                                await ctx.Channel.SendMessageAsync("**[ERROR]** Operation aborted. Maximum character limit of 50 characters exceeded.");
+                                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} Operation aborted. Maximum character limit of 50 characters exceeded.");
                                 return;
                             }
 
@@ -426,7 +414,7 @@ namespace OSISDiscordAssistant.Commands
 
                         else
                         {
-                            await ctx.Channel.SendMessageAsync("**[TIMED OUT]** Operation aborted. Event name not entered within given time span.");
+                            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[TIMED OUT]")} Operation aborted. Event name not entered within given time span.");
                             return;
                         }
                     }
@@ -449,7 +437,7 @@ namespace OSISDiscordAssistant.Commands
 
                             if (eventName.Length > 100)
                             {
-                                await ctx.Channel.SendMessageAsync("**[ERROR]** Operation aborted. Maximum character limit of 100 characters exceeded.");
+                                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} Operation aborted. Maximum character limit of 100 characters exceeded.");
                                 return;
                             }
 
@@ -486,7 +474,7 @@ namespace OSISDiscordAssistant.Commands
 
                         else
                         {
-                            await ctx.Channel.SendMessageAsync("**[TIMED OUT]** Operation aborted. Event name not entered within given time span.");
+                            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[TIMED OUT]")} Operation aborted. Event name not entered within given time span.");
                             return;
                         }
                     }
@@ -508,7 +496,7 @@ namespace OSISDiscordAssistant.Commands
                             eventDate = eventDateResult.Result.Content;
                             if (eventDate.Length > 50)
                             {
-                                await ctx.Channel.SendMessageAsync("**[ERROR]** Operation aborted. Maximum character limit of 50 characters exceeded.");
+                                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} Operation aborted. Maximum character limit of 50 characters exceeded.");
                                 return;
                             }
 
@@ -592,7 +580,7 @@ namespace OSISDiscordAssistant.Commands
 
                         else
                         {
-                            await ctx.Channel.SendMessageAsync("**[TIMED OUT]** Operation aborted. Event date not entered within given time span.");
+                            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[TIMED OUT]")} Operation aborted. Event date not entered within given time span.");
                             return;
                         }
                     }
@@ -614,7 +602,7 @@ namespace OSISDiscordAssistant.Commands
                             eventDescription = eventDescriptionResult.Result.Content;
                             if (eventDescription.Length > 254)
                             {
-                                await ctx.Channel.SendMessageAsync("**[ERROR]** Operation aborted. Maximum character limit of 255 characters exceeded.");
+                                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} Operation aborted. Maximum character limit of 255 characters exceeded.");
                                 return;
                             }
 
@@ -651,7 +639,7 @@ namespace OSISDiscordAssistant.Commands
 
                         else
                         {
-                            await ctx.Channel.SendMessageAsync("**[TIMED OUT]** Operation aborted. Event date not entered within given time span.");
+                            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[TIMED OUT]")} Operation aborted. Event date not entered within given time span.");
                             return;
                         }
                     }
@@ -659,7 +647,7 @@ namespace OSISDiscordAssistant.Commands
 
                 else
                 {
-                    await ctx.Channel.SendMessageAsync($"**[TIMED OUT]** Update selection for {previousEventName} not selected within given time span. Re-run the command if you still need to update your event.");
+                    await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[TIMED OUT]")} Update selection for {previousEventName} not selected within given time span. Re-run the command if you still need to update your event.");
                 }
             }
 

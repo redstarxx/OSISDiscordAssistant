@@ -114,7 +114,7 @@ namespace OSISDiscordAssistant.Commands
                         catch
                         {
                             string errorMessage =
-                                "**[ERROR]** An error occured while parsing your date. Acceptable date formats are " +
+                                $"{Formatter.Bold("[ERROR]")} An error occured while parsing your date. Acceptable date formats are " +
                                 "`DD/MM/YYYY`, `MM/DD/YYYY` or `DD/MMM/YYYY`. \nExample: 25/06/2019, 06/25/2019, 25/JUN/2019.";
                             await ctx.RespondAsync(errorMessage);
 
@@ -128,7 +128,7 @@ namespace OSISDiscordAssistant.Commands
                 // Checks whether the provided time span is not less than 30 seconds.
                 if (remainingTime.TotalSeconds < 30)
                 {
-                    string errorMessage = "**[ERROR]** Minimum allowed time span is 30 seconds.";
+                    string errorMessage = $"{Formatter.Bold("[ERROR]")} Minimum allowed time span is 30 seconds.";
                     await ctx.RespondAsync(errorMessage);
 
                     return;
@@ -138,7 +138,7 @@ namespace OSISDiscordAssistant.Commands
                 {
                     if (remainingTime.Days > 365)
                     {
-                        string errorMessage = "**[ERROR]** Maximum allowed time span is one year.";
+                        string errorMessage = $"{Formatter.Bold("[ERROR]")} Maximum allowed time span is one year.";
                         await ctx.RespondAsync(errorMessage);
 
                         return;
@@ -177,7 +177,7 @@ namespace OSISDiscordAssistant.Commands
                     // Checks whether the provided time span is not less than 30 seconds.
                     if (remainingTime.TotalSeconds < 30)
                     {
-                        string errorMessage = "**[ERROR]** Minimum allowed time span is 30 seconds.";
+                        string errorMessage = $"{Formatter.Bold("[ERROR]")} Minimum allowed time span is 30 seconds.";
                         await ctx.RespondAsync(errorMessage);
 
                         return;
@@ -187,7 +187,7 @@ namespace OSISDiscordAssistant.Commands
                     {
                         if (remainingTime.Days > 365)
                         {
-                            string errorMessage = "**[ERROR]** Maximum allowed time span is one year.";
+                            string errorMessage = $"{Formatter.Bold("[ERROR]")} Maximum allowed time span is one year.";
                             await ctx.RespondAsync(errorMessage);
 
                             return;
