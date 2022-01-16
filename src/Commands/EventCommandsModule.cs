@@ -317,26 +317,28 @@ namespace OSISDiscordAssistant.Commands
 
                 string previousEventName = eventData.EventName;
 
-                embedBuilder.Title = $"Events Manager - Updating {previousEventName}...";
-                embedBuilder.Description = $"Choose either one of the following emojis to select what are you going to change from {Formatter.Bold(previousEventName)}.\n\n" +
-                    "**[1]** Change event name;\n**[2]** Change event person-in-charge (ketua / wakil ketua acara);\n**[3]** Change event date and time;\n**[4]** Change event description.\n\n" +
-                    $"You have 5 (five) minutes to make your choice otherwise the bot will abort. To cancel your changes, type {Formatter.InlineCode("abort")}.";
-                var updateEmbed = await ctx.Channel.SendMessageAsync(embed: embedBuilder);
-
                 var numberOneEmoji = DiscordEmoji.FromName(ctx.Client, ":one:");
                 var numberTwoEmoji = DiscordEmoji.FromName(ctx.Client, ":two:");
                 var numberThreeEmoji = DiscordEmoji.FromName(ctx.Client, ":three:");
                 var numberFourEmoji = DiscordEmoji.FromName(ctx.Client, ":four:");
+                var crossEmoji = DiscordEmoji.FromName(ctx.Client, ":x:");
+
+                embedBuilder.Title = $"Events Manager - Updating {previousEventName}...";
+                embedBuilder.Description = $"Choose either one of the following emojis to select what are you going to change from {Formatter.Bold(previousEventName)}.\n\n" +
+                    "**[1]** Change event name;\n**[2]** Change event person-in-charge (ketua / wakil ketua acara);\n**[3]** Change event date and time;\n**[4]** Change event description.\n\n" +
+                    $"You have 5 (five) minutes to make your choice. To cancel your changes, type {Formatter.InlineCode("abort")}. If this is not the event you want to update, click the {crossEmoji} emoji to cancel.";
+                var updateEmbed = await ctx.Channel.SendMessageAsync(embed: embedBuilder);
 
                 await updateEmbed.CreateReactionAsync(numberOneEmoji);
                 await updateEmbed.CreateReactionAsync(numberTwoEmoji);
                 await updateEmbed.CreateReactionAsync(numberThreeEmoji);
                 await updateEmbed.CreateReactionAsync(numberFourEmoji);
+                await updateEmbed.CreateReactionAsync(crossEmoji);
 
                 var selectionInteractivity = ctx.Client.GetInteractivity();
                 var selectionResult = await selectionInteractivity.WaitForReactionAsync
                     (x => x.Message == updateEmbed && (x.User.Id == ctx.User.Id) && (x.Emoji == numberOneEmoji || x.Emoji == numberTwoEmoji ||
-                    x.Emoji == numberThreeEmoji || x.Emoji == numberFourEmoji), TimeSpan.FromMinutes(5));
+                    x.Emoji == numberThreeEmoji || x.Emoji == numberFourEmoji || x.Emoji == crossEmoji), TimeSpan.FromMinutes(5));
 
                 if (!selectionResult.TimedOut)
                 {
@@ -637,6 +639,12 @@ namespace OSISDiscordAssistant.Commands
                             return;
                         }
                     }
+
+                    else if (selectionResult.Result.Emoji == crossEmoji)
+                    {
+                        await ctx.Channel.SendMessageAsync("Update operation aborted as per your request.");
+                        return;
+                    }
                 }
 
                 else
@@ -690,7 +698,7 @@ namespace OSISDiscordAssistant.Commands
 
                 List<DiscordEmbedBuilder> eventEmbeds = new List<DiscordEmbedBuilder>();
 
-                List<Events> eventsData = FetchAllEventsData(false, keyword);
+                IEnumerable<Events> eventsData = FetchAllEventsData(false, keyword);
 
                 foreach (var events in eventsData)
                 {
@@ -817,33 +825,30 @@ namespace OSISDiscordAssistant.Commands
                         break;
                 }
 
-                embedBuilder.Title = $"Events Manager - Accessing {eventName}'s Proposal...";
-                embedBuilder.Description = $"Choose either one of the following emojis to select what are you going to do with {Formatter.Bold(eventName)}. This event {fileExist} have a proposal file stored.\n\n" +
-                    $"{Formatter.Bold("[1]")} Get the event's proposal document;\n{Formatter.Bold("[2]")} Store / update the event's proposal.\n{Formatter.Bold("[3]")} Delete the event's proposal.\n\n" +
-                    $"You have 5 (five) minutes to select your choice.";
-                var updateEmbed = await ctx.Channel.SendMessageAsync(embed: embedBuilder);
-
                 var numberOneEmoji = DiscordEmoji.FromName(ctx.Client, ":one:");
                 var numberTwoEmoji = DiscordEmoji.FromName(ctx.Client, ":two:");
                 var numberThreeEmoji = DiscordEmoji.FromName(ctx.Client, ":three:");
+                var crossEmoji = DiscordEmoji.FromName(ctx.Client, ":x:");
+
+                embedBuilder.Title = $"Events Manager - Accessing {eventName}'s Proposal...";
+                embedBuilder.Description = $"Choose either one of the following emojis to select what are you going to do with {Formatter.Bold(eventName)}. This event {fileExist} have a proposal file stored.\n\n" +
+                    $"{Formatter.Bold("[1]")} Get the event's proposal document;\n{Formatter.Bold("[2]")} Store / update the event's proposal.\n{Formatter.Bold("[3]")} Delete the event's proposal.\n\n" +
+                    $"You have 5 (five) minutes to select your choice. If this is not the event you want to update, click the {crossEmoji} emoji to cancel.";
+                var updateEmbed = await ctx.Channel.SendMessageAsync(embed: embedBuilder);
 
                 await updateEmbed.CreateReactionAsync(numberOneEmoji);
                 await updateEmbed.CreateReactionAsync(numberTwoEmoji);
                 await updateEmbed.CreateReactionAsync(numberThreeEmoji);
+                await updateEmbed.CreateReactionAsync(crossEmoji);
 
                 var selectionInteractivity = ctx.Client.GetInteractivity();
                 var selectionResult = await selectionInteractivity.WaitForReactionAsync
-                    (x => x.Message == updateEmbed && (x.User.Id == ctx.User.Id) && (x.Emoji == numberOneEmoji || x.Emoji == numberTwoEmoji || x.Emoji == numberThreeEmoji), 
+                    (x => x.Message == updateEmbed && (x.User.Id == ctx.User.Id) && (x.Emoji == numberOneEmoji || x.Emoji == numberTwoEmoji || x.Emoji == numberThreeEmoji || x.Emoji == crossEmoji), 
                     TimeSpan.FromMinutes(5));
 
                 if (!selectionResult.TimedOut)
                 {
                     await updateEmbed.DeleteAllReactionsAsync();
-
-                    var messageBuilder = new DiscordMessageBuilder()
-                    {
-                        Content = $"Event {Formatter.Bold(eventName)}'s proposal is as follows:"
-                    };
 
                     string fileTitle = null;
 
@@ -865,6 +870,11 @@ namespace OSISDiscordAssistant.Commands
                         fileContent = eventData.ProposalFileContent;
 
                         fileStream = new MemoryStream(fileContent);
+
+                        var messageBuilder = new DiscordMessageBuilder()
+                        {
+                            Content = $"Event {Formatter.Bold(eventName)}'s proposal is as follows:"                            
+                        };
 
                         messageBuilder.WithFiles(new Dictionary<string, Stream>() { { fileTitle, fileStream } }, true);
 
@@ -967,6 +977,12 @@ namespace OSISDiscordAssistant.Commands
                         await ctx.Channel.SendMessageAsync($"Event {Formatter.Bold(eventName)}'s proposal document has been deleted!");
                     }
 
+                    else if (selectionResult.Result.Emoji == crossEmoji)
+                    {
+                        await ctx.Channel.SendMessageAsync("Aborted as per your request.");
+                        return;
+                    }
+
                     await fileStream.DisposeAsync();
                 }
 
@@ -998,7 +1014,7 @@ namespace OSISDiscordAssistant.Commands
 
                     int counter = 0;
 
-                    List<Events> eventsData = FetchAllEventsData(true, keyword);
+                    IEnumerable<Events> eventsData = FetchAllEventsData(true, keyword);
 
                     foreach (var events in eventsData)
                     {
@@ -1058,7 +1074,7 @@ namespace OSISDiscordAssistant.Commands
         /// </summary>
         /// <param name="eventNameOrId">The name of the event or the row ID.</param>
         /// <param name="searchMode">The search strategy that tells how to search the event, when fetching via name.</param>
-        /// <returns>The <see cref="Events" /> object.</returns>
+        /// <returns>An <see cref="Events" /> object.</returns>
         internal Events FetchEventData(string keyword, EventSearchMode searchMode)
         {
             using (var db = new EventContext())
@@ -1092,9 +1108,10 @@ namespace OSISDiscordAssistant.Commands
         /// </summary>
         /// <param name="indexYear">Sets whether to search events based on the year or process them as a whole.</param>
         /// <param name="keyword">The keyword of the search.</param>
-        /// <returns>A <see cref="List{T}" /> of <see cref="Events" /> object.</returns>
-        internal List<Events> FetchAllEventsData(bool indexYear, string keyword)
+        /// <returns>An <see cref="IEnumerable{T}" /> of <see cref="Events" /> object.</returns>
+        internal IEnumerable<Events> FetchAllEventsData(bool indexYear, string keyword)
         {
+            IEnumerable<Events> Events;
             List<Events> eventsData = new List<Events>();
 
             using (var db = new EventContext())
@@ -1131,7 +1148,9 @@ namespace OSISDiscordAssistant.Commands
                 }
             }
 
-            return eventsData;
+            Events = eventsData;
+
+            return Events;
         }
 
         /// <summary>
