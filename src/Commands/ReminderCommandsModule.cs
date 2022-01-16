@@ -8,6 +8,7 @@ using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.Entities;
 using DSharpPlus;
 using OSISDiscordAssistant.Utilities;
+using Humanizer;
 
 namespace OSISDiscordAssistant.Commands
 {
@@ -146,7 +147,7 @@ namespace OSISDiscordAssistant.Commands
 
                     ClientUtilities.CreateReminderTask(remainingTime, targetChannel, remindMessage, ctx, remindTarget);
 
-                    await ctx.Channel.SendMessageAsync(ClientUtilities.CreateReminderReceiptMessage(remainingTime, remindMessage, displayTarget));                 
+                    await ctx.Channel.SendMessageAsync(CreateReminderReceiptMessage(remainingTime, remindMessage, displayTarget));                 
                 }
             }
 
@@ -163,7 +164,7 @@ namespace OSISDiscordAssistant.Commands
 
                 ClientUtilities.CreateReminderTask(remainingTime, targetChannel, remindMessage, ctx, remindTarget);
 
-                await ctx.Channel.SendMessageAsync(ClientUtilities.CreateReminderReceiptMessage(remainingTime, remindMessage, displayTarget));
+                await ctx.Channel.SendMessageAsync(CreateReminderReceiptMessage(remainingTime, remindMessage, displayTarget));
             }
 
             else
@@ -195,7 +196,7 @@ namespace OSISDiscordAssistant.Commands
 
                         ClientUtilities.CreateReminderTask(remainingTime, targetChannel, remindMessage, ctx, remindTarget);
 
-                        await ctx.Channel.SendMessageAsync(ClientUtilities.CreateReminderReceiptMessage(remainingTime, remindMessage, displayTarget));                        
+                        await ctx.Channel.SendMessageAsync(CreateReminderReceiptMessage(remainingTime, remindMessage, displayTarget));                        
                     }
                 }
 
@@ -216,6 +217,18 @@ namespace OSISDiscordAssistant.Commands
         public async Task RemindHelpAsync(CommandContext ctx)
         {
             await SendHelpMessage(ctx);
+        }
+
+        /// <summary>
+        /// Composes a reminder receipt message (sent upon the completion of firing a reminder task).
+        /// </summary>
+        /// <param name="timeSpan">The timespan object.</param>
+        /// <param name="remindMessage">Something to remind (text, link, picture, whatever).</param>
+        /// <param name="displayTarget"></param>
+        /// <returns></returns>
+        internal string CreateReminderReceiptMessage(TimeSpan timeSpan, string remindMessage, string displayTarget)
+        {
+            return $"Okay! In {timeSpan.Humanize(1)} ({Formatter.Timestamp(timeSpan, TimestampFormat.LongDateTime)}) {displayTarget} will be reminded of the following:\n\n {remindMessage}";
         }
 
         internal async Task SendHelpMessage(CommandContext ctx)

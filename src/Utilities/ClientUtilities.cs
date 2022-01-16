@@ -240,18 +240,6 @@ namespace OSISDiscordAssistant.Utilities
         }
 
         /// <summary>
-        /// Composes a reminder receipt message (sent upon the completion of firing a reminder task).
-        /// </summary>
-        /// <param name="timeSpan">The timespan object.</param>
-        /// <param name="remindMessage">Something to remind (text, link, picture, whatever).</param>
-        /// <param name="displayTarget"></param>
-        /// <returns></returns>
-        public static string CreateReminderReceiptMessage(TimeSpan timeSpan, string remindMessage, string displayTarget)
-        {
-            return $"Okay! In {timeSpan.Humanize(1)} ({Formatter.Timestamp(timeSpan, TimestampFormat.LongDateTime)}) {displayTarget} will be reminded of the following:\n\n {remindMessage}";
-        }
-
-        /// <summary>
         /// Creates and fires a task which sends a reminder message after delaying from the specified timespan.
         /// </summary>
         /// <param name="remainingTime">The timespan object.</param>
