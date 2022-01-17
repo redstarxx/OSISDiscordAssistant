@@ -25,7 +25,7 @@ namespace OSISDiscordAssistant.Commands
 
             stringBuilder.Append("List of all created tags:\n\n");
 
-            var tags = GetAllTagsAsync();
+            var tags = GetAllTags();
 
             foreach (string tag in tags.ToList())
             {
@@ -62,7 +62,7 @@ namespace OSISDiscordAssistant.Commands
                 {
                     tagContent.Append("Specified tag was not found. Here are some suggestions:\n\n");
 
-                    var allTagNames = GetAllTagsAsync();
+                    var allTagNames = GetAllTags();
 
                     foreach (string tag in allTagNames.ToList())
                     {
