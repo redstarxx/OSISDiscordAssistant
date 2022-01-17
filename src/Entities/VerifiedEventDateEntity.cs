@@ -13,22 +13,22 @@ namespace OSISDiscordAssistant.Entities
         /// <summary>
         /// Gets whether the given inputted date time string passes the verification.
         /// </summary>
-        public bool Passed { get; set; }
+        public bool Passed { get; private set; }
 
         /// <summary>
         /// The error message, if the verification fails.
         /// </summary>
-        public string ErrorMessage { get; set; }
+        public string ErrorMessage { get; private set; }
 
         /// <summary>
         /// The <see cref="CultureInfo" /> of the given inputted date time string, if the verification is successful.
         /// </summary>
-        public string DateCultureInfo { get; set; }
+        public string DateCultureInfo { get; private set; }
 
         /// <summary>
         /// Verifies the given date time to be either in a US or Indonesian format.
         /// </summary>
-        /// <param name="eventDate"></param>
+        /// <param name="eventDate">The given date string.</param>
         /// <returns>The <see cref="VerifiedEventDateEntity" /> object which contains the data related to the date verification.</returns>
         public VerifiedEventDateEntity Verify(string eventDate)
         {
