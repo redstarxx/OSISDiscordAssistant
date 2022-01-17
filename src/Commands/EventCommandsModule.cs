@@ -24,6 +24,7 @@ namespace OSISDiscordAssistant.Commands
 {
     class EventCommandsModule : BaseCommandModule
     {
+        #region Command Syntax Helpers & Direct Create / List Operation
         /// <summary>
         /// Commands to operate the Events Manager's create or list option.
         /// </summary>
@@ -275,7 +276,9 @@ namespace OSISDiscordAssistant.Commands
                 await SendHelpEmoji(ctx, operationSelection);
             }
         }
+        #endregion
 
+        #region Events Manager Operation Options
         /// <summary>
         /// Commands to operate the Events Manager's update or delete or search option.
         /// </summary>
@@ -1069,7 +1072,9 @@ namespace OSISDiscordAssistant.Commands
                 await SendHelpEmoji(ctx, operationSelection);
             }
         }
+        #endregion
 
+        #region Functions
         /// <summary>
         /// Fetches the event data by the given name or ID. This function returns a single <see cref="Events" /> object once it matches with the given criteria.
         /// Not to be confused with indexing a list of events (<see cref="FetchAllEventsData(bool, string)" />) where this function returns more than one <see cref="Events" /> object.
@@ -1177,7 +1182,9 @@ namespace OSISDiscordAssistant.Commands
                 return $"Status: {ClientUtilities.ConvertBoolValue(events.Expired, ConvertBoolOption.UpcomingOrDone)}\nKetua / Wakil Ketua Acara: {events.PersonInCharge}\nProposal: {ClientUtilities.ConvertBoolValue(isProposalEmpty, ConvertBoolOption.StoredOrNotStored)}\nDescription: {events.EventDescription}";
             }
         }
+        #endregion
 
+        #region Events Manager Help Embed
         /// <summary>
         /// Command to view the Events Manager commands and help.
         /// </summary>
@@ -1231,5 +1238,6 @@ namespace OSISDiscordAssistant.Commands
                 await SendHelpEmbed(ctx);
             }
         }
+        #endregion
     }
 }
