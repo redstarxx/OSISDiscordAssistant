@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -24,8 +25,12 @@ namespace OSISDiscordAssistant.Commands
 
             stringBuilder.Append("List of all created tags:\n\n");
 
-            var tags = await GetAllTagsAsync();
-            stringBuilder.Append(tags);
+            var tags = GetAllTagsAsync();
+
+            foreach (string tag in tags.ToList())
+            {
+                stringBuilder.Append(tag);
+            }
 
             await ctx.Channel.SendMessageAsync(stringBuilder.ToString());
         }
@@ -57,8 +62,20 @@ namespace OSISDiscordAssistant.Commands
                 {
                     tagContent.Append("Specified tag was not found. Here are some suggestions:\n\n");
 
-                    var allTags = await GetAllTagsAsync();
-                    tagContent.Append(allTags);
+                    var allTagNames = GetAllTagsAsync();
+
+                    foreach (string tag in allTagNames.ToList())
+                    {
+                        if (!tag.Contains(tagName))
+                        {
+                            allTagNames.RemoveAll(x => x == tag);
+                        }
+
+                        else
+                        {
+                            tagContent.Append(tag);
+                        }
+                    }
                 }
             }
 
@@ -194,10 +211,10 @@ namespace OSISDiscordAssistant.Commands
         /// <summary>
         /// Retrieves all names of created tags.
         /// </summary>
-        /// <returns>The list of tag names.</returns>
-        internal async Task<string> GetAllTagsAsync()
+        /// <returns>A <see cref="List{T}" /> of tag names.</returns>
+        internal List<string> GetAllTags()
         {
-            StringBuilder tags = new StringBuilder();
+            List<string> tags = new List<string>();
             int counter = 0;
 
             using (var db = new TagsContext())
@@ -206,12 +223,12 @@ namespace OSISDiscordAssistant.Commands
                 {
                     if (counter == 0)
                     {
-                        tags.Append($"{Formatter.InlineCode(tag.Name)}");
+                        tags.Add($"{Formatter.InlineCode(tag.Name)}");
                     }
 
                     else
                     {
-                        tags.Append($", {Formatter.InlineCode(tag.Name)}");
+                        tags.Add($", {Formatter.InlineCode(tag.Name)}");
                     }
 
                     counter++;
@@ -219,11 +236,11 @@ namespace OSISDiscordAssistant.Commands
 
                 if (counter == 0)
                 {
-                    tags.Append("There are no tags to show!");
+                    tags.Add("There are no tags to show!");
                 }
             }
 
-            return tags.ToString();
+            return tags;
         }
 
         // ----------------------------------------------------------
