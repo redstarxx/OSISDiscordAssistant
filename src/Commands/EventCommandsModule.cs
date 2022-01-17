@@ -195,7 +195,9 @@ namespace OSISDiscordAssistant.Commands
 
                     List<DiscordEmbedBuilder> eventEmbeds = new List<DiscordEmbedBuilder>();
 
-                    List<Events> eventsData = new List<Events>();
+                    IEnumerable<Events> eventsData = new List<Events>();
+
+                    eventsData = FetchAllEventsData(true, DateTime.Now.Year.ToString());
 
                     foreach (var events in eventsData)
                     {
