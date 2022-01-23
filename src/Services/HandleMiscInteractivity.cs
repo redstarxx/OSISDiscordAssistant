@@ -300,7 +300,7 @@ namespace OSISDiscordAssistant.Services
 
             if (!member.Roles.Any(x => x.Id == SharedData.AccessRoleId))
             {
-                followupMessageBuilder.Content = $"To grant yourself a role, you must go through the verification process first. Check it at <#{SharedData.VerificationInfoChannelId}>.";
+                followupMessageBuilder.Content = $"To grant yourself a role, you must go through the verification process first. Check it out at <#{SharedData.VerificationInfoChannelId}>.";
                 followupMessageBuilder.IsEphemeral = true;
 
                 await e.Interaction.CreateFollowupMessageAsync(followupMessageBuilder);
