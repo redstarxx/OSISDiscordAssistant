@@ -242,19 +242,22 @@ namespace OSISDiscordAssistant
             return Task.CompletedTask;
         }
 
-        private async Task<Task> OnComponentInteractionCreated(DiscordClient sender, ComponentInteractionCreateEventArgs e)
+        private Task OnComponentInteractionCreated(DiscordClient sender, ComponentInteractionCreateEventArgs e)
         {
-            if (e.Id == "verify_button" || e.Id == "accept_button" || e.Id == "deny_button" || e.Id == "why_button")
+            _ = Task.Run(async () =>
             {
-                await HandleMiscInteractivity.HandleVerificationRequests(sender, e);
-            }
+                if (e.Id == "verify_button" || e.Id == "accept_button" || e.Id == "deny_button" || e.Id == "why_button")
+                {
+                    await HandleMiscInteractivity.HandleVerificationRequests(sender, e);
+                }
 
-            else if (e.Id == "roles_button" || e.Id.Contains("roles_dropdown"))
-            {
-                await HandleMiscInteractivity.HandleRolesInteraction(sender, e);
-            }
+                else if (e.Id == "roles_button" || e.Id.Contains("roles_dropdown"))
+                {
+                    await HandleMiscInteractivity.HandleRolesInteraction(sender, e);
+                }
 
-            Client.Logger.LogInformation(EventIds.EventHandler, $"User {e.User.Username}#{e.User.Discriminator} ({e.User.Id}) interacted with '{e.Id}' in #{e.Channel.Name} ({e.Channel.Id}).", DateTime.Now);
+                Client.Logger.LogInformation(EventIds.EventHandler, $"User {e.User.Username}#{e.User.Discriminator} ({e.User.Id}) interacted with '{e.Id}' in #{e.Channel.Name} ({e.Channel.Id}).", DateTime.Now);
+            });
 
             return Task.CompletedTask;
         }
