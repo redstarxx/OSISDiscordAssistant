@@ -7,7 +7,6 @@ using DSharpPlus.Entities;
 using KawalCoronaSharp;
 using KawalCoronaSharp.Enums;
 
-
 namespace OSISDiscordAssistant.Commands
 {
     class COVIDStatisticsCommandsModule : BaseCommandModule
