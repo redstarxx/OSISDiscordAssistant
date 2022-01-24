@@ -42,10 +42,10 @@ namespace OSISDiscordAssistant.Commands
                 string eventDateCultureInfo = null;
                 string eventDescription = null;
 
-                await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention}, enter your event name. You have one minute.");
+                await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention}, enter your event name. You have five minute.");
                 var interactivityModule = ctx.Client.GetInteractivity();
                 var eventNameResult = await interactivityModule.WaitForMessageAsync
-                    (x => x.Author.Id == ctx.User.Id && (x.Channel.Id == ctx.Channel.Id), TimeSpan.FromMinutes(1));
+                    (x => x.Author.Id == ctx.User.Id && (x.Channel.Id == ctx.Channel.Id), TimeSpan.FromMinutes(5));
 
                 if (!eventNameResult.TimedOut)
                 {
@@ -68,9 +68,9 @@ namespace OSISDiscordAssistant.Commands
                         return;
                     }
 
-                    await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention}, tag the Ketua / Wakil Ketua Acara for {Formatter.Bold(eventNameResult.Result.Content)}. You have one minute.");
+                    await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention}, tag the Ketua / Wakil Ketua Acara for {Formatter.Bold(eventNameResult.Result.Content)}. You have five minute.");
                     var personInChargeResult = await interactivityModule.WaitForMessageAsync
-                        (x => x.Author.Id == ctx.User.Id && x.Channel.Id == ctx.Channel.Id, TimeSpan.FromMinutes(1));
+                        (x => x.Author.Id == ctx.User.Id && x.Channel.Id == ctx.Channel.Id, TimeSpan.FromMinutes(5));
 
                     if (!personInChargeResult.TimedOut)
                     {
@@ -81,9 +81,9 @@ namespace OSISDiscordAssistant.Commands
                             return;
                         }
 
-                        await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention}, enter your event date for {Formatter.Bold(eventNameResult.Result.Content)}. You have one minute.");
+                        await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention}, enter your event date for {Formatter.Bold(eventNameResult.Result.Content)}. You have five minute.");
                         var eventDateResult = await interactivityModule.WaitForMessageAsync
-                            (x => x.Author.Id == ctx.User.Id && x.Channel.Id == ctx.Channel.Id, TimeSpan.FromMinutes(1));
+                            (x => x.Author.Id == ctx.User.Id && x.Channel.Id == ctx.Channel.Id, TimeSpan.FromMinutes(5));
 
                         if (!eventDateResult.TimedOut)
                         {
@@ -110,9 +110,9 @@ namespace OSISDiscordAssistant.Commands
                                 eventDateCultureInfo = verifiedEventDateEntity.DateCultureInfo;
                             }
 
-                            await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention}, enter your event description for {Formatter.Bold(eventNameResult.Result.Content)}. You have one minute.");
+                            await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention}, enter your event description for {Formatter.Bold(eventNameResult.Result.Content)}. You have five minute.");
                             var eventDescriptionResult = await interactivityModule.WaitForMessageAsync
-                                (x => x.Author.Id == ctx.User.Id && x.Channel.Id == ctx.Channel.Id, TimeSpan.FromMinutes(1));
+                                (x => x.Author.Id == ctx.User.Id && x.Channel.Id == ctx.Channel.Id, TimeSpan.FromMinutes(5));
 
                             if (!eventDescriptionResult.TimedOut)
                             {
@@ -359,9 +359,9 @@ namespace OSISDiscordAssistant.Commands
 
                         var inputInteractivity = ctx.Client.GetInteractivity();
 
-                        var updateNameMessage = await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention}, enter your new event name for {Formatter.Bold(previousEventName)}. You have one minute.");
+                        var updateNameMessage = await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention}, enter your new event name for {Formatter.Bold(previousEventName)}. You have five minute.");
                         var eventNameResult = await inputInteractivity.WaitForMessageAsync
-                            (x => x.Author.Id == ctx.User.Id && x.Channel.Id == ctx.Channel.Id, TimeSpan.FromMinutes(1));
+                            (x => x.Author.Id == ctx.User.Id && x.Channel.Id == ctx.Channel.Id, TimeSpan.FromMinutes(5));
 
                         if (!eventNameResult.TimedOut)
                         {
@@ -428,9 +428,9 @@ namespace OSISDiscordAssistant.Commands
 
                         var inputInteractivity = ctx.Client.GetInteractivity();
 
-                        var updatePersonInChargeMessage = await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention}, enter your new Ketua / Wakil Ketua Acara for {Formatter.Bold(previousEventName)}. You have one minute.");
+                        var updatePersonInChargeMessage = await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention}, enter your new Ketua / Wakil Ketua Acara for {Formatter.Bold(previousEventName)}. You have five minute.");
                         var eventPersonInChargeResult = await inputInteractivity.WaitForMessageAsync
-                            (x => x.Author.Id == ctx.User.Id && x.Channel.Id == ctx.Channel.Id, TimeSpan.FromMinutes(1));
+                            (x => x.Author.Id == ctx.User.Id && x.Channel.Id == ctx.Channel.Id, TimeSpan.FromMinutes(5));
 
                         if (!eventPersonInChargeResult.TimedOut)
                         {
@@ -488,9 +488,9 @@ namespace OSISDiscordAssistant.Commands
 
                         var inputInteractivity = ctx.Client.GetInteractivity();
 
-                        var updateDateMessage = await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention}, enter your new event date for {Formatter.Bold(previousEventName)}. You have one minute.");
+                        var updateDateMessage = await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention}, enter your new event date for {Formatter.Bold(previousEventName)}. You have five minute.");
                         var eventDateResult = await inputInteractivity.WaitForMessageAsync
-                            (x => x.Author.Id == ctx.User.Id && x.Channel.Id == ctx.Channel.Id, TimeSpan.FromMinutes(1));
+                            (x => x.Author.Id == ctx.User.Id && x.Channel.Id == ctx.Channel.Id, TimeSpan.FromMinutes(5));
 
                         if (!eventDateResult.TimedOut)
                         {
@@ -594,9 +594,9 @@ namespace OSISDiscordAssistant.Commands
 
                         var inputInteractivity = ctx.Client.GetInteractivity();
 
-                        var updateDescriptionMessage = await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention}, enter your new event description for {Formatter.Bold(previousEventName)}. You have one minute.");
+                        var updateDescriptionMessage = await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention}, enter your new event description for {Formatter.Bold(previousEventName)}. You have five minute.");
                         var eventDescriptionResult = await inputInteractivity.WaitForMessageAsync
-                            (x => x.Author.Id == ctx.User.Id && x.Channel.Id == ctx.Channel.Id, TimeSpan.FromMinutes(1));
+                            (x => x.Author.Id == ctx.User.Id && x.Channel.Id == ctx.Channel.Id, TimeSpan.FromMinutes(5));
 
                         if (!eventDescriptionResult.TimedOut)
                         {
@@ -890,9 +890,9 @@ namespace OSISDiscordAssistant.Commands
                     {
                         var interactivity = ctx.Client.GetInteractivity();
 
-                        await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention}, drop / upload the proposal file here. An acceptable file is a Microsoft Word document. You have one minute!");
+                        await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention}, drop / upload the proposal file here. An acceptable file is a Microsoft Word document. You have five minute!");
 
-                        var proposalResult = await interactivity.WaitForMessageAsync(x => x.Author.Id == ctx.Member.Id, TimeSpan.FromMinutes(1));
+                        var proposalResult = await interactivity.WaitForMessageAsync(x => x.Author.Id == ctx.Member.Id, TimeSpan.FromMinutes(5));
 
                         if (!proposalResult.TimedOut)
                         {
