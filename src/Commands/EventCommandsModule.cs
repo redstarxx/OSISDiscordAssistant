@@ -1097,12 +1097,24 @@ namespace OSISDiscordAssistant.Commands
                 {
                     if (searchMode is EventSearchMode.Exact)
                     {
-                        return db.Events.FirstOrDefault(x => x.EventName == keyword.ToLowerInvariant());
+                        foreach (var eventData in db.Events)
+                        {
+                            if (eventData.EventName.ToLowerInvariant() == keyword.ToLowerInvariant())
+                            {
+                                return eventData;
+                            }
+                        }
                     }
 
                     else if (searchMode is EventSearchMode.ClosestMatching)
                     {
-                        return db.Events.FirstOrDefault(x => x.EventName.Contains(keyword.ToLowerInvariant()));
+                        foreach (var eventData in db.Events)
+                        {
+                            if (eventData.EventName.ToLowerInvariant().Contains(keyword.ToLowerInvariant()))
+                            {
+                                return eventData;
+                            }
+                        }
                     }
                 }
             }
