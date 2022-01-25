@@ -836,7 +836,7 @@ namespace OSISDiscordAssistant.Commands
                 var crossEmoji = DiscordEmoji.FromName(ctx.Client, ":x:");
 
                 embedBuilder.Title = $"Events Manager - Accessing {eventName}'s Proposal...";
-                embedBuilder.Description = $"Choose either one of the following emojis to select what are you going to do with {Formatter.Bold(eventName)}. This event {fileExist} have a proposal file stored.\n\n" +
+                embedBuilder.Description = $"Choose either one of the following emojis to select what are you going to do with {Formatter.Bold(eventName)}. This event {Formatter.Underline(fileExist)} have a proposal file stored.\n\n" +
                     $"{Formatter.Bold("[1]")} Get the event's proposal document;\n{Formatter.Bold("[2]")} Store / update the event's proposal.\n{Formatter.Bold("[3]")} Delete the event's proposal.\n\n" +
                     $"You have 5 (five) minutes to select your choice. If this is not the event you want to update, click the {crossEmoji} emoji to cancel.";
                 var updateEmbed = await ctx.Channel.SendMessageAsync(embed: embedBuilder);
