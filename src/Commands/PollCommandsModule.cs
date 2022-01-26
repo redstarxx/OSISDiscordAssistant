@@ -59,6 +59,8 @@ namespace OSISDiscordAssistant.Commands
 
             string resultEmojis = string.Empty;
 
+            int voteCount = 0;
+
             foreach (var emoji in collectedEmojis)
             {
                 if (emoji.Total > 1)
@@ -70,6 +72,8 @@ namespace OSISDiscordAssistant.Commands
                 {
                     resultEmojis = $"{resultEmojis}{emoji.Emoji}: {emoji.Total} ({emoji.Total.ToWords()}) vote.\n";
                 }
+
+                voteCount = voteCount + emoji.Total;
             }
 
             var pollResultEmbedBuilder = new DiscordEmbedBuilder
@@ -81,13 +85,6 @@ namespace OSISDiscordAssistant.Commands
                     Text = "OSIS Discord Assistant"
                 }
             };
-
-            int voteCount = 0;
-
-            foreach (var vote in collectedEmojis)
-            {
-                voteCount = voteCount + vote.Total;
-            }
 
             if (voteCount != 0)
             {
