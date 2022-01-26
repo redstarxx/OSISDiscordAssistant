@@ -70,7 +70,7 @@ namespace OSISDiscordAssistant.Services
 
                                 var cultureInfo = new CultureInfo(row.EventDateCultureInfo);
 
-                                DateTime currentDateTime = DateTime.Now.Subtract(TimeSpan.FromHours(DateTime.Now.Hour) + TimeSpan.FromMinutes(DateTime.Now.Minute) + TimeSpan.FromSeconds(DateTime.Now.Second));
+                                DateTime currentDateTime = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day);
 
                                 DateTime parsedEventDateTime = DateTime.Parse(row.EventDate, cultureInfo);
 
@@ -356,7 +356,7 @@ namespace OSISDiscordAssistant.Services
 
                                 var cultureInfo = new CultureInfo(row.EventDateCultureInfo);
 
-                                DateTime currentDateTime = DateTime.Now.Subtract(TimeSpan.FromHours(DateTime.Now.Hour) + TimeSpan.FromMinutes(DateTime.Now.Minute) + TimeSpan.FromSeconds(DateTime.Now.Second));
+                                DateTime currentDateTime = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day);
 
                                 DateTime parsedEventDateTime = DateTime.Parse(row.EventDate, cultureInfo);
 
