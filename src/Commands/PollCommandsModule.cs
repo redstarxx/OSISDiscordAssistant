@@ -11,7 +11,6 @@ using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.Interactivity.Enums;
 using Humanizer;
 using OSISDiscordAssistant.Models;
-using OSISDiscordAssistant.Utilities;
 
 namespace OSISDiscordAssistant.Commands
 {
@@ -20,6 +19,13 @@ namespace OSISDiscordAssistant.Commands
         [Command("poll")]
         public async Task PollAsync(CommandContext ctx, TimeSpan pollDuration, params DiscordEmoji[] emojiOptions)
         {
+            if (emojiOptions.Count() < 2)
+            {
+                await ctx.RespondAsync($"{Formatter.Bold("[ERROR]")} To create a poll, there must be at least two emojis.");
+
+                return;
+            }
+
             int pollCounter = 0;
 
             using (var db = new CounterContext())
