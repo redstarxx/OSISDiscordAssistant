@@ -9,12 +9,18 @@ using OSISDiscordAssistant.Models;
 using OSISDiscordAssistant.Attributes;
 using OSISDiscordAssistant.Utilities;
 using OSISDiscordAssistant.Services;
-using Microsoft.Extensions.Logging;
 
 namespace OSISDiscordAssistant.Commands
 {
     class VerificationCommandsModule : BaseCommandModule
-    {    
+    {
+        private readonly VerificationContext _verificationContext;
+
+        public VerificationCommandsModule(VerificationContext verificationContext)
+        {
+            _verificationContext = verificationContext;
+        }
+
         [RequireMainGuild, RequireAdminRole]
         [Command("overify")]
         public async Task OverifyAsync(CommandContext ctx, DiscordMember member)
@@ -33,33 +39,30 @@ namespace OSISDiscordAssistant.Commands
 
                 await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[VERIFICATION]")} {member.Mention} has been granted the access role.");
 
-                using (var db = new VerificationContext())
+                var pendingVerification = _verificationContext.Verifications.SingleOrDefault(x => x.UserId == member.Id);
+
+                if (pendingVerification != null)
                 {
-                    var pendingVerification = db.Verifications.SingleOrDefault(x => x.UserId == member.Id);
+                    var requestEmbed = await ctx.Guild.GetChannel(SharedData.VerificationRequestsProcessingChannelId).GetMessageAsync(pendingVerification.VerificationEmbedId);
 
-                    if (pendingVerification != null)
+                    foreach (var embed in requestEmbed.Embeds)
                     {
-                        var requestEmbed = await ctx.Guild.GetChannel(SharedData.VerificationRequestsProcessingChannelId).GetMessageAsync(pendingVerification.VerificationEmbedId);
+                        DiscordEmbed updatedEmbed = null;
 
-                        foreach (var embed in requestEmbed.Embeds)
+                        DiscordEmbedBuilder embedBuilder = new DiscordEmbedBuilder(embed)
                         {
-                            DiscordEmbed updatedEmbed = null;
+                            Title = $"{embed.Title.Replace(" | PENDING", " | ACCEPTED")}",
+                            Description = $"{embed.Description.Replace("PENDING.", $"ACCEPTED (overrided by {ctx.Member.Mention}, at {Formatter.Timestamp(DateTime.Now, TimestampFormat.LongDateTime)}).")}"
+                        };
 
-                            DiscordEmbedBuilder embedBuilder = new DiscordEmbedBuilder(embed)
-                            {
-                                Title = $"{embed.Title.Replace(" | PENDING", " | ACCEPTED")}",
-                                Description = $"{embed.Description.Replace("PENDING.", $"ACCEPTED (overrided by {ctx.Member.Mention}, at {Formatter.Timestamp(DateTime.Now, TimestampFormat.LongDateTime)}).")}"
-                            };
+                        updatedEmbed = embedBuilder.Build();
 
-                            updatedEmbed = embedBuilder.Build();
+                        await requestEmbed.ModifyAsync(x => x.WithEmbed(updatedEmbed));
 
-                            await requestEmbed.ModifyAsync(x => x.WithEmbed(updatedEmbed));                          
+                        _verificationContext.Remove(pendingVerification);
+                        await _verificationContext.SaveChangesAsync();
 
-                            db.Remove(pendingVerification);
-                            await db.SaveChangesAsync();
-
-                            break;
-                        }                       
+                        break;
                     }
                 }
             }

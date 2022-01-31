@@ -16,6 +16,13 @@ namespace OSISDiscordAssistant.Commands
 {
     class PollCommandsModule : BaseCommandModule
     {
+        private readonly CounterContext _counterContext;
+
+        public PollCommandsModule(CounterContext counterContext)
+        {
+            _counterContext = counterContext;
+        }
+
         [Command("poll")]
         public async Task PollAsync(CommandContext ctx, TimeSpan pollDuration, params DiscordEmoji[] emojiOptions)
         {
@@ -28,21 +35,18 @@ namespace OSISDiscordAssistant.Commands
 
             int pollCounter = 0;
 
-            using (var db = new CounterContext())
+            pollCounter = _counterContext.Counter.SingleOrDefault(x => x.Id == 1).PollCounter;
+
+            Counter rowToUpdate = null;
+            rowToUpdate = _counterContext.Counter.SingleOrDefault(x => x.Id == 1);
+
+            if (rowToUpdate != null)
             {
-                pollCounter = db.Counter.SingleOrDefault(x => x.Id == 1).PollCounter;               
-
-                Counter rowToUpdate = null;
-                rowToUpdate = db.Counter.SingleOrDefault(x => x.Id == 1);
-
-                if (rowToUpdate != null)
-                {
-                    int incrementNumber = pollCounter + 1;
-                    rowToUpdate.PollCounter = incrementNumber;
-                }
-
-                db.SaveChanges();
+                int incrementNumber = pollCounter + 1;
+                rowToUpdate.PollCounter = incrementNumber;
             }
+
+            _counterContext.SaveChanges();
 
             var pollEmbedBuilder = new DiscordEmbedBuilder
             {

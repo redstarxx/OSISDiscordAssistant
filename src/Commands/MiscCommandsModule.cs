@@ -14,11 +14,19 @@ using Microsoft.Extensions.PlatformAbstractions;
 using Npgsql;
 using OSISDiscordAssistant.Utilities;
 using OSISDiscordAssistant.Services;
+using OSISDiscordAssistant.Models;
 
 namespace OSISDiscordAssistant.Commands
 {
     class MiscCommandsModule : BaseCommandModule
     {
+        private readonly EventContext _eventsContext;
+
+        public MiscCommandsModule(EventContext eventContext)
+        {
+            _eventsContext = eventContext;
+        }
+
         [Command("about")]
         public async Task AboutAsync(CommandContext ctx)
         {
@@ -93,9 +101,15 @@ namespace OSISDiscordAssistant.Commands
             Process currentProcess = Process.GetCurrentProcess();
             TimeSpan runtime = DateTime.Now - Process.GetCurrentProcess().StartTime;
 
+            Stopwatch stopwatch = new();
+            stopwatch.Start();
+            _eventsContext.Events.FirstOrDefault(x => x.Id == 0);
+            stopwatch.Stop();
+
             embedBuilder.WithTitle("Statistics for OSIS Discord Assistant")
                         .WithColor(DiscordColor.DarkBlue)
-                        .AddField("Latency", $"{ctx.Client.Ping} ms", true)
+                        .AddField("Discord WebSocket Latency", $"{ctx.Client.Ping} ms", true)
+                        .AddField("Database Latency", $"{stopwatch.ElapsedMilliseconds} ms", true)
                         .AddField("Total Guilds", ctx.Client.Guilds.Count().ToString(), true)
                         .AddField("Total Members", ctx.Client.Guilds.Values.SelectMany(x => x.Members.Keys).Count().ToString(), true)
                         .AddField("Shards", ctx.Client.ShardCount.ToString(), true)

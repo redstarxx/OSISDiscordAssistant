@@ -15,6 +15,13 @@ namespace OSISDiscordAssistant.Commands
 {
     class TagsCommandsModule : BaseCommandModule
     {
+        private readonly TagsContext _tagsContext;
+
+        public TagsCommandsModule(TagsContext tagsContext)
+        {
+            _tagsContext = tagsContext;
+        }
+
         /// <summary>
         /// Gets all stored tag names.
         /// </summary>
@@ -44,37 +51,34 @@ namespace OSISDiscordAssistant.Commands
         {
             StringBuilder tagContent = new StringBuilder();
 
-            using (var db = new TagsContext())
+            try
             {
-                try
+                var tag = _tagsContext.Tags.SingleOrDefault(x => x.Name == tagName);
+
+                if (tag is null)
                 {
-                    var tag = db.Tags.SingleOrDefault(x => x.Name == tagName);
-
-                    if (tag is null)
-                    {
-                        throw new Exception();
-                    }
-
-                    tagContent.Append(tag.Content);
+                    throw new Exception();
                 }
 
-                catch
+                tagContent.Append(tag.Content);
+            }
+
+            catch
+            {
+                tagContent.Append("Specified tag was not found. Here are some suggestions:\n\n");
+
+                var allTagNames = GetAllTags();
+
+                foreach (string tag in allTagNames.ToList())
                 {
-                    tagContent.Append("Specified tag was not found. Here are some suggestions:\n\n");
-
-                    var allTagNames = GetAllTags();
-
-                    foreach (string tag in allTagNames.ToList())
+                    if (!tag.Contains(tagName))
                     {
-                        if (!tag.Contains(tagName))
-                        {
-                            allTagNames.RemoveAll(x => x == tag);
-                        }
+                        allTagNames.RemoveAll(x => x == tag);
+                    }
 
-                        else
-                        {
-                            tagContent.Append(tag);
-                        }
+                    else
+                    {
+                        tagContent.Append(tag);
                     }
                 }
             }
@@ -104,80 +108,65 @@ namespace OSISDiscordAssistant.Commands
             {
                 if (operationSelection == "create")
                 {
-                    using (var db = new TagsContext())
+                    bool isExist = _tagsContext.Tags.Any(x => x.Name == tagName);
+                    string tagContentToWrite = string.Join(" ", tagContent);
+
+                    if (isExist)
                     {
-                        bool isExist = db.Tags.Any(x => x.Name == tagName);
-                        string tagContentToWrite = string.Join(" ", tagContent);
+                        await ctx.RespondAsync($"The tag {Formatter.InlineCode(tagName)} already exists!");
 
-                        if (isExist)
-                        {
-                            await ctx.RespondAsync($"The tag {Formatter.InlineCode(tagName)} already exists!");
-
-                            return;
-                        }
-
-                        if (tagContentToWrite.Length == 0)
-                        {
-                            await ctx.RespondAsync($"{Formatter.Bold("[ERROR]")} Tag content cannot be left empty!");
-
-                            return;
-                        }
-
-                        db.Add(new Tags
-                        {
-                            Name = tagName,
-                            Content = tagContentToWrite
-                        });
-
-                        db.SaveChanges();
-
-                        var thumbsUpEmoji = DiscordEmoji.FromName(ctx.Client, ":thumbsup:");
-
-                        await ctx.RespondAsync(thumbsUpEmoji);
+                        return;
                     }
+
+                    if (tagContentToWrite.Length == 0)
+                    {
+                        await ctx.RespondAsync($"{Formatter.Bold("[ERROR]")} Tag content cannot be left empty!");
+
+                        return;
+                    }
+
+                    _tagsContext.Add(new Tags
+                    {
+                        Name = tagName,
+                        Content = tagContentToWrite
+                    });
+
+                    _tagsContext.SaveChanges();
+
+                    await ctx.RespondAsync(DiscordEmoji.FromName(ctx.Client, ":ok_hand:"));
                 }
 
                 else if (operationSelection == "update" || operationSelection == "edit")
                 {
-                    using (var db = new TagsContext())
+                    string tagContentToWrite = string.Join(" ", tagContent);
+
+                    if (tagContentToWrite.Length == 0)
                     {
-                        string tagContentToWrite = string.Join(" ", tagContent);
+                        await ctx.RespondAsync($"{Formatter.Bold("[ERROR]")} Tag content cannot be left empty!");
 
-                        if (tagContentToWrite.Length == 0)
-                        {
-                            await ctx.RespondAsync($"{Formatter.Bold("[ERROR]")} Tag content cannot be left empty!");
-
-                            return;
-                        }
-
-                        Tags tagToUpdate = null;
-                        tagToUpdate = db.Tags.SingleOrDefault(x => x.Name == tagName);
-
-                        tagToUpdate.Content = string.Join(" ", tagContent);
-
-                        db.SaveChanges();
-
-                        var thumbsUpEmoji = DiscordEmoji.FromName(ctx.Client, ":thumbsup:");
-
-                        await ctx.RespondAsync(thumbsUpEmoji);
+                        return;
                     }
+
+                    Tags tagToUpdate = null;
+                    tagToUpdate = _tagsContext.Tags.SingleOrDefault(x => x.Name == tagName);
+
+                    tagToUpdate.Content = string.Join(" ", tagContent);
+
+                    _tagsContext.SaveChanges();
+
+                    await ctx.RespondAsync(DiscordEmoji.FromName(ctx.Client, ":ok_hand:"));
                 }
 
                 else if (operationSelection == "delete")
                 {
-                    using (var db = new TagsContext())
-                    {
-                        Tags tagToDelete = null;
-                        tagToDelete = db.Tags.SingleOrDefault(x => x.Name == tagName);
+                    Tags tagToDelete = null;
+                    tagToDelete = _tagsContext.Tags.SingleOrDefault(x => x.Name == tagName);
 
-                        db.Remove(tagToDelete);
+                    _tagsContext.Remove(tagToDelete);
 
-                        db.SaveChanges();
+                    _tagsContext.SaveChanges();
 
-                        var thumbsUpEmoji = DiscordEmoji.FromName(ctx.Client, ":thumbsup:");
-
-                        await ctx.RespondAsync(thumbsUpEmoji);
-                    }
+                    await ctx.RespondAsync(DiscordEmoji.FromName(ctx.Client, ":ok_hand:"));
                 }
 
                 else
@@ -217,27 +206,24 @@ namespace OSISDiscordAssistant.Commands
             List<string> tags = new List<string>();
             int counter = 0;
 
-            using (var db = new TagsContext())
+            foreach (var tag in _tagsContext.Tags)
             {
-                foreach (var tag in db.Tags)
-                {
-                    if (counter == 0)
-                    {
-                        tags.Add($"{Formatter.InlineCode(tag.Name)}");
-                    }
-
-                    else
-                    {
-                        tags.Add($", {Formatter.InlineCode(tag.Name)}");
-                    }
-
-                    counter++;
-                }
-
                 if (counter == 0)
                 {
-                    tags.Add("There are no tags to show!");
+                    tags.Add($"{Formatter.InlineCode(tag.Name)}");
                 }
+
+                else
+                {
+                    tags.Add($", {Formatter.InlineCode(tag.Name)}");
+                }
+
+                counter++;
+            }
+
+            if (counter == 0)
+            {
+                tags.Add("There are no tags to show!");
             }
 
             return tags;

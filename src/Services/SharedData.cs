@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
+using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
 
 namespace OSISDiscordAssistant.Services
@@ -30,6 +31,11 @@ namespace OSISDiscordAssistant.Services
         /// The prefixes used to execute a command.
         /// </summary>
         public static string[] Prefixes;
+
+        /// <summary>
+        /// A dictionary of created commands, indexed by shard ID.
+        /// </summary>
+        public static IReadOnlyDictionary<int, CommandsNextExtension> Commands;
 
         /// <summary>
         /// The dictionary that stores deleted messages that has been previously cached.

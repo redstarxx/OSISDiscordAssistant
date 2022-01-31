@@ -18,15 +18,24 @@ namespace OSISDiscordAssistant.Commands
 {
     public sealed class BotAdministrationCommands : BaseCommandModule
     {
+        private readonly ILogger<BotAdministrationCommands> _logger;
+        private readonly DiscordShardedClient _shardedClient;
+
+        public BotAdministrationCommands(ILogger<BotAdministrationCommands> logger, DiscordShardedClient shardedClient)
+        {
+            _logger = logger;
+            _shardedClient = shardedClient;
+        }
+
         [RequireServiceAdminRole]
         [Command("kill")]
         public async Task KillAsync(CommandContext ctx)
         {
-            Bot.Client.Logger.LogWarning(EventIds.CommandHandler, $"{ctx.Member.Username}#{ctx.Member.Discriminator} ({ctx.User.Id}) initiated a kill command.", DateTime.UtcNow.AddHours(7));
+            _logger.LogWarning(EventIds.CommandHandler, $"{ctx.Member.Username}#{ctx.Member.Discriminator} ({ctx.User.Id}) initiated a kill command.", DateTime.UtcNow.AddHours(7));
             await ctx.Channel.SendMessageAsync($"Disconnecting all shards from the gateway...");
             Thread.Sleep(TimeSpan.FromSeconds(1));
 
-            await Bot.Client.StopAsync();
+            await _shardedClient.StopAsync();
 
             Environment.Exit(0);
         }

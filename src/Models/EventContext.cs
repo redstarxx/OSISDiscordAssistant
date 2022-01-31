@@ -22,16 +22,6 @@ namespace OSISDiscordAssistant.Models
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            if (!optionsBuilder.IsConfigured)
-            {
-                // Retry reconnecting to the database on failure.
-                optionsBuilder.UseNpgsql(SharedData.DbConnectionString, builder => 
-                {
-                    builder.EnableRetryOnFailure(5, TimeSpan.FromSeconds(30), null);
-                });
-
-                base.OnConfiguring(optionsBuilder);
-            }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

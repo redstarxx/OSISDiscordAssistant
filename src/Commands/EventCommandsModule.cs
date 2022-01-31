@@ -24,6 +24,13 @@ namespace OSISDiscordAssistant.Commands
 {
     class EventCommandsModule : BaseCommandModule
     {
+        private readonly EventContext _eventContext;
+
+        public EventCommandsModule(EventContext eventContext)
+        {
+            _eventContext = eventContext;
+        }
+
         #region Command Syntax Helpers & Direct Create / List Operation
         /// <summary>
         /// Commands to operate the Events Manager's create or list option.
@@ -154,21 +161,16 @@ namespace OSISDiscordAssistant.Commands
 
                 Task offloadToTask = Task.Run(async () =>
                 {
-                    using (var db = new EventContext())
+                    _eventContext.Add(new Events
                     {
-                        db.Add(new Events
-                        {
-                            EventName = eventName,
-                            PersonInCharge = personInCharge,
-                            EventDate = eventDate,
-                            EventDateCultureInfo = eventDateCultureInfo,
-                            EventDescription = eventDescription
-                        });
+                        EventName = eventName,
+                        PersonInCharge = personInCharge,
+                        EventDate = eventDate,
+                        EventDateCultureInfo = eventDateCultureInfo,
+                        EventDescription = eventDescription
+                    });
 
-                        db.SaveChanges();
-
-                        await db.DisposeAsync();
-                    }
+                    _eventContext.SaveChanges();
 
                     await ctx.Channel.SendMessageAsync($"Okay {ctx.Member.Mention}, your event, {Formatter.Bold(eventName)} has been created.");
                 });
@@ -390,20 +392,15 @@ namespace OSISDiscordAssistant.Commands
 
                             Task offloadToTask = Task.Run(async () =>
                             {
-                                using (var dbUpdate = new EventContext())
+                                Events rowToUpdate = null;
+                                rowToUpdate = _eventContext.Events.SingleOrDefault(x => x.Id == eventData.Id);
+
+                                if (rowToUpdate != null)
                                 {
-                                    Events rowToUpdate = null;
-                                    rowToUpdate = dbUpdate.Events.SingleOrDefault(x => x.Id == eventData.Id);
-
-                                    if (rowToUpdate != null)
-                                    {
-                                        rowToUpdate.EventName = eventName;
-                                    }
-
-                                    dbUpdate.SaveChanges();
-
-                                    await dbUpdate.DisposeAsync();
+                                    rowToUpdate.EventName = eventName;
                                 }
+
+                                _eventContext.SaveChanges();
 
                                 embedBuilder.Title = $"Events Manager - {previousEventName} Update Details";
                                 embedBuilder.Description = $"{ctx.Member.Mention} has made update(s) to {previousEventName}.\n\n{Formatter.Bold("Changes made:")}\n• Changed event name from {Formatter.InlineCode(previousEventName)} to {Formatter.InlineCode(eventName)}.";
@@ -450,20 +447,15 @@ namespace OSISDiscordAssistant.Commands
 
                             Task offloadToTask = Task.Run(async () =>
                             {
-                                using (var dbUpdate = new EventContext())
+                                Events rowToUpdate = null;
+                                rowToUpdate = _eventContext.Events.SingleOrDefault(x => x.Id == eventData.Id);
+
+                                if (rowToUpdate != null)
                                 {
-                                    Events rowToUpdate = null;
-                                    rowToUpdate = dbUpdate.Events.SingleOrDefault(x => x.Id == eventData.Id);
-
-                                    if (rowToUpdate != null)
-                                    {
-                                        rowToUpdate.PersonInCharge = personInCharge;
-                                    }
-
-                                    dbUpdate.SaveChanges();
-
-                                    await dbUpdate.DisposeAsync();
+                                    rowToUpdate.PersonInCharge = personInCharge;
                                 }
+
+                                _eventContext.SaveChanges();
 
                                 embedBuilder.Title = $"Events Manager - {previousEventName} Update Details";
                                 embedBuilder.Description = $"{ctx.Member.Mention} has made update(s) to {previousEventName}.\n\n{Formatter.Bold("Changes made:")}\n• Changed Ketua / Wakil Ketua Acara from {Formatter.InlineCode(previousPersonInCharge)} to {Formatter.InlineCode(personInCharge)}.";
@@ -552,30 +544,25 @@ namespace OSISDiscordAssistant.Commands
 
                             Task offloadToTask = Task.Run(async () =>
                             {
-                                using (var dbUpdate = new EventContext())
+                                Events rowToUpdate = null;
+                                rowToUpdate = _eventContext.Events.SingleOrDefault(x => x.Id == eventData.Id);
+
+                                if (rowToUpdate != null)
                                 {
-                                    Events rowToUpdate = null;
-                                    rowToUpdate = dbUpdate.Events.SingleOrDefault(x => x.Id == eventData.Id);
+                                    rowToUpdate.EventDate = eventDate;
+                                    rowToUpdate.EventDateCultureInfo = eventDateCultureInfo;
+                                    rowToUpdate.PreviouslyReminded = false;
+                                    rowToUpdate.Expired = false;
+                                    rowToUpdate.ProposalReminded = false;
 
-                                    if (rowToUpdate != null)
-                                    {
-                                        rowToUpdate.EventDate = eventDate;
-                                        rowToUpdate.EventDateCultureInfo = eventDateCultureInfo;
-                                        rowToUpdate.PreviouslyReminded = false;
-                                        rowToUpdate.Expired = false;
-                                        rowToUpdate.ProposalReminded = false;
-
-                                        dbUpdate.SaveChanges();
-
-                                        await dbUpdate.DisposeAsync();
-                                    }
-
-                                    embedBuilder.Title = $"Events Manager - {previousEventName} Update Details";
-                                    embedBuilder.Description = $"{ctx.Member.Mention} has made update(s) to {previousEventName}.\n\n{Formatter.Bold("Changes made:")}\n• Changed event date from {Formatter.InlineCode(previousEventDate)} to {Formatter.InlineCode(eventDate)}.";
-                                    embedBuilder.Timestamp = DateTime.Now;
-
-                                    await ctx.Channel.SendMessageAsync(embed: embedBuilder);
+                                    _eventContext.SaveChanges();
                                 }
+
+                                embedBuilder.Title = $"Events Manager - {previousEventName} Update Details";
+                                embedBuilder.Description = $"{ctx.Member.Mention} has made update(s) to {previousEventName}.\n\n{Formatter.Bold("Changes made:")}\n• Changed event date from {Formatter.InlineCode(previousEventDate)} to {Formatter.InlineCode(eventDate)}.";
+                                embedBuilder.Timestamp = DateTime.Now;
+
+                                await ctx.Channel.SendMessageAsync(embed: embedBuilder);
                             });
                         }
 
@@ -615,26 +602,21 @@ namespace OSISDiscordAssistant.Commands
 
                             Task offloadToTask = Task.Run(async () =>
                             {
-                                using (var dbUpdate = new EventContext())
+                                Events rowToUpdate = null;
+                                rowToUpdate = _eventContext.Events.SingleOrDefault(x => x.Id == eventData.Id);
+
+                                if (rowToUpdate != null)
                                 {
-                                    Events rowToUpdate = null;
-                                    rowToUpdate = dbUpdate.Events.SingleOrDefault(x => x.Id == eventData.Id);
+                                    rowToUpdate.EventDescription = eventDescription;
 
-                                    if (rowToUpdate != null)
-                                    {
-                                        rowToUpdate.EventDescription = eventDescription;
-
-                                        dbUpdate.SaveChanges();
-
-                                        await dbUpdate.DisposeAsync();
-                                    }
-
-                                    embedBuilder.Title = $"Events Manager - {previousEventName} Update Details";
-                                    embedBuilder.Description = $"{ctx.Member.Mention} has made update(s) to {previousEventName}.\n\n{Formatter.Bold("Changes made:")}\n• Changed event description from {Formatter.InlineCode(previousEventDescription)} to {Formatter.InlineCode(eventDescription)}.";
-                                    embedBuilder.Timestamp = DateTime.Now;
-
-                                    await ctx.Channel.SendMessageAsync(embed: embedBuilder);
+                                    _eventContext.SaveChanges();
                                 }
+
+                                embedBuilder.Title = $"Events Manager - {previousEventName} Update Details";
+                                embedBuilder.Description = $"{ctx.Member.Mention} has made update(s) to {previousEventName}.\n\n{Formatter.Bold("Changes made:")}\n• Changed event description from {Formatter.InlineCode(previousEventDescription)} to {Formatter.InlineCode(eventDescription)}.";
+                                embedBuilder.Timestamp = DateTime.Now;
+
+                                await ctx.Channel.SendMessageAsync(embed: embedBuilder);
                             });
                         }
 
@@ -677,13 +659,10 @@ namespace OSISDiscordAssistant.Commands
                     return;
                 }
 
-                using (var db = new EventContext())
-                {
-                    db.Remove(eventData);
-                    db.SaveChanges();
+                _eventContext.Remove(eventData);
+                _eventContext.SaveChanges();
 
-                    await ctx.Channel.SendMessageAsync($"{Formatter.Bold(eventData.EventName)} (Event ID: {eventData.Id.ToString()}) successfully deleted from Events Manager.");
-                }
+                await ctx.Channel.SendMessageAsync($"{Formatter.Bold(eventData.EventName)} (Event ID: {eventData.Id.ToString()}) successfully deleted from Events Manager.");
             }
 
             else if (operationSelection == "search")
@@ -927,27 +906,24 @@ namespace OSISDiscordAssistant.Commands
 
                             string fileStatus = null;
 
-                            using (var db = new EventContext())
+                            Events rowToAccess = null;
+                            rowToAccess = _eventContext.Events.SingleOrDefault(x => x.Id == rowID);
+
+                            if (rowToAccess.ProposalFileTitle is null)
                             {
-                                Events rowToAccess = null;
-                                rowToAccess = db.Events.SingleOrDefault(x => x.Id == rowID);
-
-                                if (rowToAccess.ProposalFileTitle is null)
-                                {
-                                    fileStatus = "stored";
-                                }
-
-                                else
-                                {
-                                    fileStatus = "updated";
-                                }
-
-                                rowToAccess.ProposalFileTitle = fileTitle;
-
-                                rowToAccess.ProposalFileContent = fileContent;
-
-                                await db.SaveChangesAsync();
+                                fileStatus = "stored";
                             }
+
+                            else
+                            {
+                                fileStatus = "updated";
+                            }
+
+                            rowToAccess.ProposalFileTitle = fileTitle;
+
+                            rowToAccess.ProposalFileContent = fileContent;
+
+                            await _eventContext.SaveChangesAsync();
 
                             await ctx.Channel.SendMessageAsync($"Event {Formatter.Bold(eventName)}'s proposal document has been {fileStatus}!");
                         }
@@ -960,24 +936,21 @@ namespace OSISDiscordAssistant.Commands
 
                     else if (selectionResult.Result.Emoji == numberThreeEmoji)
                     {
-                        using (var db = new EventContext())
+                        Events rowToDelete = null;
+                        rowToDelete = _eventContext.Events.SingleOrDefault(x => x.Id == rowID);
+
+                        if (rowToDelete.ProposalFileTitle is null)
                         {
-                            Events rowToDelete = null;
-                            rowToDelete = db.Events.SingleOrDefault(x => x.Id == rowID);
+                            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} Event {Formatter.Bold(eventName)} does not have a proposal file stored!");
 
-                            if (rowToDelete.ProposalFileTitle is null)
-                            {
-                                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} Event {Formatter.Bold(eventName)} does not have a proposal file stored!");
-
-                                return;
-                            }
-
-                            rowToDelete.ProposalFileTitle = null;
-
-                            rowToDelete.ProposalFileContent = null;
-
-                            await db.SaveChangesAsync();
+                            return;
                         }
+
+                        rowToDelete.ProposalFileTitle = null;
+
+                        rowToDelete.ProposalFileContent = null;
+
+                        await _eventContext.SaveChangesAsync();
 
                         await ctx.Channel.SendMessageAsync($"Event {Formatter.Bold(eventName)}'s proposal document has been deleted!");
                     }
@@ -1084,36 +1057,33 @@ namespace OSISDiscordAssistant.Commands
         /// <returns>An <see cref="Events" /> object.</returns>
         internal Events FetchEventData(string keyword, EventSearchMode searchMode)
         {
-            using (var db = new EventContext())
+            bool isNumber = int.TryParse(keyword, out int rowIDRaw);
+
+            if (isNumber)
             {
-                bool isNumber = int.TryParse(keyword, out int rowIDRaw);
+                return _eventContext.Events.FirstOrDefault(x => x.Id == rowIDRaw);
+            }
 
-                if (isNumber)
+            else
+            {
+                if (searchMode is EventSearchMode.Exact)
                 {
-                    return db.Events.FirstOrDefault(x => x.Id == rowIDRaw);
-                }
-
-                else
-                {
-                    if (searchMode is EventSearchMode.Exact)
+                    foreach (var eventData in _eventContext.Events)
                     {
-                        foreach (var eventData in db.Events)
+                        if (eventData.EventName.ToLowerInvariant() == keyword.ToLowerInvariant())
                         {
-                            if (eventData.EventName.ToLowerInvariant() == keyword.ToLowerInvariant())
-                            {
-                                return eventData;
-                            }
+                            return eventData;
                         }
                     }
+                }
 
-                    else if (searchMode is EventSearchMode.ClosestMatching)
+                else if (searchMode is EventSearchMode.ClosestMatching)
+                {
+                    foreach (var eventData in _eventContext.Events)
                     {
-                        foreach (var eventData in db.Events)
+                        if (eventData.EventName.ToLowerInvariant().Contains(keyword.ToLowerInvariant()))
                         {
-                            if (eventData.EventName.ToLowerInvariant().Contains(keyword.ToLowerInvariant()))
-                            {
-                                return eventData;
-                            }
+                            return eventData;
                         }
                     }
                 }
@@ -1133,36 +1103,33 @@ namespace OSISDiscordAssistant.Commands
             IEnumerable<Events> Events;
             List<Events> eventsData = new List<Events>();
 
-            using (var db = new EventContext())
+            if (indexYear)
             {
-                if (indexYear)
+                bool conversionSuccessful = int.TryParse(keyword, out int year);
+
+                if (!conversionSuccessful)
                 {
-                    bool conversionSuccessful = int.TryParse(keyword, out int year);
-
-                    if (!conversionSuccessful)
-                    {
-                        throw new Exception($"I can only accept years, not dates! Example: !event list 2019");
-                    }
-
-                    foreach (var events in db.Events)
-                    {
-                        DateTime eventDate = DateTime.Parse(events.EventDate, new CultureInfo(events.EventDateCultureInfo));
-
-                        if (year == eventDate.Year)
-                        {
-                            eventsData.Add(events);
-                        }
-                    }
+                    throw new Exception($"I can only accept years, not dates! Example: !event list 2019");
                 }
 
-                else
+                foreach (var events in _eventContext.Events)
                 {
-                    foreach (var events in db.Events)
+                    DateTime eventDate = DateTime.Parse(events.EventDate, new CultureInfo(events.EventDateCultureInfo));
+
+                    if (year == eventDate.Year)
                     {
-                        if (events.EventName.ToLowerInvariant().Contains(keyword.ToLowerInvariant()))
-                        {
-                            eventsData.Add(events);
-                        }
+                        eventsData.Add(events);
+                    }
+                }
+            }
+
+            else
+            {
+                foreach (var events in _eventContext.Events)
+                {
+                    if (events.EventName.ToLowerInvariant().Contains(keyword.ToLowerInvariant()))
+                    {
+                        eventsData.Add(events);
                     }
                 }
             }
