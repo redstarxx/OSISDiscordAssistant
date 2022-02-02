@@ -6,6 +6,7 @@ using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using KawalCoronaSharp;
 using KawalCoronaSharp.Enums;
+using OSISDiscordAssistant.Utilities;
 
 namespace OSISDiscordAssistant.Commands
 {
@@ -37,7 +38,7 @@ namespace OSISDiscordAssistant.Commands
 
                 var lastUpdatedResponse = await api.GetCountryDataAsync("Indonesia", SearchMode.Exact);
 
-                embedBuilder.WithDescription($"{embedBuilder.Description}\nLast updated: {Formatter.Timestamp(ConvertUnixTimestampToDateTime(lastUpdatedResponse.LastUpdated), TimestampFormat.LongDateTime)}");
+                embedBuilder.WithDescription($"{embedBuilder.Description}\nLast updated: {Formatter.Timestamp(ClientUtilities.ConvertUnixTimestampToDateTime(lastUpdatedResponse.LastUpdated), TimestampFormat.LongDateTime)}");
 
                 embedBuilder.AddField("Confirmed", response.Positives, true)
                             .AddField("Recovered", response.Recovered, true)
@@ -64,7 +65,7 @@ namespace OSISDiscordAssistant.Commands
 
                 embedBuilder.WithTitle($"COVID-19 Statistics for {response.Country}");
 
-                embedBuilder.WithDescription($"{embedBuilder.Description}\nLast updated: {Formatter.Timestamp(ConvertUnixTimestampToDateTime(response.LastUpdated), TimestampFormat.LongDateTime)}");
+                embedBuilder.WithDescription($"{embedBuilder.Description}\nLast updated: {Formatter.Timestamp(ClientUtilities.ConvertUnixTimestampToDateTime(response.LastUpdated), TimestampFormat.LongDateTime)}");
 
                 embedBuilder.AddField("Active Cases", response.Active.ToString("N0"), true)
                             .AddField("Confirmed", response.Confirmed.ToString("N0"), true)
@@ -73,11 +74,6 @@ namespace OSISDiscordAssistant.Commands
             }
 
             await ctx.RespondAsync(embedBuilder.Build());
-        }
-
-        private DateTime ConvertUnixTimestampToDateTime(long unixTimestamp)
-        {
-            return new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc).AddSeconds(unixTimestamp).ToLocalTime();
         }
     }
 }

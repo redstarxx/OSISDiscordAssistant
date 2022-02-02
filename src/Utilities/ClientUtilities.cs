@@ -268,6 +268,26 @@ namespace OSISDiscordAssistant.Utilities
         }
 
         /// <summary>
+        /// Gets the <see cref="DateTime" /> from the specified unix timestamp.
+        /// </summary>
+        /// <param name="unixTimestamp">The unix timestamp to calculate the <see cref="DateTime" />.</param>
+        /// <returns>A <see cref="DateTime" /> object from the specified unix timestamp.</returns>
+        public static DateTime ConvertUnixTimestampToDateTime(long unixTimestamp)
+        {
+            return new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc).AddSeconds(unixTimestamp).ToLocalTime();
+        }
+
+        /// <summary>
+        /// Gets the current unix timestamp.
+        /// </summary>
+        /// <returns></returns>
+        public static long GetCurrentUnixTimestamp()
+        {
+            TimeSpan timeSpan = DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc));
+            return (long)timeSpan.TotalSeconds;
+        }
+
+        /// <summary>
         /// An async version of reading the content of config.json which contains the connection string to the PostgreSQL database and deserializes it.
         /// </summary>
         /// <returns>The database connection string.</returns>
