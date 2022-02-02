@@ -46,6 +46,26 @@ namespace OSISDiscordAssistant.Models
                 entity.Property(e => e.Content)
                     .HasColumnName("tag_content")
                     .HasColumnType("string");
+
+                entity.Property(e => e.CreatorUserId)
+                    .HasColumnName("creator_user_id")
+                    .HasColumnType("bigint");
+
+                entity.Property(e => e.UpdaterUserId)
+                    .HasColumnName("updater_user_id")
+                    .HasColumnType("bigint");
+
+                entity.Property(e => e.CreatedTimestamp)
+                    .HasColumnName("created_timestamp")
+                    .HasColumnType("bigint");
+
+                entity.Property(e => e.LastUpdatedTimestamp)
+                    .HasColumnName("last_updated_timestamp")
+                    .HasColumnType("bigint");
+
+                entity.Property(e => e.VersionCount)
+                    .HasColumnName("version_count")
+                    .HasColumnType("int");
             });
 
             OnModelCreatingPartial(modelBuilder);

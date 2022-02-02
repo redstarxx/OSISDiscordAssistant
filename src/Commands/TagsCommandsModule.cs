@@ -10,6 +10,7 @@ using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using DSharpPlus.Interactivity.Extensions;
 using OSISDiscordAssistant.Models;
+using OSISDiscordAssistant.Utilities;
 
 namespace OSISDiscordAssistant.Commands
 {
@@ -102,98 +103,146 @@ namespace OSISDiscordAssistant.Commands
         /// <param name="tagContent">The tag content to create or update.</param>
         /// <returns></returns>
         [Command("tag")]
-        public async Task CreateUpdateDeleteTagsAsync(CommandContext ctx, string operationSelection, string tagName, params string[] tagContent)
+        public async Task CreateUpdateDeleteTagsAsync(CommandContext ctx, string operationSelection, string tagName, [RemainingText] string tagContent)
         {
-            try
+            if (operationSelection == "create")
             {
-                if (operationSelection == "create")
+                bool isExist = _tagsContext.Tags.Any(x => x.Name == tagName);
+
+                if (isExist)
                 {
-                    bool isExist = _tagsContext.Tags.Any(x => x.Name == tagName);
-                    string tagContentToWrite = string.Join(" ", tagContent);
+                    await ctx.RespondAsync($"The tag {Formatter.InlineCode(tagName)} already exists!");
 
-                    if (isExist)
-                    {
-                        await ctx.RespondAsync($"The tag {Formatter.InlineCode(tagName)} already exists!");
-
-                        return;
-                    }
-
-                    if (tagContentToWrite.Length == 0)
-                    {
-                        await ctx.RespondAsync($"{Formatter.Bold("[ERROR]")} Tag content cannot be left empty!");
-
-                        return;
-                    }
-
-                    _tagsContext.Add(new Tags
-                    {
-                        Name = tagName,
-                        Content = tagContentToWrite
-                    });
-
-                    _tagsContext.SaveChanges();
-
-                    await ctx.RespondAsync(DiscordEmoji.FromName(ctx.Client, ":ok_hand:"));
+                    return;
                 }
 
-                else if (operationSelection == "update" || operationSelection == "edit")
+                if (tagContent.Length == 0)
                 {
-                    string tagContentToWrite = string.Join(" ", tagContent);
+                    await ctx.RespondAsync($"{Formatter.Bold("[ERROR]")} Tag content cannot be left empty!");
 
-                    if (tagContentToWrite.Length == 0)
-                    {
-                        await ctx.RespondAsync($"{Formatter.Bold("[ERROR]")} Tag content cannot be left empty!");
-
-                        return;
-                    }
-
-                    Tags tagToUpdate = null;
-                    tagToUpdate = _tagsContext.Tags.SingleOrDefault(x => x.Name == tagName);
-
-                    tagToUpdate.Content = string.Join(" ", tagContent);
-
-                    _tagsContext.SaveChanges();
-
-                    await ctx.RespondAsync(DiscordEmoji.FromName(ctx.Client, ":ok_hand:"));
+                    return;
                 }
 
-                else if (operationSelection == "delete")
+                _tagsContext.Add(new Tags
                 {
-                    Tags tagToDelete = null;
-                    tagToDelete = _tagsContext.Tags.SingleOrDefault(x => x.Name == tagName);
+                    Name = tagName,
+                    Content = tagContent,
+                    CreatorUserId = ctx.Member.Id,
+                    CreatedTimestamp = ClientUtilities.GetCurrentUnixTimestamp(),
+                    VersionCount = 1
+                });
 
-                    _tagsContext.Remove(tagToDelete);
+                _tagsContext.SaveChanges();
 
-                    _tagsContext.SaveChanges();
-
-                    await ctx.RespondAsync(DiscordEmoji.FromName(ctx.Client, ":ok_hand:"));
-                }
-
-                else
-                {
-                    var helpEmoji = DiscordEmoji.FromName(ctx.Client, ":sos:");
-
-                    var errorMessage = await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} The parameter {Formatter.InlineCode(operationSelection)} is invalid. Type {Formatter.InlineCode("!tag")} to list all options. Alternatively, click the emoji below to get help.");
-
-                    await errorMessage.CreateReactionAsync(helpEmoji);
-
-                    var interactivity = ctx.Client.GetInteractivity();
-
-                    Thread.Sleep(TimeSpan.FromMilliseconds(500));
-                    var emojiResult = await interactivity.WaitForReactionAsync(x => x.Message == errorMessage && (x.Emoji == helpEmoji));
-
-                    if (emojiResult.Result.Emoji == helpEmoji)
-                    {
-                        string helpMessage = $"{Formatter.Bold("[SYNTAX]")} !tag [CREATE/UPDATE/EDIT/DELETE] [TAGNAME] [TAGCONTENT]";
-
-                        await ctx.Channel.SendMessageAsync(helpMessage);
-                    }
-                }
+                await ctx.RespondAsync(DiscordEmoji.FromName(ctx.Client, ":ok_hand:"));
             }
 
-            catch (Exception ex)
+            else if (operationSelection == "update" || operationSelection == "edit")
             {
-                await ctx.RespondAsync($"{Formatter.Bold("[ERROR]")} An error occurred. Did you tried to delete a nonexistent tag?\nError details: {Formatter.InlineCode($"{ex.Message.GetType()}: {ex.Message}")}");
+                if (tagContent.Length == 0)
+                {
+                    await ctx.RespondAsync($"{Formatter.Bold("[ERROR]")} Tag content cannot be left empty!");
+
+                    return;
+                }
+
+                Tags tagToUpdate = null;
+                tagToUpdate = _tagsContext.Tags.SingleOrDefault(x => x.Name == tagName);
+
+                if (tagToUpdate is null)
+                {
+                    await ctx.RespondAsync($"{Formatter.Bold("[ERROR]")} Tag {Formatter.InlineCode(tagName)} does not exist.");
+
+                    return;
+                }
+
+                tagToUpdate.Content = tagContent;
+                tagToUpdate.UpdaterUserId = ctx.Member.Id;
+                tagToUpdate.LastUpdatedTimestamp = ClientUtilities.GetCurrentUnixTimestamp();
+                tagToUpdate.VersionCount = tagToUpdate.VersionCount + 1;
+
+                _tagsContext.SaveChanges();
+
+                await ctx.RespondAsync(DiscordEmoji.FromName(ctx.Client, ":ok_hand:"));
+            }
+
+            else if (operationSelection == "delete")
+            {
+                Tags tagToDelete = null;
+                tagToDelete = _tagsContext.Tags.SingleOrDefault(x => x.Name == tagName);
+
+                if (tagToDelete is null)
+                {
+                    await ctx.RespondAsync($"{Formatter.Bold("[ERROR]")} Tag {Formatter.InlineCode(tagName)} does not exist.");
+
+                    return;
+                }
+
+                _tagsContext.Remove(tagToDelete);
+
+                _tagsContext.SaveChanges();
+
+                await ctx.RespondAsync(DiscordEmoji.FromName(ctx.Client, ":ok_hand:"));
+            }
+
+            else if (operationSelection == "info")
+            {
+                var tag = _tagsContext.Tags.SingleOrDefault(x => x.Name == tagName);
+
+                if (tag is null)
+                {
+                    await ctx.RespondAsync($"{Formatter.Bold("[ERROR]")} Tag {Formatter.InlineCode(tagName)} does not exist.");
+
+                    return;
+                }
+
+                var creator = await ctx.Client.GetUserAsync(tag.CreatorUserId);
+
+                DiscordEmbedBuilder embedBuilder = new()
+                {
+                    Author = new DiscordEmbedBuilder.EmbedAuthor
+                    {
+                        Name = $"{creator.Username}#{creator.Discriminator}",
+                        IconUrl = creator.AvatarUrl
+                    },
+                    Title = tag.Name
+                };
+
+                var lastUpdatedTimestamp = "N/A";
+
+                if (tag.LastUpdatedTimestamp != null)
+                {
+                    DiscordUser lastUpdatingUser = await ctx.Client.GetUserAsync((ulong)tag.UpdaterUserId);
+
+                    lastUpdatedTimestamp = $"{Formatter.Timestamp(ClientUtilities.ConvertUnixTimestampToDateTime((long)tag.LastUpdatedTimestamp), TimestampFormat.LongDateTime)} by {lastUpdatingUser.Mention}";
+                }
+
+                embedBuilder.AddField("Created at", Formatter.Timestamp(ClientUtilities.ConvertUnixTimestampToDateTime(tag.CreatedTimestamp), TimestampFormat.LongDateTime))
+                            .AddField("Last updated at", lastUpdatedTimestamp)
+                            .AddField("Version count", tag.VersionCount.ToString(), true);
+
+                await ctx.RespondAsync(embedBuilder.Build());
+            }
+
+            else
+            {
+                var helpEmoji = DiscordEmoji.FromName(ctx.Client, ":sos:");
+
+                var errorMessage = await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} The parameter {Formatter.InlineCode(operationSelection)} is invalid. Type {Formatter.InlineCode("!tag")} to list all options. Alternatively, click the emoji below to get help.");
+
+                await errorMessage.CreateReactionAsync(helpEmoji);
+
+                var interactivity = ctx.Client.GetInteractivity();
+
+                Thread.Sleep(TimeSpan.FromMilliseconds(500));
+                var emojiResult = await interactivity.WaitForReactionAsync(x => x.Message == errorMessage && (x.Emoji == helpEmoji));
+
+                if (emojiResult.Result.Emoji == helpEmoji)
+                {
+                    string helpMessage = $"{Formatter.Bold("[SYNTAX]")} !tag [CREATE/UPDATE/EDIT/DELETE] [TAGNAME] [TAGCONTENT]";
+
+                    await ctx.Channel.SendMessageAsync(helpMessage);
+                }
             }
         }
 
@@ -201,7 +250,7 @@ namespace OSISDiscordAssistant.Commands
         /// Retrieves all names of created tags.
         /// </summary>
         /// <returns>A <see cref="List{T}" /> of tag names.</returns>
-        internal List<string> GetAllTags()
+        private List<string> GetAllTags()
         {
             List<string> tags = new List<string>();
             int counter = 0;
