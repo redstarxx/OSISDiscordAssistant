@@ -18,22 +18,9 @@ Once you have installed all of the requirements listed above, you need to set yo
 ### Step One: PostgreSQL
 You will need to log into your PostgreSQL server via `psql` utility.
 
-Proceed to create a new table: `CREATE TABLE events(id SERIAL PRIMARY KEY, event_name VARCHAR(50), person_in_charge VARCHAR(100), event_date VARCHAR(50), event_date_culture_info VARCHAR(10), event_description VARCHAR(255), proposal_reminded BOOLEAN NOT NULL, previously_reminded BOOLEAN NOT NULL, expired BOOLEAN NOT NULL);` This table is to be used for the Events Manager feature (this includes the time to event reminder and the proposal submission reminder).
+Proceed to execute the SQL scripts inside the [postgres](https://github.com/redstarxx/OSISDiscordAssistant/tree/main/postgres) folder. Do note that you must change the username to which the table gets assigned to in each scripts, if the owner name is not default aka `postgres`.
 
- `CREATE TABLE counter (id SERIAL PRIMARY KEY, pollcounter SMALLINT, verifycounter SMALLINT);` Insert number 1 into each  column: `INSERT INTO counter (pollcounter, verifycounter) VALUES(1, 1);` This table is to be used to store counter numbers.
-
- `CREATE TABLE tags (id SERIAL PRIMARY KEY, tag_name VARCHAR(50), tag_content VARCHAR(3000));` This table is to be used for the tags feature.
-
-`CREATE TABLE verification (id SERIAL PRIMARY KEY, user_id BIGINT, verification_embed_id BIGINT, requested_nickname VARCHAR(32))` This table is to be used for the main guild verification system.
-
-### Step Two: Discord API
-**IF YOU HAVE YOUR BOT'S CONNECTION TOKEN ALREADY, SKIP THIS STEP.**
-
-Go to the [Discord Developer Portal](https://discord.com/developers) page and create a new app for the bot. Give it a name and an icon, and press Save Changes. Then go to Bot tab and press Add Bot. Give the bot a username and avatar, uncheck the Public Bot checkbox and press Save Changes.
-
-After that, press the Copy button under the token. Save the copied token as this will be used by the bot to connect to Discord in the next step.
-
-### Step Three: Configuration
+### Step Two: Configuration
 Create a new file named `config.json` in the bot's directory. Fill that file with the following format.
 
 ```json
@@ -62,7 +49,7 @@ Create a new file named `config.json` in the bot's directory. Fill that file wit
 }
 ```
 
-- For the `Token` property, add your bot's connection token between the quotation marks obtained from Step Two.
+- For the `Token` property, add your bot's token obtained from [Discord Developer Portal](https://discord.com/developers/applications). If you do not know how to obtain that, you'll need to create a new application then click on the Bot section. Click `Add User` and copy the token.
 - For the `Prefix` property, add your desired command prefix between the quotation marks.
 - For the `DbConnectionString` property, add your database's connection string. A typical PostgreSQL connection string would look like this: `Host=host;Username=username;Password=password;Database=database` Change these values according to your database.
 - For the `MainGuildId` property, add the guild ID that you want the event and proposal submission reminders to be sent to.
@@ -80,7 +67,7 @@ Create a new file named `config.json` in the bot's directory. Fill that file wit
 
 Make sure you have saved your changes before proceeding.
 
-### Step Four: Running Your Bot
+### Step Three: Running Your Bot
 Once you have done all of the steps above, you are ready to run your bot! Ensure that `config.json` is in the same directory which the bot is located in.
 
 ### Self-Hosting
