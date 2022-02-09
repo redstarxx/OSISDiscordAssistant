@@ -220,58 +220,21 @@ namespace OSISDiscordAssistant.Utilities
         }
 
         /// <summary>
-        /// Composes a reminder message.
+        /// Gets the unix timestamp from the given <see cref="DateTime" /> object.
         /// </summary>
-        /// <param name="remindMessage">Something to remind (text, link, picture, whatever).</param>
-        /// <param name="ctx">The CommandContext to attach from.</param>
-        /// <param name="remindTarget">The target mention string.</param>
-        /// <returns></returns>
-        public static string CreateReminderMessage(string remindMessage, CommandContext ctx, string remindTarget)
+        /// <param name="dateTime">The <see cref="DateTime" /> object to calculate the unix timestamp from.</param>
+        /// <returns>The unix timestamp, converted to UTC time.</returns>
+        public static long ConvertDateTimeToUnixTimestamp(DateTime dateTime)
         {
-            if (ctx.Member.Mention == remindTarget)
-            {
-                return $"{DiscordEmoji.FromName(ctx.Client, ":alarm_clock:")} {ctx.Member.Mention}, you wanted to be reminded of the following: \n\n{remindMessage}";
-            }
-
-            else
-            {
-                return $"{DiscordEmoji.FromName(ctx.Client, ":alarm_clock:")} {remindTarget}, {ctx.Member.Mention} wanted to remind you of the following: \n\n{remindMessage}";
-            }
-        }
-
-        /// <summary>
-        /// Creates and fires a task which sends a reminder message after delaying from the specified timespan.
-        /// </summary>
-        /// <param name="remainingTime">The timespan object.</param>
-        /// <param name="targetChannel">The DiscordChannel object that you want to send the reminder message to.</param>
-        /// <param name="remindMessage">Something to remind (text, link, picture, whatever).</param>
-        /// <param name="remindTarget">The target mention string.</param>
-        public static void CreateReminderTask(TimeSpan remainingTime, DiscordChannel targetChannel, string remindMessage, CommandContext ctx, string remindTarget)
-        {
-            var reminderTask = new Task(async () =>
-            {
-                string reminderMessage = CreateReminderMessage(remindMessage, ctx, remindTarget);
-
-                long fullDelays = remainingTime.Ticks / Constant.maxTimeSpanValue.Ticks;
-                for (int i = 0; i < fullDelays; i++)
-                {
-                    await Task.Delay(Constant.maxTimeSpanValue);
-                    remainingTime -= Constant.maxTimeSpanValue;
-                }
-
-                await Task.Delay(remainingTime);
-
-                _ = targetChannel == ctx.Channel ? await ctx.RespondAsync(reminderMessage) : await targetChannel.SendMessageAsync(reminderMessage);
-            });
-
-            reminderTask.Start();
+            TimeSpan timeSpan = dateTime.ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc));
+            return (long)timeSpan.TotalSeconds;
         }
 
         /// <summary>
         /// Gets the <see cref="DateTime" /> from the specified unix timestamp.
         /// </summary>
         /// <param name="unixTimestamp">The unix timestamp to calculate the <see cref="DateTime" />.</param>
-        /// <returns>A <see cref="DateTime" /> object from the specified unix timestamp.</returns>
+        /// <returns>A <see cref="DateTime" /> object from the specified unix timestamp, converted to local time.</returns>
         public static DateTime ConvertUnixTimestampToDateTime(long unixTimestamp)
         {
             return new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc).AddSeconds(unixTimestamp).ToLocalTime();
