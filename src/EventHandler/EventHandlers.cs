@@ -21,6 +21,7 @@ namespace OSISDiscordAssistant
         private readonly IVerificationCleanupService _verificationCleanupService;
         private readonly IStatusUpdaterService _statusUpdaterService;
         private readonly IHeartbeatMonitoringService _heartbeatMonitoringService;
+        private readonly IReminderService _reminderService;
 
         public EventHandlers(ILogger<EventHandlers> logger, 
             IHandleMiscInteractivity handleMiscInteractivity, 
@@ -28,7 +29,8 @@ namespace OSISDiscordAssistant
             IProposalReminderService proposalReminderService, 
             IVerificationCleanupService verificationCleanupService, 
             IStatusUpdaterService statusUpdaterService, 
-            IHeartbeatMonitoringService heartbeatMonitoringService)
+            IHeartbeatMonitoringService heartbeatMonitoringService,
+            IReminderService reminderService)
         {
             _logger = logger;
             _handleMiscInteractivity = handleMiscInteractivity;
@@ -37,6 +39,7 @@ namespace OSISDiscordAssistant
             _verificationCleanupService = verificationCleanupService;
             _statusUpdaterService = statusUpdaterService;
             _heartbeatMonitoringService = heartbeatMonitoringService;
+            _reminderService = reminderService;
         }
 
         public Task OnClientReady(object sender, ReadyEventArgs e)
@@ -55,6 +58,8 @@ namespace OSISDiscordAssistant
             _statusUpdaterService.Start();
 
             _heartbeatMonitoringService.Start();
+
+            _reminderService.Start();
 
             _logger.LogInformation(EventIds.Core, "Client is ready for tasking.", DateTime.Now);
 

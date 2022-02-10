@@ -61,6 +61,7 @@ namespace OSISDiscordAssistant
                     services.AddDbContext<EventContext>(Builder, ServiceLifetime.Transient);
                     services.AddDbContext<TagsContext>(Builder, ServiceLifetime.Transient);
                     services.AddDbContext<CounterContext>(Builder, ServiceLifetime.Transient);
+                    services.AddDbContext<ReminderContext>(Builder, ServiceLifetime.Transient);
 
                     // Services
                     services.AddSingleton<IHandleMiscInteractivity, HandleMiscInteractivity>();
@@ -69,6 +70,8 @@ namespace OSISDiscordAssistant
                     services.AddSingleton<IVerificationCleanupService, VerificationCleanupService>();
                     services.AddSingleton<IStatusUpdaterService, StatusUpdaterService>();
                     services.AddSingleton<IHeartbeatMonitoringService, HeartbeatMonitoringService>();
+
+                    services.AddSingleton<IReminderService, ReminderService>();
 
                     // Client
                     services.AddSingleton<DiscordShardedClient>(s => new(new DiscordConfiguration
