@@ -24,8 +24,9 @@ namespace OSISDiscordAssistant.Commands
                 }
             };
 
-            string councilCommands = $"{Formatter.Bold("event")} - Commands to access the Events Manager.\n" +
-                $"{Formatter.Bold("remind")} - Reminder feature to remind yourself, another member, a division, or everyone.\n";
+            string councilCommands = $"{Formatter.Bold("event")} - Commands to access the Events Manager (create and manage automated reminders for upcoming events and proposal submissions, including proposal storage).\n" +
+                $"{Formatter.Bold("remind")} - Reminder feature to remind yourself, another member, a division, or everyone.\n" +
+                $"{Formatter.Bold("reminder")} - Commands to manage or view upcoming reminders.\n";
 
             string generalCommands = $"{Formatter.Bold("poll")} - Creates a poll with a set of specified emojis to choose.\n" +
                 $"{Formatter.Bold("myinfo")} - Displays the info that this bot has over you.\n" +
