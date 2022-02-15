@@ -12,6 +12,7 @@ using OSISDiscordAssistant.Services;
 using OSISDiscordAssistant.Utilities;
 using OSISDiscordAssistant.Models;
 using Humanizer;
+using Microsoft.EntityFrameworkCore;
 
 namespace OSISDiscordAssistant.Commands
 {
@@ -42,7 +43,7 @@ namespace OSISDiscordAssistant.Commands
                     Color = DiscordColor.MidnightBlue
                 };
 
-                var reminders = _reminderContext.Reminders.Where(x => x.Cancelled == false).Where(x => x.TargetGuildId == ctx.Guild.Id);
+                var reminders = _reminderContext.Reminders.AsNoTracking().Where(x => x.Cancelled == false).Where(x => x.TargetGuildId == ctx.Guild.Id);
 
                 foreach (var reminder in reminders)
                 {
@@ -56,12 +57,12 @@ namespace OSISDiscordAssistant.Commands
 
             else if (option is "cancel")
             {
-                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[SYNTAX]")} !reminder cancel [REMINDER ID (taken from {Formatter.InlineCode("reminder list")})]\nExample: {Formatter.InlineCode("!reminder cancel 25")}");
+                await ctx.RespondAsync($"{Formatter.Bold("[SYNTAX]")} !reminder cancel [REMINDER ID (refer to {Formatter.InlineCode("reminder list")})]\nExample: {Formatter.InlineCode("!reminder cancel 25")}");
             }
 
             else
             {
-                throw new InvalidOperationException($"{Formatter.Bold("[ERROR]")} The option {Formatter.InlineCode(option)} does not exist. Type {Formatter.InlineCode("osis reminder")} to view all possible actions.");
+                await ctx.RespondAsync($"{Formatter.Bold("[ERROR]")} The option {Formatter.InlineCode(option)} does not exist. Type {Formatter.InlineCode("osis reminder")} to view all possible actions.");
             }
         }
 
@@ -73,12 +74,20 @@ namespace OSISDiscordAssistant.Commands
                 bool isNumber = int.TryParse(id, out int rowID);
 
                 if (!isNumber)
-                    throw new InvalidOperationException($"{Formatter.Bold("[ERROR]")} You need to provide the ID of the reminder, which is a number.");
+                {
+                    await ctx.RespondAsync($"{Formatter.Bold("[ERROR]")} You need to provide the ID of the reminder, which is a number. Refer to {Formatter.InlineCode("reminder list")}");
+
+                    return;
+                }
 
                 var reminder = _reminderContext.Reminders.FirstOrDefault(x => x.Id == rowID);
 
                 if (reminder is null)
-                    throw new InvalidOperationException($"Reminder ID {Convert.ToInt32(id)} does not exist.");
+                {
+                    await ctx.RespondAsync($"Reminder ID {Convert.ToInt32(id)} does not exist.");
+
+                    return;
+                }
 
                 if (reminder.Cancelled is false)
                 {
@@ -97,7 +106,7 @@ namespace OSISDiscordAssistant.Commands
 
             else
             {
-                throw new InvalidOperationException($"{Formatter.Bold("[ERROR]")} The option {Formatter.InlineCode(option)} does not exist. Type {Formatter.InlineCode("osis reminder")} to view all possible actions.");
+                await ctx.RespondAsync($"{Formatter.Bold("[ERROR]")} The option {Formatter.InlineCode(option)} does not exist. Type {Formatter.InlineCode("osis reminder")} to view all possible actions.");
             }
         }
 
