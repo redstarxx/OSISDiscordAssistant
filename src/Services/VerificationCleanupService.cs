@@ -33,7 +33,7 @@ namespace OSISDiscordAssistant.Services
                 return;
             }
 
-            Task verificationCleaningServiceTask = Task.Run(async () =>
+            Task.Run(async () =>
             {
                 DiscordChannel verificationProcessingChannel = await _shardedClient.GetShard(SharedData.MainGuildId).GetChannelAsync(SharedData.VerificationRequestsProcessingChannelId);
 

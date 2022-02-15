@@ -34,7 +34,7 @@ namespace OSISDiscordAssistant.Services
                 return;
             }
 
-            Task proposalReminder = Task.Run(async () =>
+            Task.Run(async () =>
             {
                 DiscordChannel proposalChannel = await _shardedClient.GetShard(SharedData.MainGuildId).GetChannelAsync(SharedData.ProposalChannelId);
 

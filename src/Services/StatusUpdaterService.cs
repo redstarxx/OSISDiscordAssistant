@@ -29,7 +29,7 @@ namespace OSISDiscordAssistant.Services
                 return;
             }
 
-            Task statusUpdater = Task.Run(async () =>
+            Task.Run(async () =>
             {
                 Stopwatch stopwatch = new Stopwatch();
 

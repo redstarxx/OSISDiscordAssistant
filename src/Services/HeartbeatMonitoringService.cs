@@ -29,7 +29,7 @@ namespace OSISDiscordAssistant.Services
                 return;
             }
 
-            Task task = Task.Run(async () =>
+            Task.Run(async () =>
             {
                 while (true)
                 {

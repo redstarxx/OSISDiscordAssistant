@@ -29,7 +29,7 @@ namespace OSISDiscordAssistant.Services
 
         public void Start()
         {
-            Task task = Task.Run(async () =>
+            Task.Run(async () =>
             {
                 DiscordGuild mainGuild = await _shardedClient.GetShard(SharedData.MainGuildId).GetGuildAsync(SharedData.MainGuildId);
 
