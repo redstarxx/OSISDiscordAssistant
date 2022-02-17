@@ -49,40 +49,48 @@ namespace OSISDiscordAssistant.Services
 
                         foreach (var row in _verificationContext.Verifications)
                         {
-                            var requestEmbed = await verificationProcessingChannel.GetMessageAsync(row.VerificationEmbedId);
-
-                            foreach (var embed in requestEmbed.Embeds.ToList())
+                            try
                             {
-                                DateTimeOffset offset = (DateTimeOffset)embed.Timestamp;
-                                DateTime embedTimestamp = offset.DateTime;
+                                var requestEmbed = await verificationProcessingChannel.GetMessageAsync(row.VerificationEmbedId);
 
-                                if (embedTimestamp.Subtract(TimeSpan.FromSeconds(DateTime.Now.Second)).AddDays(SharedData.MaxPendingVerificationWaitingDay) == DateTime.Now.Subtract(TimeSpan.FromSeconds(DateTime.Now.Second)) ||
-                                DateTime.Now.Subtract(TimeSpan.FromSeconds(DateTime.Now.Second)) > embedTimestamp.Subtract(TimeSpan.FromSeconds(DateTime.Now.Second)).AddDays(SharedData.MaxPendingVerificationWaitingDay))
+                                foreach (var embed in requestEmbed.Embeds.ToList())
                                 {
-                                    counter++;
+                                    DateTimeOffset offset = (DateTimeOffset)embed.Timestamp;
+                                    DateTime embedTimestamp = offset.DateTime;
 
-                                    DiscordEmbed updatedEmbed = null;
-
-                                    DiscordEmbedBuilder embedBuilder = new DiscordEmbedBuilder(embed)
+                                    if (embedTimestamp.Subtract(TimeSpan.FromSeconds(DateTime.Now.Second)).AddDays(SharedData.MaxPendingVerificationWaitingDay) == DateTime.Now.Subtract(TimeSpan.FromSeconds(DateTime.Now.Second)) ||
+                                    DateTime.Now.Subtract(TimeSpan.FromSeconds(DateTime.Now.Second)) > embedTimestamp.Subtract(TimeSpan.FromSeconds(DateTime.Now.Second)).AddDays(SharedData.MaxPendingVerificationWaitingDay))
                                     {
-                                        Title = $"{embed.Title.Replace(" | PENDING", " | EXPIRED")}",
-                                        Description = $"{embed.Description.Replace("PENDING.", $"EXPIRED (nobody handled this request, at {Formatter.Timestamp(DateTime.Now, TimestampFormat.LongDateTime)}).")}"
-                                    };
+                                        counter++;
 
-                                    updatedEmbed = embedBuilder.Build();
+                                        DiscordEmbed updatedEmbed = null;
 
-                                    await requestEmbed.ModifyAsync(x => x.WithEmbed(updatedEmbed));
+                                        DiscordEmbedBuilder embedBuilder = new DiscordEmbedBuilder(embed)
+                                        {
+                                            Title = $"{embed.Title.Replace(" | PENDING", " | EXPIRED")}",
+                                            Description = $"{embed.Description.Replace("PENDING.", $"EXPIRED (nobody handled this request, at {Formatter.Timestamp(DateTime.Now, TimestampFormat.LongDateTime)}).")}"
+                                        };
 
-                                    await _shardedClient.GetShard(SharedData.MainGuildId).GetGuildAsync(SharedData.MainGuildId).Result
-                                    .GetMemberAsync(row.UserId).Result.SendMessageAsync($"{Formatter.Bold("[VERIFICATION]")} I'm sorry, your verification request has expired (nobody responded to it within {SharedData.MaxPendingVerificationWaitingDay} ({SharedData.MaxPendingVerificationWaitingDay.ToWords()}) days). Feel free to try again or reach out to a member of Inti OSIS for assistance.");
+                                        updatedEmbed = embedBuilder.Build();
 
-                                    var request = _verificationContext.Verifications.SingleOrDefault(x => x.VerificationEmbedId == row.VerificationEmbedId);
+                                        await requestEmbed.ModifyAsync(x => x.WithEmbed(updatedEmbed));
 
-                                    _verificationContext.Remove(request);
-                                    await _verificationContext.SaveChangesAsync();
+                                        await _shardedClient.GetShard(SharedData.MainGuildId).GetGuildAsync(SharedData.MainGuildId).Result
+                                        .GetMemberAsync(row.UserId).Result.SendMessageAsync($"{Formatter.Bold("[VERIFICATION]")} I'm sorry, your verification request has expired (nobody responded to it within {SharedData.MaxPendingVerificationWaitingDay} ({SharedData.MaxPendingVerificationWaitingDay.ToWords()}) days). Feel free to try again or reach out to a member of Inti OSIS for assistance.");
 
-                                    _logger.LogInformation($"Removed verification request message ID {requestEmbed.Id}.", DateTime.Now);
+                                        var request = _verificationContext.Verifications.SingleOrDefault(x => x.VerificationEmbedId == row.VerificationEmbedId);
+
+                                        _verificationContext.Remove(request);
+                                        await _verificationContext.SaveChangesAsync();
+
+                                        _logger.LogInformation($"Removed verification request message ID {requestEmbed.Id}.", DateTime.Now);
+                                    }
                                 }
+                            }
+
+                            catch (Exception ex)
+                            {
+                                _logger.LogError(ex, $"An error occured while processing a verification request (ID: {row.Id}).");
                             }
                         }
 
