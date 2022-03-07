@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Text.RegularExpressions;
 using DSharpPlus;
+using OSISDiscordAssistant.Utilities;
 
 namespace OSISDiscordAssistant.Entities
 {
@@ -11,19 +12,19 @@ namespace OSISDiscordAssistant.Entities
     public class VerifiedEventDateEntity
     {
         /// <summary>
-        /// Gets whether the given inputted date time string passes the verification.
+        /// Gets whether the given date time passes the verification.
         /// </summary>
         public bool Passed { get; private set; }
 
         /// <summary>
-        /// The error message, if the verification fails.
+        /// The error message, if the date time verification fails.
         /// </summary>
         public string ErrorMessage { get; private set; }
 
         /// <summary>
-        /// The <see cref="CultureInfo" /> of the given inputted date time string, if the verification is successful.
+        /// The unix timestamp that represents the given event date by the user. Will return null if <see cref="VerifiedEventDateEntity.Passed" /> is false.
         /// </summary>
-        public string DateCultureInfo { get; private set; }
+        public long EventDateUnixTimeStamp { get; private set; }
 
         /// <summary>
         /// Verifies the given date time to be either in a US or Indonesian format.
@@ -67,17 +68,9 @@ namespace OSISDiscordAssistant.Entities
                     return verifiedEventDateEntity;
                 }
 
-                if (timeSpan.Days < 1)
-                {
-                    verifiedEventDateEntity.Passed = false;
-                    verifiedEventDateEntity.ErrorMessage = $"{Formatter.Bold("[ERROR]")} Minimum allowed date is one day before the event. Alternatively, include the year of the event as well if you have not.";
-
-                    return verifiedEventDateEntity;
-                }
-
                 // Set the culture info to store.
                 verifiedEventDateEntity.Passed = true;
-                verifiedEventDateEntity.DateCultureInfo = "en-US";
+                verifiedEventDateEntity.EventDateUnixTimeStamp = ClientUtilities.ConvertDateTimeToUnixTimestamp(desiredDateTime);
 
                 return verifiedEventDateEntity;
             }
@@ -102,17 +95,9 @@ namespace OSISDiscordAssistant.Entities
                         return verifiedEventDateEntity;
                     }
 
-                    if (timeSpan.Days < 1)
-                    {
-                        verifiedEventDateEntity.Passed = false;
-                        verifiedEventDateEntity.ErrorMessage = $"{Formatter.Bold("[ERROR]")} Minimum allowed date is one day before the event. Alternatively, include the year of the event as well if you have not.";
-    
-                        return verifiedEventDateEntity;
-                    }
-
                     // Set the culture info to store.
                     verifiedEventDateEntity.Passed = true;
-                    verifiedEventDateEntity.DateCultureInfo = "id-ID";
+                    verifiedEventDateEntity.EventDateUnixTimeStamp = ClientUtilities.ConvertDateTimeToUnixTimestamp(desiredDateTime);
 
                     return verifiedEventDateEntity;
                 }
