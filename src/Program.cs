@@ -57,8 +57,8 @@ namespace OSISDiscordAssistant
                     services.AddSingleton(Log.Logger);
 
                     // Database
-                    services.AddDbContext<VerificationContext>(Builder, ServiceLifetime.Transient);
-                    services.AddDbContext<EventContext>(Builder, ServiceLifetime.Transient);
+                    services.AddDbContext<VerificationContext>(Builder, ServiceLifetime.Scoped);
+                    services.AddDbContext<EventContext>(Builder, ServiceLifetime.Scoped);
                     services.AddDbContext<TagsContext>(Builder, ServiceLifetime.Transient);
                     services.AddDbContext<CounterContext>(Builder, ServiceLifetime.Transient);
                     services.AddDbContext<ReminderContext>(Builder, ServiceLifetime.Transient);
