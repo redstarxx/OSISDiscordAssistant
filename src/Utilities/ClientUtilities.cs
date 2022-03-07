@@ -12,8 +12,7 @@ using DSharpPlus.Entities;
 using DSharpPlus.CommandsNext;
 using OSISDiscordAssistant.Services;
 using OSISDiscordAssistant.Enums;
-using OSISDiscordAssistant.Constants;
-using Humanizer;
+using OSISDiscordAssistant.Models;
 
 namespace OSISDiscordAssistant.Utilities
 {
@@ -217,6 +216,61 @@ namespace OSISDiscordAssistant.Utilities
             }
 
             return null;
+        }
+
+        public static Events CalculateEventReminderDate(long unixTimestamp)
+        {
+            DateTime eventDateTime = ConvertUnixTimestampToDateTime(unixTimestamp);
+            TimeSpan timeSpan = eventDateTime - DateTime.Today;
+
+            Events data = new Events();
+
+            data.EventDateUnixTimestamp = unixTimestamp;
+            data.Expired = false;
+
+            // Level 1, remind 30 days prior to the event.
+            if (timeSpan.Days > 30 || timeSpan.Days == 30)
+            {
+                data.NextScheduledReminderUnixTimestamp = ConvertDateTimeToUnixTimestamp(eventDateTime.Subtract(TimeSpan.FromDays(30)));
+                data.ExecutedReminderLevel = 1;
+            }
+
+            // Level 2, remind 14 days prior to the event.
+            else if ((timeSpan.Days > 14 && timeSpan.Days < 30) || timeSpan.Days == 14)
+            {
+                data.NextScheduledReminderUnixTimestamp = ConvertDateTimeToUnixTimestamp(eventDateTime.Subtract(TimeSpan.FromDays(14)));
+                data.ExecutedReminderLevel = 2;
+            }
+
+            // Level 3, remind 7 days prior to the event.
+            else if ((timeSpan.Days > 7 && timeSpan.Days < 14) || timeSpan.Days == 7)
+            {
+                data.NextScheduledReminderUnixTimestamp = ConvertDateTimeToUnixTimestamp(eventDateTime.Subtract(TimeSpan.FromDays(7)));
+                data.ExecutedReminderLevel = 3;
+            }
+
+            // Level 4, remind the day prior to the event.
+            else if (timeSpan.Days < 7 && timeSpan.Days > 0)
+            {
+                data.NextScheduledReminderUnixTimestamp = ConvertDateTimeToUnixTimestamp(eventDateTime.Subtract(TimeSpan.FromDays(1)));
+                data.ExecutedReminderLevel = 4;
+            }
+
+            // If event is created at the day of the event or after the day of the event, do not remind.
+            else if (timeSpan.Days == 0)
+            {
+                data.Expired = true;
+                data.NextScheduledReminderUnixTimestamp = 0;
+                data.ExecutedReminderLevel = 0;
+            }
+
+            else if (timeSpan.TotalDays < 0)
+            {
+                data.Expired = true;
+                data.ExecutedReminderLevel = 0;
+            }
+
+            return data;
         }
 
         /// <summary>
