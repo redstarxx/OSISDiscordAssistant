@@ -37,24 +37,21 @@ namespace OSISDiscordAssistant.Models
                     .HasColumnName("id")
                     .HasColumnType("int");
 
-                entity.Property(e => e.EventDate)
-                    .HasMaxLength(50)
-                    .HasColumnName("event_date");
+                entity.Property(e => e.EventDateUnixTimestamp)
+                    .HasColumnName("event_date_unix_timestamp")
+                    .HasColumnType("int");
 
-                entity.Property(e => e.EventDateCultureInfo)
-                    .HasMaxLength(10)
-                    .HasColumnName("event_date_culture_info");
+                entity.Property(e => e.NextScheduledReminderUnixTimestamp)
+                    .HasColumnName("next_scheduled_reminder_timestamp")
+                    .HasColumnType("int");
 
                 entity.Property(e => e.EventDescription)
-                    .HasMaxLength(255)
                     .HasColumnName("event_description");
 
                 entity.Property(e => e.PersonInCharge)
-                    .HasMaxLength(100)
                     .HasColumnName("person_in_charge");
 
                 entity.Property(e => e.EventName)
-                    .HasMaxLength(50)
                     .HasColumnName("event_name");
 
                 entity.Property(e => e.ProposalReminded)
@@ -65,9 +62,9 @@ namespace OSISDiscordAssistant.Models
                     .HasColumnName("expired")
                     .HasColumnType("bool");
 
-                entity.Property(e => e.PreviouslyReminded)
-                    .HasColumnName("previously_reminded")
-                    .HasColumnType("bool");
+                entity.Property(e => e.ExecutedReminderLevel)
+                    .HasColumnName("executed_reminder_level")
+                    .HasColumnType("int");
 
                 entity.Property(e => e.ProposalFileTitle)
                     .HasColumnName("proposal_file_title");

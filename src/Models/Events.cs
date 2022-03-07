@@ -18,14 +18,14 @@
         public string PersonInCharge { get; set; }
 
         /// <summary>
-        /// Event date to get or set.
+        /// The event date, which is represented as unix timestamp.
         /// </summary>
-        public string EventDate { get; set; }
+        public long EventDateUnixTimestamp { get; set; }
 
         /// <summary>
-        /// Event date culture info to get or set.
+        /// The date when the event reminder for the respective event needs to be sent, which is represented as unix timestamp.
         /// </summary>
-        public string EventDateCultureInfo { get; set; }
+        public long NextScheduledReminderUnixTimestamp { get; set; }
 
         /// <summary>
         /// Event description to get or set.
@@ -33,14 +33,14 @@
         public string EventDescription { get; set; }
 
         /// <summary>
+        /// The number of event reminders that has been sent. Referred to as a "level".
+        /// </summary>
+        public int ExecutedReminderLevel { get; set; }
+
+        /// <summary>
         /// Marked as true if the respective event's proposal is already submitted.
         /// </summary>
         public bool ProposalReminded { get; set; }
-
-        /// <summary>
-        /// Marks an event as true if already reminded before D-Day.
-        /// </summary>
-        public bool PreviouslyReminded { get; set; }
 
         /// <summary>
         /// Marks an event as true if expired.
