@@ -271,15 +271,7 @@ namespace OSISDiscordAssistant.Services
                         stopwatch.Stop();
                         long elapsedMilliseconds = stopwatch.ElapsedMilliseconds;
 
-                        if (counter != 0)
-                        {
-                            _logger.LogInformation($"Completed events reminder task in {elapsedMilliseconds} ms. Reminded {counter} ({counter.ToWords()}) events.", DateTime.Now);
-                        }
-
-                        else
-                        {
-                            _logger.LogInformation($"Completed events reminder task in {elapsedMilliseconds} ms. No events to remind.", DateTime.Now);
-                        }
+                        _logger.LogInformation($"Reminded {counter} ({counter.ToWords()}) events in in {elapsedMilliseconds} ms.", DateTime.Now);
 
                         stopwatch.Reset();
                         await Task.Delay(TimeSpan.FromMinutes(1).Subtract(TimeSpan.FromMilliseconds(elapsedMilliseconds)));

@@ -97,7 +97,7 @@ namespace OSISDiscordAssistant.Services
 
                         long elapsedMilliseconds = stopwatch.ElapsedMilliseconds;
 
-                        _logger.LogInformation($"Completed verification request cleanup task in {elapsedMilliseconds} ms. Removed {counter} ({counter.ToWords()}) requests.", DateTime.Now);
+                        _logger.LogInformation($"Removed {counter} ({counter.ToWords()}) expired requests in {elapsedMilliseconds} ms.", DateTime.Now);
 
                         counter = 0;
                         stopwatch.Reset();
