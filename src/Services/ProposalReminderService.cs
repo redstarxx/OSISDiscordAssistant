@@ -1,27 +1,28 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Globalization;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using Humanizer;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using OSISDiscordAssistant.Constants;
 using OSISDiscordAssistant.Models;
+using OSISDiscordAssistant.Utilities;
 
 namespace OSISDiscordAssistant.Services
 {
     public class ProposalReminderService : IProposalReminderService
     {
+        private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly ILogger<ProposalReminderService> _logger;
-        private readonly EventContext _eventContext;
         private readonly DiscordShardedClient _shardedClient;
 
-        public ProposalReminderService(ILogger<ProposalReminderService> logger, EventContext eventContext, DiscordShardedClient shardedClient)
+        public ProposalReminderService(IServiceScopeFactory serviceScopeFactory, ILogger<ProposalReminderService> logger, EventContext eventContext, DiscordShardedClient shardedClient)
         {
+            _serviceScopeFactory = serviceScopeFactory;
             _logger = logger;
-            _eventContext = eventContext;
             _shardedClient = shardedClient;
         }
 
@@ -68,87 +69,87 @@ namespace OSISDiscordAssistant.Services
 
                         bool sentReminder = false;
 
-                        foreach (var row in _eventContext.Events)
+                        using (var scope = _serviceScopeFactory.CreateScope())
                         {
-                            try
+                            var eventContext = scope.ServiceProvider.GetRequiredService<EventContext>();
+
+                            foreach (var row in eventContext.Events)
                             {
-                                processingStopWatch.Start();
-
-                                var cultureInfo = new CultureInfo(row.EventDateCultureInfo);
-
-                                DateTime currentDateTime = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day);
-
-                                DateTime parsedEventDateTime = DateTime.Parse(row.EventDate, cultureInfo);
-
-                                TimeSpan timeSpan = parsedEventDateTime - currentDateTime;
-
-                                double remainingDays = Math.Round(timeSpan.TotalDays);
-
-                                if (remainingDays == 30 || remainingDays > 6 && remainingDays < 30)
+                                try
                                 {
-                                    if (row.ProposalReminded == false)
+                                    if (row.Expired is false)
                                     {
-                                        reminderEmbed.Title = $"Events Manager - Proposal Submission for {row.EventName}... (Event ID: {row.Id})";
-                                        reminderEmbed.Description = $"Make sure you have submitted your respective proposals in preparation for {Formatter.Bold(row.EventName)}!";
+                                        processingStopWatch.Start();
 
-                                        reminderEmbed.AddField("Tanggal / Waktu Pelaksanaan", row.EventDate, true);
-                                        reminderEmbed.AddField("Informasi Tambahan", row.EventDescription, true);
+                                        DateTime eventDateTime = ClientUtilities.ConvertUnixTimestampToDateTime(row.EventDateUnixTimestamp);
 
-                                        reminderMessageBuilder.WithContent(row.PersonInCharge)
-                                                              .WithEmbed(embed: reminderEmbed);
+                                        TimeSpan timeSpan = eventDateTime - DateTime.Today;
 
-                                        await proposalChannel.SendMessageAsync(builder: reminderMessageBuilder);
-                                        counter++;
-
-                                        Events _d = null;
-                                        _d = _eventContext.Events.SingleOrDefault(x => x.Id == row.Id);
-
-                                        if (_d != null)
+                                        if (timeSpan.Days == 30 || timeSpan.Days > 6 && timeSpan.Days < 30)
                                         {
-                                            _d.ProposalReminded = true;
+                                            if (row.ProposalReminded == false)
+                                            {
+                                                reminderEmbed.Title = $"Events Manager - Proposal Submission for {row.EventName}... (ID: {row.Id})";
+                                                reminderEmbed.Description = $"Make sure you have submitted your respective proposals in preparation for {Formatter.Bold(row.EventName)}!";
+
+                                                reminderEmbed.AddField("Tanggal / Waktu Pelaksanaan", Formatter.Timestamp(eventDateTime, TimestampFormat.LongDate), true);
+                                                reminderEmbed.AddField("Informasi Tambahan", row.EventDescription, true);
+
+                                                reminderMessageBuilder.WithContent(row.PersonInCharge)
+                                                                      .WithEmbed(embed: reminderEmbed);
+
+                                                await proposalChannel.SendMessageAsync(builder: reminderMessageBuilder);
+                                                counter++;
+
+                                                Events eventData = eventContext.Events.SingleOrDefault(x => x.Id == row.Id);
+
+                                                if (eventData != null)
+                                                {
+                                                    eventData.ProposalReminded = true;
+                                                }
+
+                                                await eventContext.SaveChangesAsync();
+
+                                                sentReminder = true;
+                                            }
                                         }
 
-                                        _eventContext.SaveChanges();
+                                        if (eventDateTime.ToShortDateString() == DateTime.Today.ToShortDateString())
+                                        {
+                                            if (row.ProposalReminded == false)
+                                            {
+                                                Events eventData = eventContext.Events.SingleOrDefault(x => x.Id == row.Id);
 
-                                        sentReminder = true;
+                                                if (eventData != null)
+                                                {
+                                                    eventData.ProposalReminded = true;
+                                                }
+
+                                                await eventContext.SaveChangesAsync();
+
+                                                _logger.LogInformation($"Marked '{row.EventName}' (ID: {row.Id}) proposal reminded column as {row.ProposalReminded}.", DateTime.Now);
+                                            }
+                                        }
+
+                                        processingStopWatch.Stop();
+
+                                        if (sentReminder)
+                                        {
+                                            sentReminder = false;
+
+                                            _logger.LogInformation($"Sent proposal reminder for '{row.EventName}' (ID: {row.Id}) in {processingStopWatch.ElapsedMilliseconds} ms.", DateTime.Now);
+                                        }
+
+                                        processingStopWatch.Reset();
                                     }
                                 }
 
-                                if (parsedEventDateTime.ToShortDateString() == currentDateTime.ToShortDateString())
+                                catch (Exception ex)
                                 {
-                                    if (row.ProposalReminded == false)
-                                    {
-                                        Events _d = null;
-                                        _d = _eventContext.Events.SingleOrDefault(x => x.Id == row.Id);
-
-                                        if (_d != null)
-                                        {
-                                            _d.ProposalReminded = true;
-                                        }
-
-                                        _eventContext.SaveChanges();
-
-                                        _logger.LogInformation($"Marked '{row.EventName}' (ID: {row.Id}) proposal reminded column as {row.ProposalReminded}.", DateTime.Now);
-                                    }
+                                    _logger.LogError(ex, $"An error occured while processing an event (ID: {row.Id}).");
                                 }
-
-                                processingStopWatch.Stop();
-
-                                if (sentReminder)
-                                {
-                                    sentReminder = false;
-
-                                    _logger.LogInformation($"Sent proposal reminder for '{row.EventName}' (ID: {row.Id}) in {processingStopWatch.ElapsedMilliseconds} ms.", DateTime.Now);
-                                }
-
-                                processingStopWatch.Reset();
                             }
-
-                            catch (Exception ex)
-                            {
-                                _logger.LogError(ex, $"An error occured while processing an event (ID: {row.Id}).");
-                            }
-                        }
+                        }                        
 
                         stopwatch.Stop();
                         long elapsedMilliseconds = stopwatch.ElapsedMilliseconds;

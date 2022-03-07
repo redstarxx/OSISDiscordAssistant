@@ -6,7 +6,6 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 using Humanizer;
 using Microsoft.Extensions.Logging;
-using OSISDiscordAssistant.Constants;
 using OSISDiscordAssistant.Models;
 
 namespace OSISDiscordAssistant.Services
