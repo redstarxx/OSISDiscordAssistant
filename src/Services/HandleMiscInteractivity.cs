@@ -8,6 +8,7 @@ using DSharpPlus.EventArgs;
 using DSharpPlus.Interactivity.Extensions;
 using Microsoft.Extensions.Logging;
 using OSISDiscordAssistant.Models;
+using OSISDiscordAssistant.Utilities;
 
 namespace OSISDiscordAssistant.Services
 {
@@ -187,7 +188,7 @@ namespace OSISDiscordAssistant.Services
             else if (e.Id == "accept_button" || e.Id == "deny_button")
             {
                 var userDataRow = _verificationContext.Verifications.FirstOrDefault(x => x.VerificationEmbedId == e.Message.Id);
-                // TODO: EDIT THE VERIFICATION EMBED'S STATUS
+
                 if (userDataRow is null)
                 {
                     _logger.LogError($"Aborted processing verification request embed ID {e.Message.Id}. Data does not exist in the database.");
@@ -195,13 +196,13 @@ namespace OSISDiscordAssistant.Services
                     return Task.CompletedTask;
                 }
 
-                var member = await e.Guild.GetMemberAsync(_verificationContext.Verifications.SingleOrDefault(x => x.VerificationEmbedId == e.Message.Id).UserId);
+                var member = await e.Guild.GetMemberAsync(userDataRow.UserId);
 
                 if (e.Id == "accept_button")
                 {
                     await member.GrantRoleAsync(e.Guild.GetRole(SharedData.AccessRoleId));
 
-                    await member.SendMessageAsync($"{Formatter.Bold("[VERIFICATION]")} Your verification request has been {Formatter.Bold("ACCEPTED")} by {e.User.Mention}! You may now access the internal channels of {e.Guild.Name} and begin your interaction! Additionally, you will want to receive your divisional roles at <#{SharedData.RolesChannelId}>.");
+                    await member.SendMessageAsync($"{Formatter.Bold("[VERIFICATION]")} Your verification request has been {Formatter.Bold("ACCEPTED")} by {e.User.Mention}! You may now access the internal channels of {e.Guild.Name} and receive your divisional roles at <#{SharedData.RolesChannelId}>.");
 
                     var getEmbed = e.Message;
 
@@ -213,7 +214,7 @@ namespace OSISDiscordAssistant.Services
                         {
                             Title = $"{embed.Title.Replace(" | PENDING", " | ACCEPTED")}",
                             Description = $"{member.Username}#{member.Discriminator} has submitted a verification request.\n"
-                            + $"{Formatter.Bold("Requested Nickname:")} {_verificationContext.Verifications.SingleOrDefault(x => x.VerificationEmbedId == e.Message.Id).RequestedName}\n{Formatter.Bold("User ID:")} {member.Id}\n{Formatter.Bold("Verification Status:")} ACCEPTED (handled by {e.Interaction.User.Mention} at <t:{e.Interaction.CreationTimestamp.ToUnixTimeSeconds()}:F>)."
+                            + $"{Formatter.Bold("Requested Nickname:")} {userDataRow.RequestedName}\n{Formatter.Bold("User ID:")} {member.Id}\n{Formatter.Bold("Verification Status:")} ACCEPTED (handled by {e.Interaction.User.Mention} at {Formatter.Timestamp(ClientUtilities.ConvertUnixTimestampToDateTime(e.Interaction.CreationTimestamp.ToUnixTimeSeconds()), TimestampFormat.LongDateTime)})."
                         };
 
                         updatedEmbed = embedBuilder.Build();
@@ -227,6 +228,13 @@ namespace OSISDiscordAssistant.Services
                     };
 
                     await e.Interaction.CreateResponseAsync(InteractionResponseType.UpdateMessage, new DiscordInteractionResponseBuilder(messageBuilder));
+
+                    try
+                    {
+                        await member.ModifyAsync(x => x.Nickname = userDataRow.RequestedName);
+                    }
+
+                    catch { }
                 }
 
                 else if (e.Id == "deny_button")
@@ -243,7 +251,7 @@ namespace OSISDiscordAssistant.Services
                         {
                             Title = $"{embed.Title.Replace(" | PENDING", " | DENIED")}",
                             Description = $"{member.Username}#{member.Discriminator} has submitted a verification request.\n"
-                            + $"{Formatter.Bold("Requested Nickname:")} {_verificationContext.Verifications.SingleOrDefault(x => x.VerificationEmbedId == e.Message.Id).RequestedName}\n{Formatter.Bold("User ID:")} {member.Id}\n{Formatter.Bold("Verification Status:")} DENIED (handled by {e.Interaction.User.Mention} at <t:{e.Interaction.CreationTimestamp.ToUnixTimeSeconds()}:F>)."
+                            + $"{Formatter.Bold("Requested Nickname:")} {userDataRow.RequestedName}\n{Formatter.Bold("User ID:")} {member.Id}\n{Formatter.Bold("Verification Status:")} DENIED (handled by {e.Interaction.User.Mention} at {Formatter.Timestamp(ClientUtilities.ConvertUnixTimestampToDateTime(e.Interaction.CreationTimestamp.ToUnixTimeSeconds()), TimestampFormat.LongDateTime)})."
                         };
 
                         updatedEmbed = embedBuilder.Build();
