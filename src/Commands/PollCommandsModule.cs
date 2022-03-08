@@ -126,7 +126,7 @@ namespace OSISDiscordAssistant.Commands
         [Command("poll")]
         public async Task PollHelpAsync(CommandContext ctx)
         {
-            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[SYNTAX]")} !poll [DURATION] [EMOJIS]\nExample: !poll 2h :rofl: :weary: :flag_us: :flag_cn:");
+            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[SYNTAX]")} osis poll [DURATION] [EMOJIS]\nExample: !poll 2h :rofl: :weary: :flag_us: :flag_cn:");
         }
     }
 }

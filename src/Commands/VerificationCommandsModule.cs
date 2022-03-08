@@ -106,7 +106,7 @@ namespace OSISDiscordAssistant.Commands
         [Command("overify")]
         public async Task OverifyHelpAsync(CommandContext ctx)
         {
-            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[SYNTAX]")} !overify [USER MENTION or USER ID] [NEW NICKNAME (optional)]");
+            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[SYNTAX]")} osis overify [MENTION or USER ID] [NEW NICKNAME (optional)]");
         }
     }
 }

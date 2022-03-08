@@ -121,7 +121,6 @@ namespace OSISDiscordAssistant.Commands
             }
         }
 
-        [RequireAdminRole]
         [Command("setname")]
         public async Task SetNameAsync(CommandContext ctx, DiscordMember member, [RemainingText] string newNickname)
         {
@@ -359,63 +358,63 @@ namespace OSISDiscordAssistant.Commands
         [Command("mute")]
         public async Task MuteHelpAsync(CommandContext ctx)
         {
-            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[SYNTAX]")} !mute [USER MENTION] [REASON]");
+            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[SYNTAX]")} osis mute [USER MENTION] [REASON]");
         }
 
         [RequireAdminRole]
         [Command("unmute")]
         public async Task UnmuteHelpAsync(CommandContext ctx)
         {
-            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[SYNTAX]")} !unmute [USER MENTION]");
+            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[SYNTAX]")} osis unmute [USER MENTION]");
         }
 
         [RequireAdminRole]
         [Command("kick")]
         public async Task KickHelpAsync(CommandContext ctx)
         {
-            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[SYNTAX]")} !kick [USER MENTION] [REASON]");
+            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[SYNTAX]")} osis kick [USER MENTION] [REASON]");
         }
 
         [RequireAdminRole]
         [Command("ban")]
         public async Task BanHelpAsync(CommandContext ctx)
         {
-            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[SYNTAX]")} !ban [USER MENTION] [REASON]");
+            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[SYNTAX]")} osis ban [USER MENTION] [REASON]");
         }
 
         [RequireAdminRole]
         [Command("unban")]
         public async Task UnbanHelpAsync(CommandContext ctx)
         {
-            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[SYNTAX]")} !unban [USER ID] [REASON (optional)]");
+            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[SYNTAX]")} osis unban [USER ID] [REASON (optional)]");
         }
 
         [RequireAdminRole]
         [Command("setname")]
         public async Task SetNameAsync(CommandContext ctx)
         {
-            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[SYNTAX]")} !setname [USER MENTION] [NEW NICKNAME]");
+            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[SYNTAX]")} osis setname [USER MENTION] [NEW NICKNAME]");
         }
 
         [RequireAdminRole]
         [Command("announce")]
         public async Task AnnounceHelpAsync(CommandContext ctx)
         {
-            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[SYNTAX]")} !announce [CHANNEL] [TAG (role / member to mention)] [MESSAGE]");
+            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[SYNTAX]")} osis announce [CHANNEL] [TAG (role / member to mention)] [MESSAGE]");
         }
 
         [RequireAdminRole]
         [Command("prune")]
         public async Task PruneHelpAsync(CommandContext ctx)
         {
-            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[SYNTAX]")} !prune [MESSAGE COUNT] [REASON (optional)]");
+            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[SYNTAX]")} osis prune [MESSAGE COUNT] [REASON (optional)]");
         }
 
         [RequireAdminRole]
         [Command("assignrole")]
         public async Task AssignRoleHelpAsync(CommandContext ctx)
         {
-            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[SYNTAX]")} !assignrole [USER MENTION] [ROLE NAME]");
+            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[SYNTAX]")} osis assignrole [USER MENTION] [ROLE NAME]");
         }
     }
 }

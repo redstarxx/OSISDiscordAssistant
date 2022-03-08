@@ -57,7 +57,7 @@ namespace OSISDiscordAssistant.Commands
 
             else if (option is "cancel")
             {
-                await ctx.RespondAsync($"{Formatter.Bold("[SYNTAX]")} !reminder cancel [REMINDER ID (refer to {Formatter.InlineCode("reminder list")})]\nExample: {Formatter.InlineCode("!reminder cancel 25")}");
+                await ctx.RespondAsync($"{Formatter.Bold("[SYNTAX]")} osis reminder cancel [REMINDER ID (refer to {Formatter.InlineCode("osis reminder list")})]\nExample: {Formatter.InlineCode("osis reminder cancel 25")}");
             }
 
             else
@@ -151,7 +151,7 @@ namespace OSISDiscordAssistant.Commands
         {
             if (remindMessage.Length == 0)
             {
-                var errorMessage = await ctx.RespondAsync($"{Formatter.Bold("[ERROR]")} You cannot remind someone with an empty message. Type {Formatter.InlineCode("!remind")} to get help. Alternatively, click the emoji below to get help.");
+                var errorMessage = await ctx.RespondAsync($"{Formatter.Bold("[ERROR]")} You cannot remind someone with an empty message. Type {Formatter.InlineCode("osis remind")} to get help. Alternatively, click the emoji below to get help.");
 
                 await SendHelpEmoji(ctx, errorMessage);
 
@@ -189,7 +189,7 @@ namespace OSISDiscordAssistant.Commands
 
                     else
                     {
-                        var errorMessage = await ctx.RespondAsync($"{Formatter.Bold("[ERROR]")} Looks like an invalid reminder target! Type {Formatter.InlineCode("!remind")} to ensure you are following the command syntax correctly. Alternatively, click the emoji below to get help.");
+                        var errorMessage = await ctx.RespondAsync($"{Formatter.Bold("[ERROR]")} Looks like an invalid reminder target! Type {Formatter.InlineCode("osis remind")} to ensure you are following the command syntax correctly. Alternatively, click the emoji below to get help.");
 
                         await SendHelpEmoji(ctx, errorMessage);
 
@@ -362,7 +362,7 @@ namespace OSISDiscordAssistant.Commands
 
         private async Task SendHelpMessage(CommandContext ctx)
         {
-            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[SYNTAX]")} !remind [ROLE / MEMBER] [TANGGAL / WAKTU UNTUK DIINGATKAN (example: 25/06/2021 or 6j30m or 12:30 or 30m)] [CHANNEL (optional)] [MESSAGE]\nExample: {Formatter.InlineCode("osis remind me 2h Rapat OSIS")}");
+            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[SYNTAX]")} osis remind [ROLE / MEMBER] [TANGGAL / WAKTU UNTUK DIINGATKAN (example: 25/06/2021 or 6j30m or 12:30 or 30m)] [CHANNEL (optional)] [MESSAGE]\nExample: {Formatter.InlineCode("osis remind everyone 2h Rapat OSIS")}");
         }
 
         private async Task SendHelpEmoji(CommandContext ctx, DiscordMessage errorMessage)

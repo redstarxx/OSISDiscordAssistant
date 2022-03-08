@@ -285,7 +285,7 @@ namespace OSISDiscordAssistant.Commands
         [Command("tag")]
         public async Task TagHelpAsync(CommandContext ctx)
         {
-            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[SYNTAX]")} !tag [CREATE/UPDATE/EDIT/DELETE] [TAGNAME] [TAGCONTENT]");
+            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[SYNTAX]")} osis tag [CREATE/UPDATE/EDIT/DELETE] [TAGNAME] [TAGCONTENT]");
         }
     }
 }
