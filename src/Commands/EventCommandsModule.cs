@@ -174,7 +174,7 @@ namespace OSISDiscordAssistant.Commands
 
                     await _eventContext.SaveChangesAsync();
 
-                    await ctx.Channel.SendMessageAsync($"Okay {ctx.Member.Mention}, your event, {Formatter.Bold(eventName)} has been created.");
+                    await ctx.Channel.SendMessageAsync($"Okay {ctx.Member.Mention}, {Formatter.Bold(eventName)} has been created.\nReminders have been set and will be sent at {Formatter.Timestamp(ClientUtilities.ConvertUnixTimestampToDateTime(eventData.NextScheduledReminderUnixTimestamp), TimestampFormat.LongDateTime)}. To edit the event details, use {Formatter.InlineCode("osis event update")}. You may store the proposal for this event by using {Formatter.InlineCode("osis event proposal")}. For more options, use {Formatter.InlineCode("osis event")}.");
                 });
             }
 
