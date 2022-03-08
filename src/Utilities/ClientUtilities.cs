@@ -218,6 +218,11 @@ namespace OSISDiscordAssistant.Utilities
             return null;
         }
 
+        /// <summary>
+        /// Performs calculation of the given unix timestamp concerning when to send the event reminder.
+        /// </summary>
+        /// <param name="unixTimestamp">The unix timestamp of the event date time.</param>
+        /// <returns>An <see cref="Events" /> object which contains the calculated <see cref="Events.NextScheduledReminderUnixTimestamp" /> along with its respective data such as executed reminder level and expired status.</returns>
         public static Events CalculateEventReminderDate(long unixTimestamp)
         {
             DateTime eventDateTime = ConvertUnixTimestampToDateTime(unixTimestamp);
