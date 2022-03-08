@@ -102,6 +102,11 @@ namespace OSISDiscordAssistant
 
             if (!string.IsNullOrEmpty(e.MessageBefore.Content) || e.Message.Embeds.Count > 0)
             {
+                if (e.Author == sender.CurrentUser)
+                {
+                    return Task.CompletedTask;
+                }
+
                 if (SharedData.EditedMessages.ContainsKey(e.Channel.Id))
                 {
                     SharedData.EditedMessages[e.Channel.Id] = e.MessageBefore;
@@ -135,6 +140,11 @@ namespace OSISDiscordAssistant
 
             if (!string.IsNullOrEmpty(e.Message.Content) || e.Message.Embeds.Count > 0)
             {
+                if (e.Message.Author == sender.CurrentUser)
+                {
+                    return Task.CompletedTask;
+                }
+
                 if (SharedData.DeletedMessages.ContainsKey(e.Channel.Id))
                 {
                     SharedData.DeletedMessages[e.Channel.Id] = e.Message;
