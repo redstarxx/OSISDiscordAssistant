@@ -1,5 +1,5 @@
 # Build it
-FROM mcr.microsoft.com/dotnet/sdk:5.0-alpine AS build
+FROM mcr.microsoft.com/dotnet/sdk:6.0-alpine AS build
 
 WORKDIR /App
 COPY . ./
@@ -8,7 +8,7 @@ RUN dotnet restore ./src/OSISDiscordAssistant.csproj
 RUN dotnet publish ./src/OSISDiscordAssistant.csproj -c Release -o out
 
 # Run it
-FROM mcr.microsoft.com/dotnet/runtime:5.0-alpine
+FROM mcr.microsoft.com/dotnet/runtime:6.0-alpine
 
 # Install tzdata to access the western Indonesian timezone
 ARG DEBIAN_FRONTEND=noninteractive
