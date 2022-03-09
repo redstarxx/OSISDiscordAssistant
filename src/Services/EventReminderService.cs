@@ -93,11 +93,11 @@ namespace OSISDiscordAssistant.Services
 
                                         reminderEmbed.AddField("Ketua / Wakil Ketua Event", row.PersonInCharge, true);
                                         reminderEmbed.AddField("Tanggal / Waktu Pelaksanaan", Formatter.Timestamp(eventDateTime, TimestampFormat.LongDate), true);
-                                        reminderEmbed.AddField("Informasi Tambahan", row.EventDescription, true);
+                                        reminderEmbed.AddField("Informasi Tambahan", row.EventDescription, false);
 
                                         reminderMessageBuilder.WithContent("@everyone");
 
-                                        if (DateTime.Today == nextEventReminderDateTime || (DateTime.Today > nextEventReminderDateTime && DateTime.Today != eventDateTime))
+                                        if (DateTime.Today == nextEventReminderDateTime || (DateTime.Today > nextEventReminderDateTime && DateTime.Today < eventDateTime))
                                         {
                                             if (row.ExecutedReminderLevel is 1 or 2 or 3)
                                             {
@@ -127,26 +127,26 @@ namespace OSISDiscordAssistant.Services
 
                                                 Events eventData = eventContext.Events.SingleOrDefault(x => x.Id == row.Id);
 
-                                                switch (eventData.ExecutedReminderLevel)
-                                                {
-                                                    // Level 2
-                                                    case 1:
-                                                        eventData.NextScheduledReminderUnixTimestamp = ClientUtilities.ConvertDateTimeToUnixTimestamp(eventDateTime.Subtract(TimeSpan.FromDays(14)));
-                                                        break;
-                                                    // Level 3
-                                                    case 2:
-                                                        eventData.NextScheduledReminderUnixTimestamp = ClientUtilities.ConvertDateTimeToUnixTimestamp(eventDateTime.Subtract(TimeSpan.FromDays(7)));
-                                                        break;
-                                                    // Level 4
-                                                    case 3:
-                                                        eventData.NextScheduledReminderUnixTimestamp = ClientUtilities.ConvertDateTimeToUnixTimestamp(eventDateTime.Subtract(TimeSpan.FromDays(1)));
-                                                        break;
-                                                    default:
-                                                        break;
-                                                }
-
                                                 if (eventData != null)
                                                 {
+                                                    switch (eventData.ExecutedReminderLevel)
+                                                    {
+                                                        // Level 2
+                                                        case 1:
+                                                            eventData.NextScheduledReminderUnixTimestamp = ClientUtilities.ConvertDateTimeToUnixTimestamp(eventDateTime.Subtract(TimeSpan.FromDays(14)));
+                                                            break;
+                                                        // Level 3
+                                                        case 2:
+                                                            eventData.NextScheduledReminderUnixTimestamp = ClientUtilities.ConvertDateTimeToUnixTimestamp(eventDateTime.Subtract(TimeSpan.FromDays(7)));
+                                                            break;
+                                                        // Level 4
+                                                        case 3:
+                                                            eventData.NextScheduledReminderUnixTimestamp = ClientUtilities.ConvertDateTimeToUnixTimestamp(eventDateTime.Subtract(TimeSpan.FromDays(1)));
+                                                            break;
+                                                        default:
+                                                            break;
+                                                    }
+
                                                     eventData.ExecutedReminderLevel = row.ExecutedReminderLevel + 1;
                                                 }
 
@@ -194,7 +194,7 @@ namespace OSISDiscordAssistant.Services
                                             }
                                         }
 
-                                        else if (DateTime.Today == eventDateTime)
+                                        if (DateTime.Today == eventDateTime)
                                         {
                                             reminderEmbed.Description = $"Today is the the day for {Formatter.Bold(row.EventName)}!";
 
@@ -232,7 +232,7 @@ namespace OSISDiscordAssistant.Services
                                             sentReminder = true;
                                         }
 
-                                        if (DateTime.Today > eventDateTime)
+                                        else if (DateTime.Today > eventDateTime)
                                         {
                                             Events eventData = eventContext.Events.SingleOrDefault(x => x.Id == row.Id);
 
