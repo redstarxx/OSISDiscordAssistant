@@ -81,14 +81,14 @@ namespace OSISDiscordAssistant.Services
 
                     await e.Interaction.CreateFollowupMessageAsync(followupMessageBuilder);
 
-                    if (SharedData.PendingVerificationData.Contains(e.User.Id))
+                    if (SharedData.PendingVerificationData.ContainsKey(e.User.Id))
                     {
                         return Task.CompletedTask;
                     }
 
                     else
                     {
-                        SharedData.PendingVerificationData.Add(e.User.Id);
+                        SharedData.PendingVerificationData.TryAdd(e.User.Id, e.User);
                     }
                 }
 
@@ -110,7 +110,7 @@ namespace OSISDiscordAssistant.Services
                         else
                         {
                             requestedName = nameInteractivity.Result.Content;
-                            SharedData.PendingVerificationData.RemoveAll(x => x == e.User.Id);
+                            SharedData.PendingVerificationData.TryRemove(e.User.Id, out DiscordUser user);
 
                             break;
                         }

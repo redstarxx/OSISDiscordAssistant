@@ -53,9 +53,9 @@ namespace OSISDiscordAssistant.Services
         public static List<AssignableRolesInfo> AvailableRoles = new List<AssignableRolesInfo>();
 
         /// <summary>
-        /// The list that stores the list of users who have interacted with the verification button and has not filled their requested nickname.
+        /// The list that stores the list of users who have interacted with the verification button but has not yet submitted their requested nickname via the bot's DMs.
         /// </summary>
-        public static List<ulong> PendingVerificationData = new List<ulong>();
+        public static ConcurrentDictionary<ulong, DiscordUser> PendingVerificationData = new ConcurrentDictionary<ulong, DiscordUser>();
 
         /// <summary>
         /// The guild ID of the main OSIS private server.
