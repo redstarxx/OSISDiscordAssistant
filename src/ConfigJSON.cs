@@ -38,7 +38,7 @@ namespace OSISDiscordAssistant
         /// The list of custom statuses to be set as the custom status of the bot on a two minute basis.
         /// </summary>
         [JsonProperty("CustomStatusDisplay")]
-        public string[] CustomStatusDiplay { get; private set; }
+        public string[] CustomStatusDisplay { get; private set; }
 
         /// <summary>
         /// The channel ID of the events reminder messages channel.

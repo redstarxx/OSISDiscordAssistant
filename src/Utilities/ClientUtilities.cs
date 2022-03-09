@@ -349,7 +349,7 @@ namespace OSISDiscordAssistant.Utilities
 
             SharedData.StatusActivityType = configJson.StatusActivityType;
 
-            SharedData.CustomStatusDiplay = configJson.CustomStatusDiplay;
+            SharedData.CustomStatusDisplay = configJson.CustomStatusDisplay;
 
             SharedData.EventChannelId = (ulong)configJson.EventChannelId;
 

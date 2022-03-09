@@ -39,7 +39,7 @@ namespace OSISDiscordAssistant.Services
 
                 List<string> customStatusList = new List<string>();
 
-                foreach (string customStatus in SharedData.CustomStatusDiplay)
+                foreach (string customStatus in SharedData.CustomStatusDisplay)
                 {
                     customStatusList.Add(customStatus);
                 }

@@ -70,7 +70,7 @@ namespace OSISDiscordAssistant.Services
         /// <summary>
         /// The list of custom statuses to be set as the custom status of the bot on a two minute basis.
         /// </summary>
-        public static string[] CustomStatusDiplay;
+        public static string[] CustomStatusDisplay;
 
         /// <summary>
         /// The channel ID of the events reminder messages channel.
