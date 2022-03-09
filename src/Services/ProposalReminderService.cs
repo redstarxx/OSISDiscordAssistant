@@ -114,7 +114,7 @@ namespace OSISDiscordAssistant.Services
                                             }
                                         }
 
-                                        if (eventDateTime.ToShortDateString() == DateTime.Today.ToShortDateString())
+                                        if (DateTime.Today == eventDateTime)
                                         {
                                             if (row.ProposalReminded == false)
                                             {
