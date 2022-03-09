@@ -65,11 +65,7 @@ namespace OSISDiscordAssistant.Utilities
         /// <returns>False if the Service Administrator role is not assigned.</returns>
         public static bool CheckServiceAdminRole(CommandContext ctx)
         {
-            bool isServiceAdmin = false;
-
-            isServiceAdmin = ctx.Member.Roles.Any(x => x.Name == "Service Administrator");
-
-            return isServiceAdmin;
+            return ctx.Member.Roles.Any(x => x.Name == "Service Administrator");
         }
 
         /// <summary>
@@ -78,11 +74,7 @@ namespace OSISDiscordAssistant.Utilities
         /// <returns>False if the OSIS role is not assigned.</returns>
         public static bool CheckAccessRole(CommandContext ctx)
         {
-            bool hasAccess = false;
-
-            hasAccess = ctx.Member.Roles.Any(x => x.Name == "OSIS");
-
-            return hasAccess;
+            return ctx.Member.Roles.Any(x => x.Name == "OSIS");
         }
 
         /// <summary>
@@ -96,8 +88,8 @@ namespace OSISDiscordAssistant.Utilities
         {
             if (ctx.User.Id == member.Id)
             {
-                string errorReason = $"{Formatter.Bold("[ERROR]")} You cannot use this command on yourself.";
-                await ctx.Channel.SendMessageAsync(errorReason);
+                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} You cannot use this command on yourself.");
+
                 return true;
             }
 
@@ -116,15 +108,7 @@ namespace OSISDiscordAssistant.Utilities
                 ".docx", ".docm", ".doc"
             };
 
-            foreach (string extension in fileExtensions)
-            {
-                if (fileName.Contains(extension))
-                {
-                    return true;
-                }
-            }
-
-            return false;
+            return fileExtensions.Any(x => fileName.Contains(x));
         }
 
         /// <summary>
@@ -285,8 +269,7 @@ namespace OSISDiscordAssistant.Utilities
         /// <returns>The unix timestamp, converted to UTC time.</returns>
         public static long ConvertDateTimeToUnixTimestamp(DateTime dateTime)
         {
-            TimeSpan timeSpan = dateTime.ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc));
-            return (long)timeSpan.TotalSeconds;
+            return (long)dateTime.ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
         }
 
         /// <summary>
@@ -305,8 +288,7 @@ namespace OSISDiscordAssistant.Utilities
         /// <returns></returns>
         public static long GetCurrentUnixTimestamp()
         {
-            TimeSpan timeSpan = DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc));
-            return (long)timeSpan.TotalSeconds;
+            return (long)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
         }
 
         /// <summary>
