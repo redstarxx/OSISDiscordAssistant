@@ -55,7 +55,7 @@ namespace OSISDiscordAssistant.Commands
 
                 if (!eventNameResult.TimedOut)
                 {
-                    // Checks whether the given event name matches with another event that has the exact name as given.
+                    // Checks whether the given event name matches with another event that has the exact name.
                     Events eventData = FetchEventData(eventNameResult.Result.Content, EventSearchMode.Exact);
 
                     if (eventData is null)
@@ -65,7 +65,7 @@ namespace OSISDiscordAssistant.Commands
 
                     else
                     {
-                        await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} The event {Formatter.InlineCode(eventNameResult.Result.Content)} already exists! Try again with a different name.");
+                        await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} There is an event already stored with the same name! Try again with a different name.");
 
                         return;
                     }
@@ -131,14 +131,14 @@ namespace OSISDiscordAssistant.Commands
 
                             else
                             {
-                                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[TIMED OUT]")} Event description not entered within given time span. Re-run the command if you still need to create your event.");
+                                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[TIMED OUT]")} Event description not entered within five minutes. Re-run the command if you still need to create your event.");
                                 return;
                             }
                         }
 
                         else
                         {
-                            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[TIMED OUT]")} Event date not entered within given time span. Re-run the command if you still need to create your event.");
+                            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[TIMED OUT]")} Event date not entered within five minutes. Re-run the command if you still need to create your event.");
                             
                             return;
                         }
@@ -146,14 +146,14 @@ namespace OSISDiscordAssistant.Commands
 
                     else
                     {
-                        await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[TIMED OUT]")} Ketua / Wakil Ketua Acara not entered within given time span. Re-run the command if you still need to create your event.");
+                        await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[TIMED OUT]")} Ketua / Wakil Ketua Acara not entered within five minutes. Re-run the command if you still need to create your event.");
                         return;
                     }
                 }
 
                 else
                 {
-                    await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[TIMED OUT]")} Event name not entered within given time span. Re-run the command if you still need to create your event.");
+                    await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[TIMED OUT]")} Event name not entered within five minutes. Re-run the command if you still need to create your event.");
                     return;
                 }
 
@@ -174,7 +174,9 @@ namespace OSISDiscordAssistant.Commands
 
                     await _eventContext.SaveChangesAsync();
 
-                    await ctx.Channel.SendMessageAsync($"Okay {ctx.Member.Mention}, {Formatter.Bold(eventName)} has been created.\nReminders have been set and will be sent at {Formatter.Timestamp(ClientUtilities.ConvertUnixTimestampToDateTime(eventData.NextScheduledReminderUnixTimestamp), TimestampFormat.LongDateTime)}. To edit the event details, use {Formatter.InlineCode("osis event update")}. You may store the proposal for this event by using {Formatter.InlineCode("osis event proposal")}. For more options, use {Formatter.InlineCode("osis event")}.");
+                    var eventId = _eventContext.Events.FirstOrDefault(x => x.EventName == eventName).Id;
+
+                    await ctx.Channel.SendMessageAsync($"Okay {ctx.Member.Mention}, {Formatter.Bold(eventName)} (ID: {eventId}) has been created.\nReminders have been set and will be sent at {Formatter.Timestamp(ClientUtilities.ConvertUnixTimestampToDateTime(eventData.NextScheduledReminderUnixTimestamp), TimestampFormat.LongDateTime)}. To edit the event details, use {Formatter.InlineCode("osis event update")}. You may store the proposal for this event by using {Formatter.InlineCode("osis event proposal")}. For more options, use {Formatter.InlineCode("osis event")}.");
                 });
             }
 
@@ -352,7 +354,7 @@ namespace OSISDiscordAssistant.Commands
 
                         var inputInteractivity = ctx.Client.GetInteractivity();
 
-                        var updateNameMessage = await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention}, enter your new event name for {Formatter.Bold(eventData.EventName)}. You have five minute.");
+                        var updateNameMessage = await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention}, enter your new event name for {Formatter.Bold(eventData.EventName)}. You have five minutes.");
                         var eventNameResult = await inputInteractivity.WaitForMessageAsync
                             (x => x.Author.Id == ctx.User.Id && x.Channel.Id == ctx.Channel.Id, TimeSpan.FromMinutes(5));
 
@@ -401,7 +403,7 @@ namespace OSISDiscordAssistant.Commands
 
                         else
                         {
-                            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[TIMED OUT]")} Operation aborted. Event name not entered within given time span.");
+                            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[TIMED OUT]")} Operation aborted. Event name not entered within five minutes.");
                             return;
                         }
                     }
@@ -412,7 +414,7 @@ namespace OSISDiscordAssistant.Commands
 
                         var inputInteractivity = ctx.Client.GetInteractivity();
 
-                        var updatePersonInChargeMessage = await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention}, enter your new Ketua / Wakil Ketua Acara for {Formatter.Bold(eventData.EventName)}. You have five minute.");
+                        var updatePersonInChargeMessage = await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention}, enter your new Ketua / Wakil Ketua Acara for {Formatter.Bold(eventData.EventName)}. You have five minutes.");
                         var eventPersonInChargeResult = await inputInteractivity.WaitForMessageAsync
                             (x => x.Author.Id == ctx.User.Id && x.Channel.Id == ctx.Channel.Id, TimeSpan.FromMinutes(5));
 
@@ -452,7 +454,7 @@ namespace OSISDiscordAssistant.Commands
 
                         else
                         {
-                            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[TIMED OUT]")} Operation aborted. Event name not entered within given time span.");
+                            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[TIMED OUT]")} Operation aborted. Event name not entered within five minutes.");
                             return;
                         }
                     }
@@ -463,7 +465,7 @@ namespace OSISDiscordAssistant.Commands
 
                         var inputInteractivity = ctx.Client.GetInteractivity();
 
-                        var updateDateMessage = await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention}, enter your new event date for {Formatter.Bold(eventData.EventName)}. You have five minute.");
+                        var updateDateMessage = await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention}, enter your new event date for {Formatter.Bold(eventData.EventName)}. You have five minutes.");
                         var eventDateResult = await inputInteractivity.WaitForMessageAsync
                             (x => x.Author.Id == ctx.User.Id && x.Channel.Id == ctx.Channel.Id, TimeSpan.FromMinutes(5));
 
@@ -547,7 +549,7 @@ namespace OSISDiscordAssistant.Commands
 
                         else
                         {
-                            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[TIMED OUT]")} Operation aborted. Event date not entered within given time span.");
+                            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[TIMED OUT]")} Operation aborted. Event date not entered within five minutes.");
                             return;
                         }
                     }
@@ -558,7 +560,7 @@ namespace OSISDiscordAssistant.Commands
 
                         var inputInteractivity = ctx.Client.GetInteractivity();
 
-                        var updateDescriptionMessage = await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention}, enter your new event description for {Formatter.Bold(eventData.EventName)}. You have five minute.");
+                        var updateDescriptionMessage = await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention}, enter your new event description for {Formatter.Bold(eventData.EventName)}. You have five minutes.");
                         var eventDescriptionResult = await inputInteractivity.WaitForMessageAsync
                             (x => x.Author.Id == ctx.User.Id && x.Channel.Id == ctx.Channel.Id, TimeSpan.FromMinutes(5));
 
@@ -598,7 +600,7 @@ namespace OSISDiscordAssistant.Commands
 
                         else
                         {
-                            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[TIMED OUT]")} Operation aborted. Event date not entered within given time span.");
+                            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[TIMED OUT]")} Operation aborted. Event date not entered within five minutes.");
                             return;
                         }
                     }
@@ -612,7 +614,7 @@ namespace OSISDiscordAssistant.Commands
 
                 else
                 {
-                    await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[TIMED OUT]")} Update selection for {eventData.EventName} not selected within given time span. Re-run the command if you still need to update your event.");
+                    await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[TIMED OUT]")} Update selection for {eventData.EventName} not selected within five minutes. Re-run the command if you still need to update your event.");
                 }
             }
 
@@ -638,7 +640,7 @@ namespace OSISDiscordAssistant.Commands
                 _eventContext.Remove(eventData);
                 await _eventContext.SaveChangesAsync();
 
-                await ctx.Channel.SendMessageAsync($"{Formatter.Bold(eventData.EventName)} (Event ID: {eventData.Id.ToString()}) successfully deleted from Events Manager.");
+                await ctx.Channel.SendMessageAsync($"Okay {ctx.Member.Mention}, {Formatter.Bold(eventData.EventName)} has been deleted from Events Manager.");
             }
 
             else if (operationSelection == "search")
@@ -816,7 +818,7 @@ namespace OSISDiscordAssistant.Commands
                     {
                         if (eventData.ProposalFileContent is null)
                         {
-                            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} Event {Formatter.Bold(eventName)} does not have a proposal file stored!");
+                            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} {Formatter.Bold(eventName)} does not have a proposal file stored!");
 
                             return;
                         }
@@ -829,7 +831,7 @@ namespace OSISDiscordAssistant.Commands
 
                         var messageBuilder = new DiscordMessageBuilder()
                         {
-                            Content = $"Event {Formatter.Bold(eventName)}'s proposal is as follows:"                            
+                            Content = $"{Formatter.Bold(eventName)}'s proposal file is as follows:"                            
                         };
 
                         messageBuilder.WithFiles(new Dictionary<string, Stream>() { { fileTitle, fileStream } }, true);
@@ -841,7 +843,7 @@ namespace OSISDiscordAssistant.Commands
                     {
                         var interactivity = ctx.Client.GetInteractivity();
 
-                        await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention}, drop / upload the proposal file here. An acceptable file is a Microsoft Word document. You have five minute!");
+                        await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention}, drop / upload the proposal file here. An acceptable file is a Microsoft Word document. You have five minutes!");
 
                         var proposalResult = await interactivity.WaitForMessageAsync(x => x.Author.Id == ctx.Member.Id, TimeSpan.FromMinutes(5));
 
@@ -878,8 +880,7 @@ namespace OSISDiscordAssistant.Commands
 
                             string fileStatus = null;
 
-                            Events rowToAccess = null;
-                            rowToAccess = _eventContext.Events.SingleOrDefault(x => x.Id == rowID);
+                            Events rowToAccess = _eventContext.Events.SingleOrDefault(x => x.Id == rowID);
 
                             if (rowToAccess.ProposalFileTitle is null)
                             {
@@ -897,23 +898,22 @@ namespace OSISDiscordAssistant.Commands
 
                             await _eventContext.SaveChangesAsync();
 
-                            await ctx.Channel.SendMessageAsync($"Event {Formatter.Bold(eventName)}'s proposal document has been {fileStatus}!");
+                            await ctx.Channel.SendMessageAsync($"Okay {ctx.Member.Mention}, {Formatter.Bold(eventName)}'s proposal file has been {fileStatus}!");
                         }
 
                         else
                         {
-                            await ctx.RespondAsync($"{Formatter.Bold("[TIMED OUT]")} {ctx.Member.Mention} Proposal not uploaded within given time span. Re-run the command if you still need to update {Formatter.Bold(eventName)}'s proposal.");
+                            await ctx.RespondAsync($"{Formatter.Bold("[TIMED OUT]")} {ctx.Member.Mention} Proposal file is not uploaded within five minutes. Re-run the command if you still need to update {Formatter.Bold(eventName)}'s proposal.");
                         }
                     }
 
                     else if (selectionResult.Result.Emoji == numberThreeEmoji)
                     {
-                        Events rowToDelete = null;
-                        rowToDelete = _eventContext.Events.SingleOrDefault(x => x.Id == rowID);
+                        Events rowToDelete = _eventContext.Events.SingleOrDefault(x => x.Id == rowID);
 
                         if (rowToDelete.ProposalFileTitle is null)
                         {
-                            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} Event {Formatter.Bold(eventName)} does not have a proposal file stored!");
+                            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} {Formatter.Bold(eventName)} does not have a proposal file stored!");
 
                             return;
                         }
@@ -924,7 +924,7 @@ namespace OSISDiscordAssistant.Commands
 
                         await _eventContext.SaveChangesAsync();
 
-                        await ctx.Channel.SendMessageAsync($"Event {Formatter.Bold(eventName)}'s proposal document has been deleted!");
+                        await ctx.Channel.SendMessageAsync($"Okay {ctx.Member.Mention}, {Formatter.Bold(eventName)}'s proposal file has been deleted!");
                     }
 
                     else if (selectionResult.Result.Emoji == crossEmoji)
@@ -938,7 +938,7 @@ namespace OSISDiscordAssistant.Commands
 
                 else
                 {
-                    await ctx.RespondAsync($"{Formatter.Bold("[TIMED OUT]")} {ctx.Member.Mention} You did not choose an option within the given time span. Re-run the command if you still need to update {Formatter.Bold(eventName)}'s proposal.");
+                    await ctx.RespondAsync($"{Formatter.Bold("[TIMED OUT]")} {ctx.Member.Mention} You did not choose an option within  five minutes. Re-run the command if you still need to update {Formatter.Bold(eventName)}'s proposal.");
                 }
             }
 
