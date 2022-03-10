@@ -41,6 +41,8 @@ namespace OSISDiscordAssistant.Commands
         [Command("event")]
         public async Task EventCreateOrList(CommandContext ctx, string operationSelection)
         {
+            operationSelection = operationSelection.ToLowerInvariant();
+
             if (operationSelection == "create")
             {
                 string eventName = null;
@@ -295,9 +297,11 @@ namespace OSISDiscordAssistant.Commands
         [Command("event")]
         public async Task Event(CommandContext ctx, string operationSelection, [RemainingText] string keyword)
         {
+            operationSelection = operationSelection.ToLowerInvariant();
+
             if (operationSelection == "create")
             {
-                await ctx.Channel.SendMessageAsync($"Currently, OSIS does not support creating an event by directly calling the command. Perhaps in the future!\nTo receive automated reminders for your event, type {Formatter.InlineCode("!event create")} and enter the questioned details.");
+                await ctx.Channel.SendMessageAsync($"Currently, OSIS does not support creating an event by directly calling the command. Perhaps in the future!\nTo receive automated reminders for your event, type {Formatter.InlineCode("osis event create")} and enter the questioned details.");
 
                 return;
             }
@@ -1081,7 +1085,7 @@ namespace OSISDiscordAssistant.Commands
 
                 if (!conversionSuccessful)
                 {
-                    throw new Exception($"I can only accept years, not dates! Example: !event list 2019");
+                    throw new Exception($"I can only accept years, not dates! Example: osis event list 2019");
                 }
 
                 foreach (var events in _eventContext.Events.AsNoTracking())
@@ -1160,13 +1164,13 @@ namespace OSISDiscordAssistant.Commands
             };
 
             embedBuilder.Description = "Events Manager integrates event planning, proposal submission reminder, and event execution reminder under one bot.\n\n" +
-                $"{Formatter.Bold("!event create")} - Creates a new event.\n" +
-                $"{Formatter.Bold("!event update")} - Updates an existing event.\n" +
-                $"{Formatter.Bold("!event delete")} - Deletes an event.\n" +
-                $"{Formatter.Bold("!event get")} - Gets an event directly with the provided name (must be exact) or ID.\n" +
-                $"{Formatter.Bold("!event search")} - Search for an event which name contains the given keyword.\n" +
-                $"{Formatter.Bold("!event proposal")} - Gets or updates the proposal file for the respective event name or ID.\n" +
-                $"{Formatter.Bold("!event list")} - Lists all registered events for the year selected.\n";
+                $"{Formatter.Bold("osis event create")} - Creates a new event.\n" +
+                $"{Formatter.Bold("osis event update")} - Updates an existing event.\n" +
+                $"{Formatter.Bold("osis event delete")} - Deletes an event.\n" +
+                $"{Formatter.Bold("osis event get")} - Gets an event directly with the provided name (must be exact) or ID.\n" +
+                $"{Formatter.Bold("osis event search")} - Search for an event which name contains the given keyword.\n" +
+                $"{Formatter.Bold("osis event proposal")} - Gets or updates the proposal file for the respective event name or ID.\n" +
+                $"{Formatter.Bold("osis event list")} - Lists all registered events for the year selected.\n";
 
             await ctx.Channel.SendMessageAsync(embed: embedBuilder);
         }
