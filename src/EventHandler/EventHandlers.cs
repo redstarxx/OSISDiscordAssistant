@@ -123,6 +123,11 @@ namespace OSISDiscordAssistant
 
         public Task OnMessageDeleted(DiscordClient sender, MessageDeleteEventArgs e)
         {
+            if (e.Message.Author is null)
+            {
+                return Task.CompletedTask;
+            }
+
             try
             {
                 _logger.LogInformation(EventIds.EventHandler,
