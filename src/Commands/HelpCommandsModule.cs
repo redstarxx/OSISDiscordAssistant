@@ -38,6 +38,7 @@ namespace OSISDiscordAssistant.Commands
                 $"{Formatter.Bold("about")} - Shows the bot's information.\n";
 
             string funCommands = $"{Formatter.Bold("slap")} - Slaps the tagged member or role.\n" +
+                $"{Formatter.Bold("afk")} - Sets or removes your AFK status.\n" +
                 $"{Formatter.Bold("flip")} - Flips a coin.\n" +
                 $"{Formatter.Bold("snipe")} - Snipes a deleted message.\n" +
                 $"{Formatter.Bold("snipeedit")} - Snipes the original content of an edited message.\n" +

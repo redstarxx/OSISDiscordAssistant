@@ -135,6 +135,24 @@ namespace OSISDiscordAssistant.Commands
             await ctx.Channel.SendMessageAsync(profileImageLink);
         }
 
+        [Command("afk")]
+        public async Task SetAFKStatusAsync(CommandContext ctx)
+        {
+            if (!ctx.Member.Nickname.Contains("[AFK]"))
+            {
+                await ctx.Member.ModifyAsync(x => x.Nickname = $"[AFK] {ctx.Member.Nickname}");
+
+                await ctx.RespondAsync("You are now away from keyboard!");
+            }
+
+            else
+            {
+                await ctx.Member.ModifyAsync(x => x.Nickname = ctx.Member.Nickname.Replace("[AFK] ", ""));
+
+                await ctx.RespondAsync("You are no longer away from keyboard!");
+            }
+        }
+
         [Command("slap")]
         public async Task SlapAsync(CommandContext ctx, DiscordMember member)
         {
