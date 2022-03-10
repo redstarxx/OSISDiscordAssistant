@@ -1031,7 +1031,7 @@ namespace OSISDiscordAssistant.Commands
         /// <param name="eventNameOrId">The name of the event or the row ID.</param>
         /// <param name="searchMode">The search strategy that tells how to search the event, when fetching via name.</param>
         /// <returns>An <see cref="Events" /> object.</returns>
-        internal Events FetchEventData(string keyword, EventSearchMode searchMode)
+        private Events FetchEventData(string keyword, EventSearchMode searchMode)
         {
             bool isNumber = int.TryParse(keyword, out int rowIDRaw);
 
@@ -1074,7 +1074,7 @@ namespace OSISDiscordAssistant.Commands
         /// <param name="indexYear">Sets whether to search events based on the year or process them as a whole.</param>
         /// <param name="keyword">The keyword of the search.</param>
         /// <returns>An <see cref="IEnumerable{T}" /> of <see cref="Events" /> object.</returns>
-        internal IEnumerable<Events> FetchAllEventsData(bool indexYear, string keyword)
+        private IEnumerable<Events> FetchAllEventsData(bool indexYear, string keyword)
         {
             IEnumerable<Events> Events;
             List<Events> eventsData = new List<Events>();
@@ -1119,7 +1119,7 @@ namespace OSISDiscordAssistant.Commands
         /// Composes the embed field's value for the respective event.
         /// </summary>
         /// <returns>A string containing the details of the respective event.</returns>
-        internal string ComposeEventDescriptionField(Events events)
+        private string ComposeEventDescriptionField(Events events)
         {
             DateTime eventDate = ClientUtilities.ConvertUnixTimestampToDateTime(events.EventDateUnixTimestamp);
 
@@ -1149,8 +1149,8 @@ namespace OSISDiscordAssistant.Commands
         {
             await SendHelpEmbed(ctx);
         }
-        
-        internal async Task SendHelpEmbed(CommandContext ctx)
+
+        private async Task SendHelpEmbed(CommandContext ctx)
         {
             var embedBuilder = new DiscordEmbedBuilder
             {
@@ -1175,7 +1175,7 @@ namespace OSISDiscordAssistant.Commands
             await ctx.Channel.SendMessageAsync(embed: embedBuilder);
         }
 
-        internal async Task SendHelpEmoji(CommandContext ctx, string operationSelection)
+        private async Task SendHelpEmoji(CommandContext ctx, string operationSelection)
         {
             var helpEmoji = DiscordEmoji.FromName(ctx.Client, ":sos:");
 
