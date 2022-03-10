@@ -25,77 +25,66 @@ namespace OSISDiscordAssistant.Commands
         [Command("overify")]
         public async Task OverifyAsync(CommandContext ctx, DiscordMember member)
         {
-            // Checks whether the invoker is manually verifying themself.
             if (await ClientUtilities.CheckSelfTargeting(member, ctx))
             {
                 return;
             }
 
-            try
-            {
-                // Grants the access role to the targeted user.
-                await member.GrantRoleAsync(ctx.Guild.GetRole(SharedData.AccessRoleId));
-                await member.SendMessageAsync($"{Formatter.Bold("[VERIFICATION]")} You have been manually verified by {ctx.Member.Mention}! You may now access the internal channels of {ctx.Guild.Name} and begin your interaction!");
+            await member.GrantRoleAsync(ctx.Guild.GetRole(SharedData.AccessRoleId));
+            await member.SendMessageAsync($"{Formatter.Bold("[VERIFICATION]")} You have been manually verified by {ctx.Member.Mention}! You may now access the internal channels of {ctx.Guild.Name} and begin your interaction!");
 
-                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[VERIFICATION]")} {member.Mention} has been granted the access role.");
+            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[VERIFICATION]")} {member.Mention} has been granted the access role.");
 
-                var pendingVerification = _verificationContext.Verifications.SingleOrDefault(x => x.UserId == member.Id);
-
-                if (pendingVerification != null)
-                {
-                    var requestEmbed = await ctx.Guild.GetChannel(SharedData.VerificationRequestsProcessingChannelId).GetMessageAsync(pendingVerification.VerificationEmbedId);
-
-                    foreach (var embed in requestEmbed.Embeds)
-                    {
-                        DiscordEmbed updatedEmbed = null;
-
-                        DiscordEmbedBuilder embedBuilder = new DiscordEmbedBuilder(embed)
-                        {
-                            Title = $"{embed.Title.Replace(" | PENDING", " | ACCEPTED")}",
-                            Description = $"{embed.Description.Replace("PENDING.", $"ACCEPTED (overrided by {ctx.Member.Mention}, at {Formatter.Timestamp(DateTime.Now, TimestampFormat.LongDateTime)}).")}"
-                        };
-
-                        updatedEmbed = embedBuilder.Build();
-
-                        await requestEmbed.ModifyAsync(x => x.WithEmbed(updatedEmbed));
-
-                        _verificationContext.Remove(pendingVerification);
-                        await _verificationContext.SaveChangesAsync();
-
-                        break;
-                    }
-                }
-            }
-
-            catch
-            {
-                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[VERIFICATION]")} An error occured. Have you tried to use the command correctly?");
-            }
+            await CheckPendingVerificationRequest(ctx, member);
         }
 
         [RequireMainGuild, RequireAdminRole]
         [Command("overify")]
-        public async Task OverifyWithNameAsync(CommandContext ctx, DiscordMember member, params string[] displayName)
+        public async Task OverifyWithNameAsync(CommandContext ctx, DiscordMember member, [RemainingText] string displayName)
         {
-            // Checks whether the invoker is manually verifying themself.
             if (await ClientUtilities.CheckSelfTargeting(member, ctx))
             {
                 return;
             }
 
-            try
-            {
-                // Grants the access role to the targeted user.
-                await member.GrantRoleAsync(ctx.Guild.GetRole(SharedData.AccessRoleId));
-                await member.ModifyAsync(setName => setName.Nickname = string.Join(" ", displayName));
+            await member.GrantRoleAsync(ctx.Guild.GetRole(SharedData.AccessRoleId));
+            await member.ModifyAsync(setName => setName.Nickname = displayName);
 
-                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[VERIFICATION]")} {member.Mention} has been given the access role and assigned a new nickname ({string.Join(" ", displayName)}).");
+            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[VERIFICATION]")} {member.Mention} has been given the access role and assigned a new nickname ({displayName}).");
+
+            await CheckPendingVerificationRequest(ctx, member);
+        }
+
+        private async Task<Task> CheckPendingVerificationRequest(CommandContext ctx, DiscordMember member)
+        {
+            var pendingVerification = _verificationContext.Verifications.SingleOrDefault(x => x.UserId == member.Id);
+
+            if (pendingVerification != null)
+            {
+                var requestEmbed = await ctx.Guild.GetChannel(SharedData.VerificationRequestsProcessingChannelId).GetMessageAsync(pendingVerification.VerificationEmbedId);
+
+                foreach (var embed in requestEmbed.Embeds)
+                {
+                    DiscordEmbed updatedEmbed = null;
+
+                    DiscordEmbedBuilder embedBuilder = new DiscordEmbedBuilder(embed)
+                    {
+                        Title = $"{embed.Title.Replace(" | PENDING", " | ACCEPTED")}",
+                        Description = $"{embed.Description.Replace("PENDING.", $"ACCEPTED (overrided by {ctx.Member.Mention}, at {Formatter.Timestamp(DateTime.Now, TimestampFormat.LongDateTime)}).")}"
+                    };
+
+                    updatedEmbed = embedBuilder.Build();
+
+                    await requestEmbed.ModifyAsync(x => x.WithEmbed(updatedEmbed));
+
+                    _verificationContext.Remove(pendingVerification);
+                    await _verificationContext.SaveChangesAsync();
+
+                    break;
+                }
             }
 
-            catch
-            {
-                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[VERIFICATION]")} An error occured. Have you tried to use the command correctly?");
-            }
+            return Task.CompletedTask;
         }
 
         // ----------------------------------------------------------
