@@ -1179,7 +1179,7 @@ namespace OSISDiscordAssistant.Commands
         {
             var helpEmoji = DiscordEmoji.FromName(ctx.Client, ":sos:");
 
-            var errorMessage = await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} The option {Formatter.InlineCode(operationSelection)} does not exist! Type {Formatter.InlineCode("!event")} to list all options. Alternatively, click the emoji below to get help.");
+            var errorMessage = await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} The option {Formatter.InlineCode(operationSelection)} does not exist! Type {Formatter.InlineCode("osis event")} to list all options. Alternatively, click the emoji below to get help.");
 
             await errorMessage.CreateReactionAsync(helpEmoji);
 
