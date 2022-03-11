@@ -198,7 +198,7 @@ namespace OSISDiscordAssistant.Commands
                 var notifyMessage = await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[EVENTS MANAGER]")} Give me a second to process everything...");
                 await ctx.TriggerTypingAsync();
 
-                Task offloadToTask = Task.Run(async () =>
+                _ = Task.Run(async () =>
                 {
                     int counter = 0;
 
@@ -385,7 +385,7 @@ namespace OSISDiscordAssistant.Commands
                                 return;
                             }
 
-                            Task offloadToTask = Task.Run(async () =>
+                            _ = Task.Run(async () =>
                             {
                                 Events rowToUpdate = null;
                                 rowToUpdate = _eventContext.Events.SingleOrDefault(x => x.Id == eventData.Id);
@@ -436,7 +436,7 @@ namespace OSISDiscordAssistant.Commands
                                 return;
                             }
 
-                            Task offloadToTask = Task.Run(async () =>
+                            _ = Task.Run(async () =>
                             {
                                 Events rowToUpdate = null;
                                 rowToUpdate = _eventContext.Events.SingleOrDefault(x => x.Id == eventData.Id);
@@ -527,7 +527,7 @@ namespace OSISDiscordAssistant.Commands
                                 return;
                             }
 
-                            Task offloadToTask = Task.Run(async () =>
+                            _ = Task.Run(async () =>
                             {
                                 Events rowToUpdate = null;
                                 rowToUpdate = _eventContext.Events.SingleOrDefault(x => x.Id == eventData.Id);
@@ -582,7 +582,7 @@ namespace OSISDiscordAssistant.Commands
                                 return;
                             }
 
-                            Task offloadToTask = Task.Run(async () =>
+                            _ = Task.Run(async () =>
                             {
                                 Events rowToUpdate = null;
                                 rowToUpdate = _eventContext.Events.SingleOrDefault(x => x.Id == eventData.Id);
@@ -962,7 +962,7 @@ namespace OSISDiscordAssistant.Commands
                 var notifyMessage = await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[EVENTS MANAGER]")} Give me a second to process everything...");
                 await ctx.TriggerTypingAsync();
 
-                Task offloadToTask = Task.Run(async () =>
+                _ = Task.Run(async () =>
                 {
                     var eventEmbeds = new List<DiscordEmbedBuilder>();
 
