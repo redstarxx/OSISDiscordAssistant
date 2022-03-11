@@ -75,7 +75,7 @@ namespace OSISDiscordAssistant.Commands
         public async Task UnmuteAsync(CommandContext ctx, DiscordMember member)
         {
             // Checks whether the invoker is unmuting themself.
-            if (member.Id == ctx.Member.Id)
+            if (member == ctx.Member)
             {
                 await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} You cannot unmute yourself.");
 
@@ -93,7 +93,7 @@ namespace OSISDiscordAssistant.Commands
         public async Task KickAsync(CommandContext ctx, DiscordMember member, [RemainingText] string kickReason)
         {
             //Check if the invoker is trying to kick themself.
-            if (member.Id == ctx.Member.Id)
+            if (member == ctx.Member)
             {
                 await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} Are you trying to kill yourself?");
 
@@ -108,27 +108,17 @@ namespace OSISDiscordAssistant.Commands
                 return;
             }
 
-            try
-            {
-                await member.RemoveAsync(kickReason);
+            await member.RemoveAsync(kickReason);
 
-                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[KICKED]")} {member.Mention} has been kicked from this server by {ctx.Member.Mention}. Reason: {kickReason}");
-            }
-
-            catch
-            {
-                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} An error occured. The member may not be in this server.");
-            }
+            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[KICKED]")} {member.Mention} has been kicked from this server by {ctx.Member.Mention}. Reason: {kickReason}");
         }
 
         [Command("setname")]
         public async Task SetNameAsync(CommandContext ctx, DiscordMember member, [RemainingText] string newNickname)
         {
-            if (ctx.User.Id != member.Id)
+            if (ctx.Member != member)
             {
-                bool isAdmin = ClientUtilities.CheckAdminPermissions(ctx);
-
-                if (!isAdmin)
+                if (!ClientUtilities.CheckAdminPermissions(ctx))
                 {
                     await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} If you are not an administrator, you cannot rename someone else's nickname!");
 
@@ -144,47 +134,31 @@ namespace OSISDiscordAssistant.Commands
                 return;
             }
 
-            try
-            {
-                string previousNickname = member.DisplayName;
-                await member.ModifyAsync(x => x.Nickname = newNickname);
+            string previousNickname = member.DisplayName;
+            await member.ModifyAsync(x => x.Nickname = newNickname);
 
-                await ctx.Channel.SendMessageAsync($"{member.Mention} {previousNickname}'s server username has been changed to {newNickname} by {ctx.Member.Mention}.");
-            }
-
-            catch
-            {
-                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} An error occured. The member may not be in this server.");
-            }
+            await ctx.Channel.SendMessageAsync($"{member.Mention} {previousNickname}'s server username has been changed to {newNickname} by {ctx.Member.Mention}.");
         }
 
         [RequireAdminRole]
         [Command("announce")]
         public async Task AnnounceAsync(CommandContext ctx, DiscordChannel channel, DiscordRole role, [RemainingText] string announceMessage)
         {
-            try
+            if (announceMessage is null)
             {
-                if (announceMessage is null)
-                {
-                    await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} Announcement message cannot be empty!");
+                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} Announcement message cannot be empty!");
 
-                    return;
-                }
-
-                await channel.SendMessageAsync($"{Formatter.Bold("[ANNOUNCEMENT]")} {role.Mention} {announceMessage}");
+                return;
             }
 
-            catch (Exception ex)
-            {
-                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} An error occured. Are you trying to send the message to a channel which the bot does not have access?\nException details: {ex.Message}");
-            }
+            await channel.SendMessageAsync($"{Formatter.Bold("[ANNOUNCEMENT]")} {role.Mention} {announceMessage}");
         }
 
         [RequireAdminRole]
         [Command("ban")]
         public async Task BanAsync(CommandContext ctx, DiscordMember member, [RemainingText] string reason)
         {
-            if (member.Id == ctx.Member.Id)
+            if (member == ctx.Member)
             {
                 await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} Are you trying to kill yourself?");
 
@@ -207,7 +181,7 @@ namespace OSISDiscordAssistant.Commands
         [Command("unban")]
         public async Task UnbanAsync(CommandContext ctx, DiscordUser member, [RemainingText] string reason)
         {
-            if (member.Id == ctx.Member.Id)
+            if (member == ctx.Member)
             {
                 await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} You cannot unban yourself!");
 
@@ -244,16 +218,14 @@ namespace OSISDiscordAssistant.Commands
             try
             {
                 await ctx.Channel.DeleteMessagesAsync(await ctx.Channel.GetMessagesAsync(messageCount), reason);
+
+                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[PRUNED]")} Pruned {messageCount} messages by {ctx.Member.Mention}. Reason: {reason}.");
             }
 
             catch
             {
-                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} An error occured. Are you trying to delete a message older than 14 days?");
-
-                return;
+                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} An error occured. Are you trying to delete messages older than 14 days?");
             }
-
-            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[PRUNED]")} Pruned {messageCount} messages by {ctx.Member.Mention}. Reason: {reason}.");
         }
 
         [RequireAdminRole]

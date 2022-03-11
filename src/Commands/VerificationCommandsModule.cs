@@ -25,8 +25,10 @@ namespace OSISDiscordAssistant.Commands
         [Command("overify")]
         public async Task OverifyAsync(CommandContext ctx, DiscordMember member)
         {
-            if (await ClientUtilities.CheckSelfTargeting(member, ctx))
+            if (ctx.Member == member)
             {
+                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} You cannot use this command on yourself.");
+
                 return;
             }
 
@@ -42,8 +44,10 @@ namespace OSISDiscordAssistant.Commands
         [Command("overify")]
         public async Task OverifyWithNameAsync(CommandContext ctx, DiscordMember member, [RemainingText] string displayName)
         {
-            if (await ClientUtilities.CheckSelfTargeting(member, ctx))
+            if (ctx.Member == member)
             {
+                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} You cannot use this command on yourself.");
+
                 return;
             }
 
