@@ -78,25 +78,6 @@ namespace OSISDiscordAssistant.Utilities
         }
 
         /// <summary>
-        /// Checks whether the command user is using the command towards themself.
-        /// If true, errorReason is sent as reply.
-        /// </summary>
-        /// <param name="member">Targeted member for the command execution.</param>
-        /// <param name="ctx">The respective CommandContext.</param>
-        /// <returns>True if user is equals targeted user.</returns>
-        public static async Task<bool> CheckSelfTargeting(DiscordMember member, CommandContext ctx)
-        {
-            if (ctx.User.Id == member.Id)
-            {
-                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} You cannot use this command on yourself.");
-
-                return true;
-            }
-
-            return false;
-        }
-
-        /// <summary>
         /// Checks whether the file name contains a file extension that is allowed.
         /// </summary>
         /// <param name="fileName">The file name to check.</param>
