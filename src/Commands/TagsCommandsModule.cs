@@ -107,9 +107,7 @@ namespace OSISDiscordAssistant.Commands
         {
             if (operationSelection == "create")
             {
-                bool isExist = _tagsContext.Tags.Any(x => x.Name == tagName);
-
-                if (isExist)
+                if (_tagsContext.Tags.Any(x => x.Name == tagName))
                 {
                     await ctx.RespondAsync($"The tag {Formatter.InlineCode(tagName)} already exists!");
 
@@ -146,8 +144,7 @@ namespace OSISDiscordAssistant.Commands
                     return;
                 }
 
-                Tags tagToUpdate = null;
-                tagToUpdate = _tagsContext.Tags.SingleOrDefault(x => x.Name == tagName);
+                Tags tagToUpdate = _tagsContext.Tags.SingleOrDefault(x => x.Name == tagName);
 
                 if (tagToUpdate is null)
                 {
@@ -168,17 +165,16 @@ namespace OSISDiscordAssistant.Commands
 
             else if (operationSelection == "delete")
             {
-                Tags tagToDelete = null;
-                tagToDelete = _tagsContext.Tags.SingleOrDefault(x => x.Name == tagName);
+                Tags tag = _tagsContext.Tags.SingleOrDefault(x => x.Name == tagName);
 
-                if (tagToDelete is null)
+                if (tag is null)
                 {
                     await ctx.RespondAsync($"{Formatter.Bold("[ERROR]")} Tag {Formatter.InlineCode(tagName)} does not exist.");
 
                     return;
                 }
 
-                _tagsContext.Remove(tagToDelete);
+                _tagsContext.Remove(tag);
 
                 _tagsContext.SaveChanges();
 
@@ -285,7 +281,7 @@ namespace OSISDiscordAssistant.Commands
         [Command("tag")]
         public async Task TagHelpAsync(CommandContext ctx)
         {
-            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[SYNTAX]")} osis tag [CREATE/UPDATE/EDIT/DELETE] [TAGNAME] [TAGCONTENT]");
+            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[SYNTAX]")} osis tag [CREATE/UPDATE/EDIT/DELETE/INFO] [TAGNAME] [TAGCONTENT]\nExample: {Formatter.InlineCode("osis tag create pendaftaran Untuk mendaftar, silahkan kunjungi link berikut.")}");
         }
     }
 }
