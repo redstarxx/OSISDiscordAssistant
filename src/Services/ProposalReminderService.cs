@@ -77,7 +77,7 @@ namespace OSISDiscordAssistant.Services
                             {
                                 try
                                 {
-                                    if (row.Expired is false)
+                                    if (row.Expired is false && row.ReminderDisabled is false)
                                     {
                                         processingStopWatch.Start();
 

@@ -48,6 +48,11 @@
         public bool Expired { get; set; }
 
         /// <summary>
+        /// Enable or disable sending event and proposal submission reminders.
+        /// </summary>
+        public bool ReminderDisabled { get; set; }
+
+        /// <summary>
         /// Event proposal file name.
         /// </summary>
         public string ProposalFileTitle { get; set; }

@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS public.events
     executed_reminder_level integer,
     proposal_reminded boolean NOT NULL,
     expired boolean NOT NULL,
+    reminder_disabled boolean,
     proposal_file_title character varying COLLATE pg_catalog."default",
     proposal_file_content bytea,
     CONSTRAINT events_pkey PRIMARY KEY (id)

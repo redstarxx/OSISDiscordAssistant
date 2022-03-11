@@ -331,11 +331,14 @@ namespace OSISDiscordAssistant.Commands
                 var numberTwoEmoji = DiscordEmoji.FromName(ctx.Client, ":two:");
                 var numberThreeEmoji = DiscordEmoji.FromName(ctx.Client, ":three:");
                 var numberFourEmoji = DiscordEmoji.FromName(ctx.Client, ":four:");
+                var numberFiveEmoji = DiscordEmoji.FromName(ctx.Client, ":five:");
                 var crossEmoji = DiscordEmoji.FromName(ctx.Client, ":x:");
+
+                string reminderSettingStatus = eventData.ReminderDisabled is false ? "Disable" : "Enable";
 
                 embedBuilder.Title = $"Events Manager - Updating {eventData.EventName}...";
                 embedBuilder.Description = $"Choose either one of the following emojis to select what are you going to change from {Formatter.Bold(eventData.EventName)}.\n\n" +
-                    "**[1]** Change event name;\n**[2]** Change event person-in-charge (ketua / wakil ketua acara);\n**[3]** Change event date and time;\n**[4]** Change event description.\n\n" +
+                    $"**[1]** Change event name;\n**[2]** Change event person-in-charge (ketua / wakil ketua acara);\n**[3]** Change event date and time;\n**[4]** Change event description;\n**[5]** {reminderSettingStatus} reminders.\n\n" +
                     $"You have 5 (five) minutes to make your choice. To cancel your changes, type {Formatter.InlineCode("abort")}. If this is not the event you want to update, click the {crossEmoji} emoji to cancel.";
                 var updateEmbed = await ctx.Channel.SendMessageAsync(embed: embedBuilder);
 
@@ -343,15 +346,18 @@ namespace OSISDiscordAssistant.Commands
                 await updateEmbed.CreateReactionAsync(numberTwoEmoji);
                 await updateEmbed.CreateReactionAsync(numberThreeEmoji);
                 await updateEmbed.CreateReactionAsync(numberFourEmoji);
+                await updateEmbed.CreateReactionAsync(numberFiveEmoji);
                 await updateEmbed.CreateReactionAsync(crossEmoji);
 
                 var selectionInteractivity = ctx.Client.GetInteractivity();
                 var selectionResult = await selectionInteractivity.WaitForReactionAsync
                     (x => x.Message == updateEmbed && (x.User.Id == ctx.User.Id) && (x.Emoji == numberOneEmoji || x.Emoji == numberTwoEmoji ||
-                    x.Emoji == numberThreeEmoji || x.Emoji == numberFourEmoji || x.Emoji == crossEmoji), TimeSpan.FromMinutes(5));
+                    x.Emoji == numberThreeEmoji || x.Emoji == numberFourEmoji || x.Emoji == numberFiveEmoji || x.Emoji == crossEmoji), TimeSpan.FromMinutes(5));
 
                 if (!selectionResult.TimedOut)
                 {
+                    await updateEmbed.DeleteAllReactionsAsync();
+
                     if (selectionResult.Result.Emoji == numberOneEmoji)
                     {
                         await updateEmbed.DeleteAllReactionsAsync();
@@ -387,8 +393,7 @@ namespace OSISDiscordAssistant.Commands
 
                             _ = Task.Run(async () =>
                             {
-                                Events rowToUpdate = null;
-                                rowToUpdate = _eventContext.Events.SingleOrDefault(x => x.Id == eventData.Id);
+                                Events rowToUpdate = _eventContext.Events.SingleOrDefault(x => x.Id == eventData.Id);
 
                                 if (rowToUpdate != null)
                                 {
@@ -438,8 +443,7 @@ namespace OSISDiscordAssistant.Commands
 
                             _ = Task.Run(async () =>
                             {
-                                Events rowToUpdate = null;
-                                rowToUpdate = _eventContext.Events.SingleOrDefault(x => x.Id == eventData.Id);
+                                Events rowToUpdate = _eventContext.Events.SingleOrDefault(x => x.Id == eventData.Id);
 
                                 if (rowToUpdate != null)
                                 {
@@ -529,8 +533,7 @@ namespace OSISDiscordAssistant.Commands
 
                             _ = Task.Run(async () =>
                             {
-                                Events rowToUpdate = null;
-                                rowToUpdate = _eventContext.Events.SingleOrDefault(x => x.Id == eventData.Id);
+                                Events rowToUpdate = _eventContext.Events.SingleOrDefault(x => x.Id == eventData.Id);
 
                                 if (rowToUpdate != null)
                                 {
@@ -584,8 +587,7 @@ namespace OSISDiscordAssistant.Commands
 
                             _ = Task.Run(async () =>
                             {
-                                Events rowToUpdate = null;
-                                rowToUpdate = _eventContext.Events.SingleOrDefault(x => x.Id == eventData.Id);
+                                Events rowToUpdate = _eventContext.Events.SingleOrDefault(x => x.Id == eventData.Id);
 
                                 if (rowToUpdate != null)
                                 {
@@ -607,6 +609,27 @@ namespace OSISDiscordAssistant.Commands
                             await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[TIMED OUT]")} Operation aborted. Event date not entered within five minutes.");
                             return;
                         }
+                    }
+
+                    else if (selectionResult.Result.Emoji == numberFiveEmoji)
+                    {
+                        _ = Task.Run(async () =>
+                        {
+                            Events rowToUpdate = _eventContext.Events.SingleOrDefault(x => x.Id == eventData.Id);
+
+                            if (rowToUpdate != null)
+                            {
+                                rowToUpdate.ReminderDisabled = rowToUpdate.ReminderDisabled is true ? false : true;
+
+                                await _eventContext.SaveChangesAsync();
+                            }
+
+                            embedBuilder.Title = $"Events Manager - {eventData.EventName} Update Details";
+                            embedBuilder.Description = $"{ctx.Member.Mention} has made update(s) to {eventData.EventName}.\n\n{Formatter.Bold("Changes made:")}\n• {reminderSettingStatus}d reminders.";
+                            embedBuilder.Timestamp = DateTime.Now;
+
+                            await ctx.Channel.SendMessageAsync(embed: embedBuilder);
+                        });
                     }
 
                     else if (selectionResult.Result.Emoji == crossEmoji)
@@ -1129,7 +1152,9 @@ namespace OSISDiscordAssistant.Commands
             {
                 TimeSpan remainingDateTime = eventDate - DateTime.Now;
 
-                return $"Status: {ClientUtilities.ConvertBoolValue(events.Expired, ConvertBoolOption.UpcomingOrDone)} ({Formatter.Timestamp(remainingDateTime, TimestampFormat.RelativeTime)})\nKetua / Wakil Ketua Acara: {events.PersonInCharge}\nProposal: {ClientUtilities.ConvertBoolValue(isProposalEmpty, ConvertBoolOption.StoredOrNotStored)}\nDescription: {events.EventDescription}";
+                string reminderSettingStatus = events.ReminderDisabled is false ? "Enabled" : "Disabled";
+
+                return $"Status: {ClientUtilities.ConvertBoolValue(events.Expired, ConvertBoolOption.UpcomingOrDone)} ({Formatter.Timestamp(remainingDateTime, TimestampFormat.RelativeTime)})\nKetua / Wakil Ketua Acara: {events.PersonInCharge}\nProposal: {ClientUtilities.ConvertBoolValue(isProposalEmpty, ConvertBoolOption.StoredOrNotStored)}\nReminders: {reminderSettingStatus}.\nDescription: {events.EventDescription}";
             }
 
             else

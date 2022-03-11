@@ -62,6 +62,10 @@ namespace OSISDiscordAssistant.Models
                     .HasColumnName("expired")
                     .HasColumnType("bool");
 
+                entity.Property(e => e.ReminderDisabled)
+                    .HasColumnName("reminder_disabled")
+                    .HasColumnType("bool");
+
                 entity.Property(e => e.ExecutedReminderLevel)
                     .HasColumnName("executed_reminder_level")
                     .HasColumnType("int");
