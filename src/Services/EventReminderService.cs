@@ -75,128 +75,31 @@ namespace OSISDiscordAssistant.Services
                         {
                             var eventContext = scope.ServiceProvider.GetRequiredService<EventContext>();
 
-                            foreach (var row in eventContext.Events)
+                            foreach (var row in eventContext.Events.Where(x => x.Expired == false && x.ReminderDisabled == false))
                             {
                                 try
                                 {
-                                    if (row.Expired is false && row.ReminderDisabled is false)
+                                    processingStopWatch.Start();
+
+                                    DateTime eventDateTime = ClientUtilities.ConvertUnixTimestampToDateTime(row.EventDateUnixTimestamp);
+
+                                    DateTime nextEventReminderDateTime = ClientUtilities.ConvertUnixTimestampToDateTime(row.NextScheduledReminderUnixTimestamp);
+
+                                    TimeSpan timeSpan = eventDateTime - DateTime.Today;
+
+                                    reminderEmbed.Title = $"Events Manager - Reminding {row.EventName}... (ID: {row.Id})";
+
+                                    reminderEmbed.AddField("Ketua / Wakil Ketua Event", row.PersonInCharge, true);
+                                    reminderEmbed.AddField("Tanggal / Waktu Pelaksanaan", Formatter.Timestamp(eventDateTime, TimestampFormat.LongDate), true);
+                                    reminderEmbed.AddField("Informasi Tambahan", row.EventDescription, false);
+
+                                    reminderMessageBuilder.WithContent("@everyone");
+
+                                    if (DateTime.Today == nextEventReminderDateTime || (DateTime.Today > nextEventReminderDateTime && DateTime.Today < eventDateTime))
                                     {
-                                        processingStopWatch.Start();
-
-                                        DateTime eventDateTime = ClientUtilities.ConvertUnixTimestampToDateTime(row.EventDateUnixTimestamp);
-
-                                        DateTime nextEventReminderDateTime = ClientUtilities.ConvertUnixTimestampToDateTime(row.NextScheduledReminderUnixTimestamp);
-
-                                        TimeSpan timeSpan = eventDateTime - DateTime.Today;
-
-                                        reminderEmbed.Title = $"Events Manager - Reminding {row.EventName}... (ID: {row.Id})";
-
-                                        reminderEmbed.AddField("Ketua / Wakil Ketua Event", row.PersonInCharge, true);
-                                        reminderEmbed.AddField("Tanggal / Waktu Pelaksanaan", Formatter.Timestamp(eventDateTime, TimestampFormat.LongDate), true);
-                                        reminderEmbed.AddField("Informasi Tambahan", row.EventDescription, false);
-
-                                        reminderMessageBuilder.WithContent("@everyone");
-
-                                        if (DateTime.Today == nextEventReminderDateTime || (DateTime.Today > nextEventReminderDateTime && DateTime.Today < eventDateTime))
+                                        if (row.ExecutedReminderLevel is 1 or 2 or 3)
                                         {
-                                            if (row.ExecutedReminderLevel is 1 or 2 or 3)
-                                            {
-                                                reminderEmbed.Description = $"In {timeSpan.Days} days, it will be the day for {Formatter.Bold(row.EventName)}!";
-
-                                                if (row.ProposalFileContent is not null)
-                                                {
-                                                    string fileTitle = null;
-
-                                                    byte[] fileContent = null;
-
-                                                    MemoryStream fileStream = new MemoryStream();
-
-                                                    fileTitle = row.ProposalFileTitle;
-
-                                                    fileContent = row.ProposalFileContent;
-
-                                                    fileStream = new MemoryStream(fileContent);
-
-                                                    reminderMessageBuilder.WithFiles(new Dictionary<string, Stream>() { { fileTitle, fileStream } }, true);
-                                                }
-
-                                                reminderMessageBuilder.WithEmbed(reminderEmbed.Build());
-
-                                                await eventsChannel.SendMessageAsync(builder: reminderMessageBuilder);
-                                                counter++;
-
-                                                Events eventData = eventContext.Events.SingleOrDefault(x => x.Id == row.Id);
-
-                                                if (eventData != null)
-                                                {
-                                                    switch (eventData.ExecutedReminderLevel)
-                                                    {
-                                                        // Level 2
-                                                        case 1:
-                                                            eventData.NextScheduledReminderUnixTimestamp = ClientUtilities.ConvertDateTimeToUnixTimestamp(eventDateTime.Subtract(TimeSpan.FromDays(14)));
-                                                            break;
-                                                        // Level 3
-                                                        case 2:
-                                                            eventData.NextScheduledReminderUnixTimestamp = ClientUtilities.ConvertDateTimeToUnixTimestamp(eventDateTime.Subtract(TimeSpan.FromDays(7)));
-                                                            break;
-                                                        // Level 4
-                                                        case 3:
-                                                            eventData.NextScheduledReminderUnixTimestamp = ClientUtilities.ConvertDateTimeToUnixTimestamp(eventDateTime.Subtract(TimeSpan.FromDays(1)));
-                                                            break;
-                                                        default:
-                                                            break;
-                                                    }
-
-                                                    eventData.ExecutedReminderLevel = row.ExecutedReminderLevel + 1;
-                                                }
-
-                                                await eventContext.SaveChangesAsync();
-
-                                                sentReminder = true;
-                                            }
-
-                                            else if (row.ExecutedReminderLevel is 4)
-                                            {
-                                                reminderEmbed.Description = $"Tomorrow will be the day for {Formatter.Bold(row.EventName)}!";
-
-                                                if (row.ProposalFileContent is not null)
-                                                {
-                                                    string fileTitle = null;
-
-                                                    byte[] fileContent = null;
-
-                                                    MemoryStream fileStream = new MemoryStream();
-
-                                                    fileTitle = row.ProposalFileTitle;
-
-                                                    fileContent = row.ProposalFileContent;
-
-                                                    fileStream = new MemoryStream(fileContent);
-
-                                                    reminderMessageBuilder.WithFiles(new Dictionary<string, Stream>() { { fileTitle, fileStream } }, true);
-                                                }
-
-                                                reminderMessageBuilder.WithEmbed(reminderEmbed.Build());
-
-                                                await eventsChannel.SendMessageAsync(builder: reminderMessageBuilder);
-                                                counter++;
-
-                                                Events eventData = eventContext.Events.SingleOrDefault(x => x.Id == row.Id);
-
-                                                if (eventData != null)
-                                                {
-                                                    eventData.ExecutedReminderLevel = 0;
-                                                }
-
-                                                await eventContext.SaveChangesAsync();
-
-                                                sentReminder = true;
-                                            }
-                                        }
-
-                                        if (DateTime.Today == eventDateTime)
-                                        {
-                                            reminderEmbed.Description = $"Today is the the day for {Formatter.Bold(row.EventName)}!";
+                                            reminderEmbed.Description = $"In {timeSpan.Days} days, it will be the day for {Formatter.Bold(row.EventName)}!";
 
                                             if (row.ProposalFileContent is not null)
                                             {
@@ -224,7 +127,25 @@ namespace OSISDiscordAssistant.Services
 
                                             if (eventData != null)
                                             {
-                                                eventData.Expired = true;
+                                                switch (eventData.ExecutedReminderLevel)
+                                                {
+                                                    // Level 2
+                                                    case 1:
+                                                        eventData.NextScheduledReminderUnixTimestamp = ClientUtilities.ConvertDateTimeToUnixTimestamp(eventDateTime.Subtract(TimeSpan.FromDays(14)));
+                                                        break;
+                                                    // Level 3
+                                                    case 2:
+                                                        eventData.NextScheduledReminderUnixTimestamp = ClientUtilities.ConvertDateTimeToUnixTimestamp(eventDateTime.Subtract(TimeSpan.FromDays(7)));
+                                                        break;
+                                                    // Level 4
+                                                    case 3:
+                                                        eventData.NextScheduledReminderUnixTimestamp = ClientUtilities.ConvertDateTimeToUnixTimestamp(eventDateTime.Subtract(TimeSpan.FromDays(1)));
+                                                        break;
+                                                    default:
+                                                        break;
+                                                }
+
+                                                eventData.ExecutedReminderLevel = row.ExecutedReminderLevel + 1;
                                             }
 
                                             await eventContext.SaveChangesAsync();
@@ -232,33 +153,109 @@ namespace OSISDiscordAssistant.Services
                                             sentReminder = true;
                                         }
 
-                                        else if (DateTime.Today > eventDateTime)
+                                        else if (row.ExecutedReminderLevel is 4)
                                         {
+                                            reminderEmbed.Description = $"Tomorrow will be the day for {Formatter.Bold(row.EventName)}!";
+
+                                            if (row.ProposalFileContent is not null)
+                                            {
+                                                string fileTitle = null;
+
+                                                byte[] fileContent = null;
+
+                                                MemoryStream fileStream = new MemoryStream();
+
+                                                fileTitle = row.ProposalFileTitle;
+
+                                                fileContent = row.ProposalFileContent;
+
+                                                fileStream = new MemoryStream(fileContent);
+
+                                                reminderMessageBuilder.WithFiles(new Dictionary<string, Stream>() { { fileTitle, fileStream } }, true);
+                                            }
+
+                                            reminderMessageBuilder.WithEmbed(reminderEmbed.Build());
+
+                                            await eventsChannel.SendMessageAsync(builder: reminderMessageBuilder);
+                                            counter++;
+
                                             Events eventData = eventContext.Events.SingleOrDefault(x => x.Id == row.Id);
 
                                             if (eventData != null)
                                             {
-                                                eventData.Expired = true;
+                                                eventData.ExecutedReminderLevel = 0;
                                             }
 
                                             await eventContext.SaveChangesAsync();
 
-                                            _logger.LogInformation($"Marked '{row.EventName}' (ID: {row.Id}) as expired.", DateTime.Now);
+                                            sentReminder = true;
                                         }
-
-                                        processingStopWatch.Stop();
-
-                                        if (sentReminder)
-                                        {
-                                            sentReminder = false;
-
-                                            _logger.LogInformation($"Sent event reminder for '{row.EventName}' (ID: {row.Id}) in {processingStopWatch.ElapsedMilliseconds} ms.", DateTime.Now);
-                                        }
-
-                                        processingStopWatch.Reset();
-
-                                        reminderEmbed.ClearFields();
                                     }
+
+                                    if (DateTime.Today == eventDateTime)
+                                    {
+                                        reminderEmbed.Description = $"Today is the the day for {Formatter.Bold(row.EventName)}!";
+
+                                        if (row.ProposalFileContent is not null)
+                                        {
+                                            string fileTitle = null;
+
+                                            byte[] fileContent = null;
+
+                                            MemoryStream fileStream = new MemoryStream();
+
+                                            fileTitle = row.ProposalFileTitle;
+
+                                            fileContent = row.ProposalFileContent;
+
+                                            fileStream = new MemoryStream(fileContent);
+
+                                            reminderMessageBuilder.WithFiles(new Dictionary<string, Stream>() { { fileTitle, fileStream } }, true);
+                                        }
+
+                                        reminderMessageBuilder.WithEmbed(reminderEmbed.Build());
+
+                                        await eventsChannel.SendMessageAsync(builder: reminderMessageBuilder);
+                                        counter++;
+
+                                        Events eventData = eventContext.Events.SingleOrDefault(x => x.Id == row.Id);
+
+                                        if (eventData != null)
+                                        {
+                                            eventData.Expired = true;
+                                        }
+
+                                        await eventContext.SaveChangesAsync();
+
+                                        sentReminder = true;
+                                    }
+
+                                    else if (DateTime.Today > eventDateTime)
+                                    {
+                                        Events eventData = eventContext.Events.SingleOrDefault(x => x.Id == row.Id);
+
+                                        if (eventData != null)
+                                        {
+                                            eventData.Expired = true;
+                                        }
+
+                                        await eventContext.SaveChangesAsync();
+
+                                        _logger.LogInformation($"Marked '{row.EventName}' (ID: {row.Id}) as expired.", DateTime.Now);
+                                    }
+
+                                    processingStopWatch.Stop();
+
+                                    if (sentReminder)
+                                    {
+                                        sentReminder = false;
+
+                                        _logger.LogInformation($"Sent event reminder for '{row.EventName}' (ID: {row.Id}) in {processingStopWatch.ElapsedMilliseconds} ms.", DateTime.Now);
+                                    }
+
+                                    processingStopWatch.Reset();
+
+                                    reminderEmbed.ClearFields();
                                 }
 
                                 catch (Exception ex)
