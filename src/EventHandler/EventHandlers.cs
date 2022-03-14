@@ -168,6 +168,8 @@ namespace OSISDiscordAssistant
         {
             _ = Task.Run(async () =>
             {
+                _logger.LogInformation($"User {e.User.Username}#{e.User.Discriminator} ({e.User.Id}) interacted with '{e.Id}' in #{e.Channel.Name} ({e.Channel.Id}).", DateTime.Now);
+
                 if (e.Id == "verify_button" || e.Id == "accept_button" || e.Id == "deny_button" || e.Id == "why_button")
                 {
                     await _handleMiscInteractivity.HandleVerificationRequests(sender, e);
@@ -177,8 +179,6 @@ namespace OSISDiscordAssistant
                 {
                     await _handleMiscInteractivity.HandleRolesInteraction(sender, e);
                 }
-
-                _logger.LogInformation($"User {e.User.Username}#{e.User.Discriminator} ({e.User.Id}) interacted with '{e.Id}' in #{e.Channel.Name} ({e.Channel.Id}).", DateTime.Now);
             });
 
             return Task.CompletedTask;
