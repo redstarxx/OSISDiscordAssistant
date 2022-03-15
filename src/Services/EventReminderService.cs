@@ -99,7 +99,7 @@ namespace OSISDiscordAssistant.Services
                                     {
                                         if (row.ExecutedReminderLevel is 1 or 2 or 3)
                                         {
-                                            reminderEmbed.Description = $"In {timeSpan.Days} days, it will be the day for {Formatter.Bold(row.EventName)}!";
+                                            reminderEmbed.Description = timeSpan.Days is not 1 ? $"In {timeSpan.Days} days, it will be the day for {Formatter.Bold(row.EventName)}!" : $"Tomorrow will be the day for {Formatter.Bold(row.EventName)}!";
 
                                             if (row.ProposalFileContent is not null)
                                             {
@@ -127,28 +127,14 @@ namespace OSISDiscordAssistant.Services
 
                                             if (eventData != null)
                                             {
-                                                switch (eventData.ExecutedReminderLevel)
-                                                {
-                                                    // Level 2
-                                                    case 1:
-                                                        eventData.NextScheduledReminderUnixTimestamp = ClientUtilities.ConvertDateTimeToUnixTimestamp(eventDateTime.Subtract(TimeSpan.FromDays(14)));
-                                                        break;
-                                                    // Level 3
-                                                    case 2:
-                                                        eventData.NextScheduledReminderUnixTimestamp = ClientUtilities.ConvertDateTimeToUnixTimestamp(eventDateTime.Subtract(TimeSpan.FromDays(7)));
-                                                        break;
-                                                    // Level 4
-                                                    case 3:
-                                                        eventData.NextScheduledReminderUnixTimestamp = ClientUtilities.ConvertDateTimeToUnixTimestamp(eventDateTime.Subtract(TimeSpan.FromDays(1)));
-                                                        break;
-                                                    default:
-                                                        break;
-                                                }
+                                                var calculatedNextReminderData = ClientUtilities.CalculateEventReminderDate(row.EventDateUnixTimestamp, true);
 
-                                                eventData.ExecutedReminderLevel = row.ExecutedReminderLevel + 1;
+                                                eventData.NextScheduledReminderUnixTimestamp = calculatedNextReminderData.NextScheduledReminderUnixTimestamp;
+                                                eventData.ExecutedReminderLevel = calculatedNextReminderData.ExecutedReminderLevel;
+                                                eventData.Expired = calculatedNextReminderData.Expired;
+
+                                                await eventContext.SaveChangesAsync();
                                             }
-
-                                            await eventContext.SaveChangesAsync();
 
                                             sentReminder = true;
                                         }
@@ -184,9 +170,9 @@ namespace OSISDiscordAssistant.Services
                                             if (eventData != null)
                                             {
                                                 eventData.ExecutedReminderLevel = 0;
-                                            }
 
-                                            await eventContext.SaveChangesAsync();
+                                                await eventContext.SaveChangesAsync();
+                                            }
 
                                             sentReminder = true;
                                         }
@@ -223,9 +209,9 @@ namespace OSISDiscordAssistant.Services
                                         if (eventData != null)
                                         {
                                             eventData.Expired = true;
-                                        }
 
-                                        await eventContext.SaveChangesAsync();
+                                            await eventContext.SaveChangesAsync();
+                                        }
 
                                         sentReminder = true;
                                     }
@@ -237,9 +223,9 @@ namespace OSISDiscordAssistant.Services
                                         if (eventData != null)
                                         {
                                             eventData.Expired = true;
-                                        }
 
-                                        await eventContext.SaveChangesAsync();
+                                            await eventContext.SaveChangesAsync();
+                                        }
 
                                         _logger.LogInformation($"Marked '{row.EventName}' (ID: {row.Id}) as expired.", DateTime.Now);
                                     }
