@@ -80,7 +80,7 @@ namespace OSISDiscordAssistant
                         TokenType = TokenType.Bot,
                         AutoReconnect = true,
                         MinimumLogLevel = LogLevel.Information,
-                        Intents = DiscordIntents.All,
+                        Intents = DiscordIntents.AllUnprivileged | DiscordIntents.GuildMembers,
                         LoggerFactory = s.GetService<ILoggerFactory>()
                     }));
 
