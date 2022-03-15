@@ -2,6 +2,26 @@
 {
     public class Events
     {
+        public Events()
+        {
+        }
+
+        public Events(Events events) : this()
+        {
+            Id = events.Id;
+            EventName = events.EventName;
+            PersonInCharge = events.PersonInCharge;
+            EventDateUnixTimestamp = events.EventDateUnixTimestamp;
+            NextScheduledReminderUnixTimestamp = events.NextScheduledReminderUnixTimestamp;
+            EventDescription = events.EventDescription;
+            ExecutedReminderLevel = events.ExecutedReminderLevel;
+            ProposalReminded = events.ProposalReminded;
+            Expired = events.Expired;
+            ReminderDisabled = events.ReminderDisabled;
+            ProposalFileTitle = events.ProposalFileTitle;
+            ProposalFileContent = events.ProposalFileContent;
+        }
+
         /// <summary>
         /// The ID of the respective row. Do not touch.
         /// </summary>
