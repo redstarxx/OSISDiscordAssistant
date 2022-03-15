@@ -78,6 +78,11 @@ namespace OSISDiscordAssistant
 
         public Task OnMessageUpdated(DiscordClient sender, MessageUpdateEventArgs e)
         {
+            if (e.Author == sender.CurrentUser)
+            {
+                return Task.CompletedTask;
+            }
+
             _logger.LogInformation(EventIds.EventHandler,
                 "User '{Username}#{Discriminator}' ({UserId}) updated message ({MessageId}) in #{ChannelName} ({ChannelId}) guild '{GuildName}' ({GuildId}).", e.Message.Author.Username, e.Message.Author.Discriminator, e.Message.Author.Id, e.Message.Id, e.Channel.Name, e.Channel.Id, e.Guild.Name, e.Guild.Id);
 
@@ -90,11 +95,6 @@ namespace OSISDiscordAssistant
 
             if (!string.IsNullOrEmpty(e.MessageBefore.Content) || e.Message.Embeds.Count > 0)
             {
-                if (e.Author == sender.CurrentUser)
-                {
-                    return Task.CompletedTask;
-                }
-
                 if (SharedData.EditedMessages.ContainsKey(e.Channel.Id))
                 {
                     SharedData.EditedMessages[e.Channel.Id] = e.MessageBefore;
@@ -111,7 +111,7 @@ namespace OSISDiscordAssistant
 
         public Task OnMessageDeleted(DiscordClient sender, MessageDeleteEventArgs e)
         {
-            if (e.Message.Author is null)
+            if (e.Message.Author == sender.CurrentUser)
             {
                 return Task.CompletedTask;
             }
@@ -131,11 +131,6 @@ namespace OSISDiscordAssistant
 
             if (!string.IsNullOrEmpty(e.Message.Content) || e.Message.Embeds.Count > 0)
             {
-                if (e.Message.Author == sender.CurrentUser)
-                {
-                    return Task.CompletedTask;
-                }
-
                 if (SharedData.DeletedMessages.ContainsKey(e.Channel.Id))
                 {
                     SharedData.DeletedMessages[e.Channel.Id] = e.Message;
