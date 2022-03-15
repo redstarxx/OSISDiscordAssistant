@@ -446,7 +446,7 @@ namespace OSISDiscordAssistant.Utilities
         /// <returns>The version number in major.minor.patch format.</returns>
         public static string GetBuildVersion()
         {
-            return Assembly.GetExecutingAssembly().GetName().Version.ToString(3);
+            return $"v{Assembly.GetExecutingAssembly().GetName().Version.ToString(3)}";
         }
     }
 }
