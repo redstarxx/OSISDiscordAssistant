@@ -39,7 +39,7 @@ namespace OSISDiscordAssistant.Services
 
                     if (SharedData.ReceivedHeartbeats is 0)
                     {
-                        _logger.LogCritical($"No heartbeat has been received since {lastMonitored}. Terminating...", DateTime.Now, EventIds.Core);
+                        _logger.LogCritical("No heartbeat has been received since {LastMonitored}. Terminating...", lastMonitored);
 
                         await _shardedClient.StopAsync();
 
@@ -48,7 +48,7 @@ namespace OSISDiscordAssistant.Services
 
                     else
                     {
-                        _logger.LogInformation($"Received {SharedData.ReceivedHeartbeats} heartbeats since {lastMonitored}. Resetting received heartbeats counter to 0.", DateTime.Now, EventIds.Core);
+                        _logger.LogInformation("Received {ReceivedHeartbeats} heartbeats since {LastMonitored}. Resetting received heartbeats counter to 0.", SharedData.ReceivedHeartbeats, lastMonitored);
 
                         SharedData.ReceivedHeartbeats = 0;
                     }

@@ -124,8 +124,6 @@ namespace OSISDiscordAssistant.Services
                                             }
 
                                             await eventContext.SaveChangesAsync();
-
-                                            _logger.LogInformation($"Marked '{row.EventName}' (ID: {row.Id}) proposal reminded column as {row.ProposalReminded}.", DateTime.Now);
                                         }
                                     }
 
@@ -135,7 +133,7 @@ namespace OSISDiscordAssistant.Services
                                     {
                                         sentReminder = false;
 
-                                        _logger.LogInformation($"Sent proposal reminder for '{row.EventName}' (ID: {row.Id}) in {processingStopWatch.ElapsedMilliseconds} ms.", DateTime.Now);
+                                        _logger.LogInformation("Sent proposal reminder for '{EventName}' (ID: {Id}) in {ElapsedMilliseconds} ms.", row.EventName, row.Id, processingStopWatch.ElapsedMilliseconds);
                                     }
 
                                     processingStopWatch.Reset();
@@ -143,7 +141,7 @@ namespace OSISDiscordAssistant.Services
 
                                 catch (Exception ex)
                                 {
-                                    _logger.LogError(ex, $"An error occured while processing an event (ID: {row.Id}).");
+                                    _logger.LogError(ex, "An error occured while processing an event (ID: {Id}).", row.Id);
                                 }
                             }
                         }                        
@@ -151,7 +149,7 @@ namespace OSISDiscordAssistant.Services
                         stopwatch.Stop();
                         long elapsedMilliseconds = stopwatch.ElapsedMilliseconds;
 
-                        _logger.LogInformation($"Reminded {counter} ({counter.ToWords()}) proposal submissions in {elapsedMilliseconds} ms.", DateTime.Now);
+                        _logger.LogInformation("Reminded {Counter} ({CountWords}) proposal submissions in {ElapsedMilliseconds} ms.", counter, counter.ToWords(), elapsedMilliseconds);
 
                         stopwatch.Reset();
                         await Task.Delay(TimeSpan.FromMinutes(1).Subtract(TimeSpan.FromMilliseconds(elapsedMilliseconds)));
@@ -164,7 +162,7 @@ namespace OSISDiscordAssistant.Services
                     while (exception is AggregateException)
                         exception = exception.InnerException;
 
-                    _logger.LogCritical($"Proposal submission reminder task threw an exception: {exception.GetType()}: {exception.Message}.", DateTime.Now);
+                    _logger.LogCritical("Proposal submission reminder task threw an exception: {ExceptionType}: {ExceptionMessage}.", exception.GetType(), exception.Message);
 
                     await errorLogsChannel.SendMessageAsync($"{ex.Message}");
                 }

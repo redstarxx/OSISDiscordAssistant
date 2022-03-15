@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Serilog;
 using Serilog.Events;
 using Serilog.Templates;
+using Serilog.Templates.Themes;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
@@ -27,14 +28,14 @@ namespace OSISDiscordAssistant
             Log.Logger = new LoggerConfiguration()
                             .WriteTo.Logger(l => l.Filter.ByExcluding(c => c.Properties.Any(p => p.Value.ToString().Contains("Microsoft.EntityFrameworkCore")))
                             .Enrich.FromLogContext()
-                            .WriteTo.Console(new ExpressionTemplate(Constant.LogConsoleFormat))
+                            .WriteTo.Console(new ExpressionTemplate(Constant.LogConsoleFormat, theme: TemplateTheme.Code))
                             .WriteTo.File($@"{Environment.CurrentDirectory}/logs/clientlogs-.txt", LogEventLevel.Verbose, outputTemplate: Constant.LogFileFormat,
                             retainedFileCountLimit: null, rollingInterval: RollingInterval.Day, flushToDiskInterval: TimeSpan.FromMinutes(1)))
                             .CreateLogger();
 
             Log.Logger.Information("[1/9] Logging initialized.");
 
-            Log.Logger.Information($"OSISDiscordAssistant v{ClientUtilities.GetBuildVersion()}");
+            Log.Logger.Information("OSISDiscordAssistant {Version}", ClientUtilities.GetBuildVersion());
 
             Log.Logger.Information("[2/9] Reading and loading config.json...");
 

@@ -97,7 +97,7 @@ namespace OSISDiscordAssistant.Services
                     long elapsedMilliseconds = stopwatch.ElapsedMilliseconds;
                     stopwatch.Reset();
 
-                    _logger.LogInformation($"Presence updated: '{activity.ActivityType} {activity.Name}' in {elapsedMilliseconds} ms.", DateTime.Now);
+                    _logger.LogInformation("Presence updated: '{ActivityType} {ActivityName}' in {ElapsedMilliseconds} ms.", activity.ActivityType, activity.Name, elapsedMilliseconds);
 
                     await Task.Delay(TimeSpan.FromMinutes(2).Subtract(TimeSpan.FromMilliseconds(elapsedMilliseconds)));
                 }
@@ -105,7 +105,7 @@ namespace OSISDiscordAssistant.Services
 
             SharedData.IsStatusUpdaterInitialized = true;
 
-            _logger.LogInformation("Initialized status updater task.", DateTime.Now, EventIds.StatusUpdater);
+            _logger.LogInformation("Initialized status updater task.");
         }
     }
 }

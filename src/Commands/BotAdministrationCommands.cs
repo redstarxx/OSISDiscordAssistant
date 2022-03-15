@@ -31,7 +31,7 @@ namespace OSISDiscordAssistant.Commands
         [Command("kill")]
         public async Task KillAsync(CommandContext ctx)
         {
-            _logger.LogWarning(EventIds.CommandHandler, $"{ctx.Member.Username}#{ctx.Member.Discriminator} ({ctx.User.Id}) initiated a kill command.", DateTime.UtcNow.AddHours(7));
+            _logger.LogWarning(EventIds.CommandHandler, "{Username}#{Discriminator} ({UserId}) initiated a kill command.", ctx.Member.Username, ctx.Member.Discriminator, ctx.User.Id);
             await ctx.Channel.SendMessageAsync($"Disconnecting all shards from the gateway...");
             Thread.Sleep(TimeSpan.FromSeconds(1));
 

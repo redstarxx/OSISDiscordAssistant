@@ -82,14 +82,14 @@ namespace OSISDiscordAssistant.Services
                                         _verificationContext.Remove(request);
                                         await _verificationContext.SaveChangesAsync();
 
-                                        _logger.LogInformation($"Removed verification request message ID {requestEmbed.Id}.", DateTime.Now);
+                                        _logger.LogInformation("Removed verification request message ID {Id}.", requestEmbed.Id);
                                     }
                                 }
                             }
 
                             catch (Exception ex)
                             {
-                                _logger.LogError(ex, $"An error occured while processing a verification request (ID: {row.Id}).");
+                                _logger.LogError(ex, "An error occured while processing a verification request (ID: {Id}).", row.Id);
                             }
                         }
 
@@ -97,7 +97,7 @@ namespace OSISDiscordAssistant.Services
 
                         long elapsedMilliseconds = stopwatch.ElapsedMilliseconds;
 
-                        _logger.LogInformation($"Removed {counter} ({counter.ToWords()}) expired requests in {elapsedMilliseconds} ms.", DateTime.Now);
+                        _logger.LogInformation("Removed {Counter} ({CountWords}) expired verification requests in {ElapsedMilliseconds} ms.", counter, counter.ToWords(), elapsedMilliseconds);
 
                         counter = 0;
                         stopwatch.Reset();
@@ -111,13 +111,13 @@ namespace OSISDiscordAssistant.Services
                     while (exception is AggregateException)
                         exception = exception.InnerException;
 
-                    _logger.LogCritical($"Verification cleanup task threw an exception: {exception.GetType()}: {exception.Message}.", DateTime.Now);
+                    _logger.LogCritical("Verification cleanup task threw an exception: {ExceptionType}: {ExceptionMessage}.", exception.GetType(), exception.Message);
                 }
             });
 
             SharedData.IsVerificationCleanupTaskInitialized = true;
 
-            _logger.LogInformation("Initialized verification cleanup task.", DateTime.Now);
+            _logger.LogInformation("Initialized verification cleanup task.");
         }
     }
 }

@@ -227,7 +227,7 @@ namespace OSISDiscordAssistant.Services
                                             await eventContext.SaveChangesAsync();
                                         }
 
-                                        _logger.LogInformation($"Marked '{row.EventName}' (ID: {row.Id}) as expired.", DateTime.Now);
+                                        _logger.LogInformation("Marked '{EventName}' (ID: {Id}) as expired.", row.EventName, row.Id);
                                     }
 
                                     processingStopWatch.Stop();
@@ -236,7 +236,7 @@ namespace OSISDiscordAssistant.Services
                                     {
                                         sentReminder = false;
 
-                                        _logger.LogInformation($"Sent event reminder for '{row.EventName}' (ID: {row.Id}) in {processingStopWatch.ElapsedMilliseconds} ms.", DateTime.Now);
+                                        _logger.LogInformation("Sent event reminder for '{EventName}' (ID: {Id}) in {ElapsedMilliseconds} ms.", row.EventName, row.Id, processingStopWatch.ElapsedMilliseconds);
                                     }
 
                                     processingStopWatch.Reset();
@@ -246,7 +246,7 @@ namespace OSISDiscordAssistant.Services
 
                                 catch (Exception ex)
                                 {
-                                    _logger.LogError(ex, $"An error occured while processing an event (ID: {row.Id}).");
+                                    _logger.LogError(ex, "An error occured while processing an event (ID: {id}).", row.Id);
                                 }
                             }
                         }
@@ -254,7 +254,7 @@ namespace OSISDiscordAssistant.Services
                         stopwatch.Stop();
                         long elapsedMilliseconds = stopwatch.ElapsedMilliseconds;
 
-                        _logger.LogInformation($"Reminded {counter} ({counter.ToWords()}) events in in {elapsedMilliseconds} ms.", DateTime.Now);
+                        _logger.LogInformation("Reminded {Counter} ({CountWords}) events in {ElapsedMilliseconds} ms.", counter, counter.ToWords(), elapsedMilliseconds);
 
                         stopwatch.Reset();
                         await Task.Delay(TimeSpan.FromMinutes(1).Subtract(TimeSpan.FromMilliseconds(elapsedMilliseconds)));
@@ -267,7 +267,7 @@ namespace OSISDiscordAssistant.Services
                     while (exception is AggregateException)
                         exception = exception.InnerException;
 
-                    _logger.LogCritical($"Events reminder task threw an exception: {exception.GetType()}: {exception.Message}.", DateTime.Now);
+                    _logger.LogCritical("Events reminder task threw an exception: {ExceptionType}: {ExceptionMessage}.", exception.GetType(), exception.Message);
 
                     await errorLogsChannel.SendMessageAsync($"{ex.Message}");
                 }
@@ -275,7 +275,7 @@ namespace OSISDiscordAssistant.Services
 
             SharedData.IsEventReminderInitialized = true;
 
-            _logger.LogInformation("Initialized events reminder task.", DateTime.Now);
+            _logger.LogInformation("Initialized events reminder task.");
         }
     }
 }

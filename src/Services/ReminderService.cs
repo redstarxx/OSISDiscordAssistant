@@ -48,7 +48,7 @@ namespace OSISDiscordAssistant.Services
 
                             await RemoveReminder(reminder);
 
-                            _logger.LogInformation($"Removed reminder ID {reminder.Id} due to late completion.");
+                            _logger.LogInformation("Removed reminder ID {Id} due to late completion.", reminder.Id);
                             dispatchedRemindersCount++;
                         }
 
@@ -60,7 +60,7 @@ namespace OSISDiscordAssistant.Services
 
                                 await _reminderContext.SaveChangesAsync();
 
-                                _logger.LogInformation($"Removed reminder ID {reminder.Id} due to cancelled.");
+                                _logger.LogInformation("Removed reminder ID {Id} due to cancelled.", reminder.Id);
                             }
 
                             else
@@ -72,13 +72,13 @@ namespace OSISDiscordAssistant.Services
 
                     catch (Exception ex)
                     {
-                        _logger.LogError(ex, $"An error occured while dispatching a reminder (ID: {reminder.Id}).");
+                        _logger.LogError(ex, "An error occured while dispatching a reminder (ID: {Id}).", reminder.Id);
                     }
                 }
 
                 stopwatch.Stop();
 
-                _logger.LogInformation($"Dispatched {dispatchedRemindersCount} reminders in {stopwatch.ElapsedMilliseconds} ms.");
+                _logger.LogInformation("Dispatched {DispatchedRemindersCount} reminders in {ElapsedMilliseconds} ms.", dispatchedRemindersCount, stopwatch.ElapsedMilliseconds);
             });
 
             _logger.LogInformation("Initialized reminder dispatch service.");
@@ -147,7 +147,7 @@ namespace OSISDiscordAssistant.Services
 
                     if (row is null)
                     {
-                        _logger.LogWarning($"Reminder ID {reminder.Id} does not exist in database. Aborting sending reminder content.");
+                        _logger.LogWarning("Reminder ID {Id} does not exist in database. Aborted sending reminder content.", reminder.Id);
 
                         return;
                     }
@@ -155,7 +155,7 @@ namespace OSISDiscordAssistant.Services
                     else if (row.Cancelled is true)
                     {
                         await RemoveReminder(reminder);
-                        _logger.LogInformation($"Removed reminder ID {reminder.Id} due to cancelled.");
+                        _logger.LogInformation("Removed reminder ID {Id} due to cancelled.", reminder.Id);
 
                         return;
                     }
@@ -163,12 +163,12 @@ namespace OSISDiscordAssistant.Services
                     await SendReminder(row);
 
                     await RemoveReminder(row);
-                    _logger.LogInformation($"Removed reminder ID {reminder.Id} due to completion.");
+                    _logger.LogInformation("Removed reminder ID {Id} due to completion.", reminder.Id);
                 }
 
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, $"An error occured while processing dispatched reminder ID {reminder.Id}.");
+                    _logger.LogError(ex, "An error occured while processing dispatched reminder ID {Id}.", reminder.Id);
                 }
             });
 
