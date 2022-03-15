@@ -327,45 +327,41 @@ namespace OSISDiscordAssistant.Commands
                     return;
                 }
 
-                var numberOneEmoji = DiscordEmoji.FromName(ctx.Client, ":one:");
-                var numberTwoEmoji = DiscordEmoji.FromName(ctx.Client, ":two:");
-                var numberThreeEmoji = DiscordEmoji.FromName(ctx.Client, ":three:");
-                var numberFourEmoji = DiscordEmoji.FromName(ctx.Client, ":four:");
-                var numberFiveEmoji = DiscordEmoji.FromName(ctx.Client, ":five:");
-                var crossEmoji = DiscordEmoji.FromName(ctx.Client, ":x:");
-
                 string reminderSettingStatus = eventData.ReminderDisabled is false ? "Disable" : "Enable";
 
                 embedBuilder.Title = $"Events Manager - Updating {eventData.EventName}...";
-                embedBuilder.Description = $"Choose either one of the following emojis to select what are you going to change from {Formatter.Bold(eventData.EventName)}.\n\n" +
-                    $"**[1]** Change event name;\n**[2]** Change event person-in-charge (ketua / wakil ketua acara);\n**[3]** Change event date and time;\n**[4]** Change event description;\n**[5]** {reminderSettingStatus} reminders.\n\n" +
-                    $"You have 5 (five) minutes to make your choice. To cancel your changes, type {Formatter.InlineCode("abort")}. If this is not the event you want to update, click the {crossEmoji} emoji to cancel.";
-                var updateEmbed = await ctx.Channel.SendMessageAsync(embed: embedBuilder);
+                embedBuilder.Description = $"Choose either one of the following buttons to select what are you going to change from {Formatter.Bold(eventData.EventName)}.\n\n" +
+                    $"You have 5 (five) minutes to make your choice.";
 
-                await updateEmbed.CreateReactionAsync(numberOneEmoji);
-                await updateEmbed.CreateReactionAsync(numberTwoEmoji);
-                await updateEmbed.CreateReactionAsync(numberThreeEmoji);
-                await updateEmbed.CreateReactionAsync(numberFourEmoji);
-                await updateEmbed.CreateReactionAsync(numberFiveEmoji);
-                await updateEmbed.CreateReactionAsync(crossEmoji);
-
-                var selectionInteractivity = ctx.Client.GetInteractivity();
-                var selectionResult = await selectionInteractivity.WaitForReactionAsync
-                    (x => x.Message == updateEmbed && (x.User.Id == ctx.User.Id) && (x.Emoji == numberOneEmoji || x.Emoji == numberTwoEmoji ||
-                    x.Emoji == numberThreeEmoji || x.Emoji == numberFourEmoji || x.Emoji == numberFiveEmoji || x.Emoji == crossEmoji), TimeSpan.FromMinutes(5));
-
-                if (!selectionResult.TimedOut)
+                var buttonOptions = (new DiscordButtonComponent[]
                 {
-                    await updateEmbed.DeleteAllReactionsAsync();
+                    new DiscordButtonComponent(ButtonStyle.Secondary, $"event_name_{ClientUtilities.GetCurrentUnixTimestamp()}", "CHANGE EVENT NAME", false, null),
+                    new DiscordButtonComponent(ButtonStyle.Secondary, $"event_person_in_charge_{ClientUtilities.GetCurrentUnixTimestamp()}", "CHANGE KETUA / WAKIL KETUA EVENT", false, null),
+                    new DiscordButtonComponent(ButtonStyle.Secondary, $"event_date_{ClientUtilities.GetCurrentUnixTimestamp()}", "CHANGE EVENT DATE", false, null),
+                    new DiscordButtonComponent(ButtonStyle.Secondary, $"event_description_{ClientUtilities.GetCurrentUnixTimestamp()}", "CHANGE EVENT DESCRIPTION", false, null),
+                    new DiscordButtonComponent(ButtonStyle.Secondary, $"event_reminder_{ClientUtilities.GetCurrentUnixTimestamp()}", $"{reminderSettingStatus.ToUpperInvariant()} REMINDERS", false, null)
+                });
 
-                    if (selectionResult.Result.Emoji == numberOneEmoji)
+                var messageBuilder = new DiscordMessageBuilder()
+                    .WithEmbed(embedBuilder)
+                    .AddComponents(buttonOptions);
+
+                var updateMessage = await ctx.Channel.SendMessageAsync(messageBuilder);
+
+                var interactivity = ctx.Client.GetInteractivity();
+
+                var buttonResult = await interactivity.WaitForButtonAsync(updateMessage, ctx.User, TimeSpan.FromMinutes(5));
+
+                if (!buttonResult.TimedOut)
+                {
+                    await buttonResult.Result.Interaction.CreateResponseAsync(InteractionResponseType.UpdateMessage, new DiscordInteractionResponseBuilder()
+                        .AddEmbed(embedBuilder));
+
+                    if (buttonResult.Result.Id.Contains("event_name_"))
                     {
-                        await updateEmbed.DeleteAllReactionsAsync();
+                        await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention}, enter your new event name for {Formatter.Bold(eventData.EventName)}. You have five minutes.");
 
-                        var inputInteractivity = ctx.Client.GetInteractivity();
-
-                        var updateNameMessage = await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention}, enter your new event name for {Formatter.Bold(eventData.EventName)}. You have five minutes.");
-                        var eventNameResult = await inputInteractivity.WaitForMessageAsync
+                        var eventNameResult = await interactivity.WaitForMessageAsync
                             (x => x.Author.Id == ctx.User.Id && x.Channel.Id == ctx.Channel.Id, TimeSpan.FromMinutes(5));
 
                         if (!eventNameResult.TimedOut)
@@ -417,14 +413,11 @@ namespace OSISDiscordAssistant.Commands
                         }
                     }
 
-                    else if (selectionResult.Result.Emoji == numberTwoEmoji)
+                    else if (buttonResult.Result.Id.Contains("event_person_in_charge"))
                     {
-                        await updateEmbed.DeleteAllReactionsAsync();
-
-                        var inputInteractivity = ctx.Client.GetInteractivity();
-
-                        var updatePersonInChargeMessage = await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention}, enter your new Ketua / Wakil Ketua Acara for {Formatter.Bold(eventData.EventName)}. You have five minutes.");
-                        var eventPersonInChargeResult = await inputInteractivity.WaitForMessageAsync
+                        await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention}, enter your new Ketua / Wakil Ketua Acara for {Formatter.Bold(eventData.EventName)}. You have five minutes.");
+                        
+                        var eventPersonInChargeResult = await interactivity.WaitForMessageAsync
                             (x => x.Author.Id == ctx.User.Id && x.Channel.Id == ctx.Channel.Id, TimeSpan.FromMinutes(5));
 
                         if (!eventPersonInChargeResult.TimedOut)
@@ -467,14 +460,11 @@ namespace OSISDiscordAssistant.Commands
                         }
                     }
 
-                    else if (selectionResult.Result.Emoji == numberThreeEmoji)
+                    else if (buttonResult.Result.Id.Contains("event_date_"))
                     {
-                        await updateEmbed.DeleteAllReactionsAsync();
-
-                        var inputInteractivity = ctx.Client.GetInteractivity();
-
-                        var updateDateMessage = await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention}, enter your new event date for {Formatter.Bold(eventData.EventName)}. You have five minutes.");
-                        var eventDateResult = await inputInteractivity.WaitForMessageAsync
+                        await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention}, enter your new event date for {Formatter.Bold(eventData.EventName)}. You have five minutes.");
+                        
+                        var eventDateResult = await interactivity.WaitForMessageAsync
                             (x => x.Author.Id == ctx.User.Id && x.Channel.Id == ctx.Channel.Id, TimeSpan.FromMinutes(5));
 
                         if (!eventDateResult.TimedOut)
@@ -496,27 +486,30 @@ namespace OSISDiscordAssistant.Commands
                                 return;
                             }
 
-                            Events calculatedEventReminderData = ClientUtilities.CalculateEventReminderDate(verifiedEventDateEntity.EventDateUnixTimeStamp);
+                            var buttonConfirmationOptions = (new DiscordButtonComponent[]
+                            {
+                                new DiscordButtonComponent(ButtonStyle.Success, $"confirm_date_update_{ClientUtilities.GetCurrentUnixTimestamp()}", "YES", false, null),
+                                new DiscordButtonComponent(ButtonStyle.Danger, $"cancel_date_update_{ClientUtilities.GetCurrentUnixTimestamp()}", "CANCEL", false, null)
+                            });
 
-                            var warningMessage = await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[WARNING]")} By updating the date of {Formatter.Bold(eventData.EventName)}, it will reset the reminder for this event and all members may be pinged again to remind them if a reminder for this event was sent previously. Proceed?");
+                            var confirmationMessageBuilder = new DiscordMessageBuilder()
+                                .WithContent($"{Formatter.Bold("[WARNING]")} By updating the date of {Formatter.Bold(eventData.EventName)}, it will reset the reminder for this event and all members may be pinged again to remind them if a reminder for this event was sent previously. Proceed?")
+                                .AddComponents(buttonConfirmationOptions);
 
-                            DiscordEmoji checkMarkEmoji = DiscordEmoji.FromName(ctx.Client, ":white_check_mark:");
-                            DiscordEmoji crossMarkEmoji = DiscordEmoji.FromName(ctx.Client, ":x:");
+                            var confirmationMessage = await ctx.Channel.SendMessageAsync(confirmationMessageBuilder);
 
-                            await warningMessage.CreateReactionAsync(checkMarkEmoji);
-                            await warningMessage.CreateReactionAsync(crossMarkEmoji);
-
-                            var warningInteractivityResult = await ctx.Client.GetInteractivity().WaitForReactionAsync
-                                (x => x.Message == warningMessage && (x.User.Id == ctx.User.Id) && (x.Emoji == checkMarkEmoji || x.Emoji == crossMarkEmoji), TimeSpan.FromMinutes(15));
+                            var warningInteractivityResult = await interactivity.WaitForButtonAsync(confirmationMessage, ctx.User, TimeSpan.FromMinutes(15));
 
                             if (!warningInteractivityResult.TimedOut)
                             {
-                                if (warningInteractivityResult.Result.Emoji == checkMarkEmoji)
+                                await warningInteractivityResult.Result.Interaction.CreateResponseAsync(InteractionResponseType.UpdateMessage, new DiscordInteractionResponseBuilder().WithContent(confirmationMessageBuilder.Content));
+
+                                if (warningInteractivityResult.Result.Id.Contains("confirm_date_update_"))
                                 {
                                     await ctx.Channel.SendMessageAsync("Okay.");
                                 }
 
-                                else if (warningInteractivityResult.Result.Emoji == crossMarkEmoji)
+                                else if (warningInteractivityResult.Result.Id.Contains("cancel_date_update_"))
                                 {
                                     await ctx.Channel.SendMessageAsync($"Cancellation acknowledged. Aborted updating {Formatter.Bold(eventData.EventName)}.");
 
@@ -526,7 +519,7 @@ namespace OSISDiscordAssistant.Commands
 
                             else
                             {
-                                await ctx.RespondAsync($"You're taking too long to react. Feel free to retry updating {Formatter.Bold(eventData.EventName)} again.");
+                                await ctx.RespondAsync($"{Formatter.Bold("[TIMED OUT]")} {ctx.Member.Mention} You're taking too long to decide. Feel free to try updating {Formatter.Bold(eventData.EventName)} again.");
 
                                 return;
                             }
@@ -537,6 +530,8 @@ namespace OSISDiscordAssistant.Commands
 
                                 if (rowToUpdate != null)
                                 {
+                                    Events calculatedEventReminderData = ClientUtilities.CalculateEventReminderDate(verifiedEventDateEntity.EventDateUnixTimeStamp);
+
                                     rowToUpdate.EventDateUnixTimestamp = calculatedEventReminderData.EventDateUnixTimestamp;
                                     rowToUpdate.NextScheduledReminderUnixTimestamp = calculatedEventReminderData.NextScheduledReminderUnixTimestamp;
                                     rowToUpdate.Expired = calculatedEventReminderData.Expired;
@@ -561,14 +556,11 @@ namespace OSISDiscordAssistant.Commands
                         }
                     }
 
-                    else if (selectionResult.Result.Emoji == numberFourEmoji)
+                    else if (buttonResult.Result.Id.Contains("event_description_"))
                     {
-                        await updateEmbed.DeleteAllReactionsAsync();
-
-                        var inputInteractivity = ctx.Client.GetInteractivity();
-
-                        var updateDescriptionMessage = await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention}, enter your new event description for {Formatter.Bold(eventData.EventName)}. You have five minutes.");
-                        var eventDescriptionResult = await inputInteractivity.WaitForMessageAsync
+                        await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention}, enter your new event description for {Formatter.Bold(eventData.EventName)}. You have five minutes.");
+                        
+                        var eventDescriptionResult = await interactivity.WaitForMessageAsync
                             (x => x.Author.Id == ctx.User.Id && x.Channel.Id == ctx.Channel.Id, TimeSpan.FromMinutes(5));
 
                         if (!eventDescriptionResult.TimedOut)
@@ -611,7 +603,7 @@ namespace OSISDiscordAssistant.Commands
                         }
                     }
 
-                    else if (selectionResult.Result.Emoji == numberFiveEmoji)
+                    else if (buttonResult.Result.Id.Contains("event_reminder_"))
                     {
                         _ = Task.Run(async () =>
                         {
@@ -630,12 +622,6 @@ namespace OSISDiscordAssistant.Commands
 
                             await ctx.Channel.SendMessageAsync(embed: embedBuilder);
                         });
-                    }
-
-                    else if (selectionResult.Result.Emoji == crossEmoji)
-                    {
-                        await ctx.Channel.SendMessageAsync("Update operation aborted as per your request.");
-                        return;
                     }
                 }
 
@@ -810,30 +796,31 @@ namespace OSISDiscordAssistant.Commands
                         break;
                 }
 
-                var numberOneEmoji = DiscordEmoji.FromName(ctx.Client, ":one:");
-                var numberTwoEmoji = DiscordEmoji.FromName(ctx.Client, ":two:");
-                var numberThreeEmoji = DiscordEmoji.FromName(ctx.Client, ":three:");
-                var crossEmoji = DiscordEmoji.FromName(ctx.Client, ":x:");
-
                 embedBuilder.Title = $"Events Manager - Accessing {eventName}'s Proposal...";
-                embedBuilder.Description = $"Choose either one of the following emojis to select what are you going to do with {Formatter.Bold(eventName)}. This event {Formatter.Underline(fileExist)} have a proposal file stored.\n\n" +
-                    $"{Formatter.Bold("[1]")} Get the event's proposal document;\n{Formatter.Bold("[2]")} Store / update the event's proposal.\n{Formatter.Bold("[3]")} Delete the event's proposal.\n\n" +
-                    $"You have 5 (five) minutes to select your choice. If this is not the event you want to update, click the {crossEmoji} emoji to cancel.";
-                var updateEmbed = await ctx.Channel.SendMessageAsync(embed: embedBuilder);
+                embedBuilder.Description = $"Choose either one of the following buttons to select what are you going to do with {Formatter.Bold(eventName)}. This event {Formatter.Underline(fileExist)} have a proposal file stored.\n\n" +
+                    $"You have 5 (five) minutes to select your choice.";
 
-                await updateEmbed.CreateReactionAsync(numberOneEmoji);
-                await updateEmbed.CreateReactionAsync(numberTwoEmoji);
-                await updateEmbed.CreateReactionAsync(numberThreeEmoji);
-                await updateEmbed.CreateReactionAsync(crossEmoji);
-
-                var selectionInteractivity = ctx.Client.GetInteractivity();
-                var selectionResult = await selectionInteractivity.WaitForReactionAsync
-                    (x => x.Message == updateEmbed && (x.User.Id == ctx.User.Id) && (x.Emoji == numberOneEmoji || x.Emoji == numberTwoEmoji || x.Emoji == numberThreeEmoji || x.Emoji == crossEmoji), 
-                    TimeSpan.FromMinutes(5));
-
-                if (!selectionResult.TimedOut)
+                var buttonOptions = (new DiscordButtonComponent[]
                 {
-                    await updateEmbed.DeleteAllReactionsAsync();
+                    new DiscordButtonComponent(ButtonStyle.Secondary, $"get_proposal_{ClientUtilities.GetCurrentUnixTimestamp()}", "GET THE PROPOSAL", false, null),
+                    new DiscordButtonComponent(ButtonStyle.Secondary, $"update_proposal_{ClientUtilities.GetCurrentUnixTimestamp()}", "UPLOAD / UPDATE PROPOSAL", false, null),
+                    new DiscordButtonComponent(ButtonStyle.Secondary, $"delete_proposal_{ClientUtilities.GetCurrentUnixTimestamp()}", "DELETE PROPOSAL", false, null)
+                });
+
+                var messageBuilder = new DiscordMessageBuilder()
+                    .WithEmbed(embedBuilder)
+                    .AddComponents(buttonOptions);
+
+                var updateMessage = await ctx.Channel.SendMessageAsync(messageBuilder);
+
+                var interactivity = ctx.Client.GetInteractivity();
+
+                var buttonResult = await interactivity.WaitForButtonAsync(updateMessage, ctx.User, TimeSpan.FromMinutes(5));
+
+                if (!buttonResult.TimedOut)
+                {
+                    await buttonResult.Result.Interaction.CreateResponseAsync(InteractionResponseType.UpdateMessage, new DiscordInteractionResponseBuilder()
+                        .AddEmbed(embedBuilder));
 
                     string fileTitle = null;
 
@@ -841,7 +828,7 @@ namespace OSISDiscordAssistant.Commands
 
                     MemoryStream fileStream = new MemoryStream();
 
-                    if (selectionResult.Result.Emoji == numberOneEmoji)
+                    if (buttonResult.Result.Id.Contains("get_proposal"))
                     {
                         if (eventData.ProposalFileContent is null)
                         {
@@ -856,20 +843,18 @@ namespace OSISDiscordAssistant.Commands
 
                         fileStream = new MemoryStream(fileContent);
 
-                        var messageBuilder = new DiscordMessageBuilder()
+                        var proposalResponseMessageBuilder = new DiscordMessageBuilder()
                         {
                             Content = $"{Formatter.Bold(eventName)}'s proposal file is as follows:"                            
                         };
 
-                        messageBuilder.WithFiles(new Dictionary<string, Stream>() { { fileTitle, fileStream } }, true);
+                        proposalResponseMessageBuilder.WithFiles(new Dictionary<string, Stream>() { { fileTitle, fileStream } }, true);
 
-                        await ctx.Channel.SendMessageAsync(builder: messageBuilder);
+                        await ctx.Channel.SendMessageAsync(builder: proposalResponseMessageBuilder);
                     }
 
-                    else if (selectionResult.Result.Emoji == numberTwoEmoji)
+                    else if (buttonResult.Result.Id.Contains("update_proposal"))
                     {
-                        var interactivity = ctx.Client.GetInteractivity();
-
                         await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention}, drop / upload the proposal file here. An acceptable file is a Microsoft Word document. You have five minutes!");
 
                         var proposalResult = await interactivity.WaitForMessageAsync(x => x.Author.Id == ctx.Member.Id, TimeSpan.FromMinutes(5));
@@ -934,30 +919,60 @@ namespace OSISDiscordAssistant.Commands
                         }
                     }
 
-                    else if (selectionResult.Result.Emoji == numberThreeEmoji)
+                    else if (buttonResult.Result.Id.Contains("delete_proposal"))
                     {
-                        Events rowToDelete = _eventContext.Events.SingleOrDefault(x => x.Id == rowID);
-
-                        if (rowToDelete.ProposalFileTitle is null)
+                        if (eventData.ProposalFileTitle is null)
                         {
                             await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} {Formatter.Bold(eventName)} does not have a proposal file stored!");
 
                             return;
                         }
 
-                        rowToDelete.ProposalFileTitle = null;
+                        var buttonConfirmationOptions = (new DiscordButtonComponent[]
+                        {
+                            new DiscordButtonComponent(ButtonStyle.Success, $"confirm_proposal_deletion_{ClientUtilities.GetCurrentUnixTimestamp()}", "YES", false, null),
+                            new DiscordButtonComponent(ButtonStyle.Danger, $"cancel_proposal_deletion_{ClientUtilities.GetCurrentUnixTimestamp()}", "CANCEL", false, null)
+                        });
 
-                        rowToDelete.ProposalFileContent = null;
+                        var confirmationMessageBuilder = new DiscordMessageBuilder()
+                            .WithContent($"{Formatter.Bold("[WARNING]")} By clicking YES, {Formatter.Bold(eventData.EventName)}'s proposal file will be permanently deleted. There is no guarantee that it could be recovered if this is accidental. Are you sure?")
+                            .AddComponents(buttonConfirmationOptions);
 
-                        await _eventContext.SaveChangesAsync();
+                        var confirmationMessage = await ctx.Channel.SendMessageAsync(confirmationMessageBuilder);
 
-                        await ctx.Channel.SendMessageAsync($"Okay {ctx.Member.Mention}, {Formatter.Bold(eventName)}'s proposal file has been deleted!");
-                    }
+                        var warningInteractivityResult = await interactivity.WaitForButtonAsync(confirmationMessage, ctx.User, TimeSpan.FromMinutes(15));
 
-                    else if (selectionResult.Result.Emoji == crossEmoji)
-                    {
-                        await ctx.Channel.SendMessageAsync("Aborted as per your request.");
-                        return;
+                        if (!warningInteractivityResult.TimedOut)
+                        {
+                            await warningInteractivityResult.Result.Interaction.CreateResponseAsync(InteractionResponseType.UpdateMessage, new DiscordInteractionResponseBuilder().WithContent(confirmationMessageBuilder.Content));
+
+                            if (warningInteractivityResult.Result.Id.Contains("confirm_proposal_deletion_"))
+                            {
+                                Events rowToDelete = _eventContext.Events.SingleOrDefault(x => x.Id == rowID);
+
+                                rowToDelete.ProposalFileTitle = null;
+
+                                rowToDelete.ProposalFileContent = null;
+
+                                await _eventContext.SaveChangesAsync();
+
+                                await ctx.Channel.SendMessageAsync($"Okay {ctx.Member.Mention}, {Formatter.Bold(eventName)}'s proposal file has been deleted!");
+                            }
+
+                            else if (warningInteractivityResult.Result.Id.Contains("cancel_proposal_deletion_"))
+                            {
+                                await ctx.Channel.SendMessageAsync($"Cancellation acknowledged. Aborted deleting {Formatter.Bold(eventData.EventName)}'s proposal file.");
+
+                                return;
+                            }
+                        }
+
+                        else
+                        {
+                            await ctx.RespondAsync($"{Formatter.Bold("[TIMED OUT]")} {ctx.Member.Mention} You're taking too long to decide. Feel free to try updating {Formatter.Bold(eventData.EventName)} again.");
+
+                            return;
+                        }
                     }
 
                     await fileStream.DisposeAsync();
@@ -965,7 +980,7 @@ namespace OSISDiscordAssistant.Commands
 
                 else
                 {
-                    await ctx.RespondAsync($"{Formatter.Bold("[TIMED OUT]")} {ctx.Member.Mention} You did not choose an option within  five minutes. Re-run the command if you still need to update {Formatter.Bold(eventName)}'s proposal.");
+                    await ctx.RespondAsync($"{Formatter.Bold("[TIMED OUT]")} {ctx.Member.Mention} You did not choose an option within five minutes. Re-run the command if you still need to update {Formatter.Bold(eventName)}'s proposal.");
                 }
             }
 
@@ -1060,7 +1075,7 @@ namespace OSISDiscordAssistant.Commands
 
             if (isNumber)
             {
-                return _eventContext.Events.FirstOrDefault(x => x.Id == rowIDRaw);
+                return _eventContext.Events.AsNoTracking().FirstOrDefault(x => x.Id == rowIDRaw);
             }
 
             else
