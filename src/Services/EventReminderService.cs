@@ -20,6 +20,8 @@ namespace OSISDiscordAssistant.Services
         private readonly ILogger<EventReminderService> _logger;
         private readonly DiscordShardedClient _shardedClient;
 
+        private bool initialized = false;
+
         public EventReminderService(IServiceScopeFactory serviceScopeFactory, ILogger<EventReminderService> logger, DiscordShardedClient shardedClient)
         {
             _serviceScopeFactory = serviceScopeFactory;
@@ -29,11 +31,8 @@ namespace OSISDiscordAssistant.Services
 
         public void Start()
         {
-            if (SharedData.IsEventReminderInitialized)
+            if (initialized)
             {
-                // TODO: Ensure services always run
-                _logger.LogInformation("Events reminder task is already fired. Skipping initialization.", DateTime.Now);
-
                 return;
             }
 
@@ -273,7 +272,7 @@ namespace OSISDiscordAssistant.Services
                 }
             });
 
-            SharedData.IsEventReminderInitialized = true;
+            initialized = true;
 
             _logger.LogInformation("Initialized events reminder task.");
         }

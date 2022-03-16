@@ -19,6 +19,7 @@ namespace OSISDiscordAssistant.Services
         private readonly ILogger<ReminderService> _logger;
 
         private int dispatchedRemindersCount = 0;
+        private bool initialized = false;
 
         public ReminderService(ReminderContext reminderContext, DiscordShardedClient shardedClient, ILogger<ReminderService> logger)
         {
@@ -29,6 +30,11 @@ namespace OSISDiscordAssistant.Services
 
         public void Start()
         {
+            if (initialized)
+            {
+                return;
+            }
+
             Task.Run(async () =>
             {
                 DiscordGuild mainGuild = await _shardedClient.GetShard(SharedData.MainGuildId).GetGuildAsync(SharedData.MainGuildId);
@@ -80,6 +86,8 @@ namespace OSISDiscordAssistant.Services
 
                 _logger.LogInformation("Dispatched {DispatchedRemindersCount} reminders in {ElapsedMilliseconds} ms.", dispatchedRemindersCount, stopwatch.ElapsedMilliseconds);
             });
+
+            initialized = true;
 
             _logger.LogInformation("Initialized reminder dispatch service.");
         }

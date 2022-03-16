@@ -14,6 +14,8 @@ namespace OSISDiscordAssistant.Services
         private readonly ILogger<HeartbeatMonitoringService> _logger;
         private readonly DiscordShardedClient _shardedClient;
 
+        private bool initialized = false;
+
         public HeartbeatMonitoringService(ILogger<HeartbeatMonitoringService> logger, DiscordShardedClient shardedClient)
         {
             _logger = logger;
@@ -22,10 +24,8 @@ namespace OSISDiscordAssistant.Services
 
         public void Start()
         {
-            if (SharedData.IsHeartbeatMonitoringTaskInitialized)
+            if (initialized)
             {
-                _logger.LogInformation("Heartbeat monitoring task is already fired. Skipping initialization.", DateTime.Now);
-
                 return;
             }
 
@@ -55,9 +55,9 @@ namespace OSISDiscordAssistant.Services
                 }
             });
 
-            SharedData.IsHeartbeatMonitoringTaskInitialized = true;
+            initialized = true;
 
-            _logger.LogInformation("Initialized heartbeat monitoring task.", DateTime.Now);
+            _logger.LogInformation("Initialized heartbeat monitoring task.");
         }
     }
 }

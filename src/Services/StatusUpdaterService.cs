@@ -14,6 +14,8 @@ namespace OSISDiscordAssistant.Services
         private readonly ILogger<StatusUpdaterService> _logger;
         private readonly DiscordShardedClient _shardedClient;
 
+        private bool initialized = false;
+
         public StatusUpdaterService(ILogger<StatusUpdaterService> logger, DiscordShardedClient shardedClient)
         {
             _logger = logger;
@@ -22,10 +24,8 @@ namespace OSISDiscordAssistant.Services
 
         public void Start()
         {
-            if (SharedData.IsStatusUpdaterInitialized)
+            if (initialized)
             {
-                _logger.LogInformation("Status updater task is already fired. Skipping initialization.", DateTime.Now);
-
                 return;
             }
 
@@ -103,7 +103,7 @@ namespace OSISDiscordAssistant.Services
                 }
             });
 
-            SharedData.IsStatusUpdaterInitialized = true;
+            initialized = true;
 
             _logger.LogInformation("Initialized status updater task.");
         }

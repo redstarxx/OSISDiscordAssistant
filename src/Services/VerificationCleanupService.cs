@@ -16,6 +16,8 @@ namespace OSISDiscordAssistant.Services
         private readonly VerificationContext _verificationContext;
         private readonly DiscordShardedClient _shardedClient;
 
+        private bool initialized = false;
+
         public VerificationCleanupService(ILogger<VerificationCleanupService> logger, VerificationContext verificationContext, DiscordShardedClient shardedClient)
         {
             _logger = logger;
@@ -25,10 +27,8 @@ namespace OSISDiscordAssistant.Services
 
         public void Start()
         {
-            if (SharedData.IsVerificationCleanupTaskInitialized)
+            if (initialized)
             {
-                _logger.LogInformation("Verification cleanup task is already fired. Skipping initialization.", DateTime.Now);
-
                 return;
             }
 
@@ -115,7 +115,7 @@ namespace OSISDiscordAssistant.Services
                 }
             });
 
-            SharedData.IsVerificationCleanupTaskInitialized = true;
+            initialized = true;
 
             _logger.LogInformation("Initialized verification cleanup task.");
         }

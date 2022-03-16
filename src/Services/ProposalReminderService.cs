@@ -19,6 +19,8 @@ namespace OSISDiscordAssistant.Services
         private readonly ILogger<ProposalReminderService> _logger;
         private readonly DiscordShardedClient _shardedClient;
 
+        private bool initialized = false;
+
         public ProposalReminderService(IServiceScopeFactory serviceScopeFactory, ILogger<ProposalReminderService> logger, EventContext eventContext, DiscordShardedClient shardedClient)
         {
             _serviceScopeFactory = serviceScopeFactory;
@@ -28,10 +30,8 @@ namespace OSISDiscordAssistant.Services
 
         public void Start()
         {
-            if (SharedData.IsProposalReminderInitialized)
+            if (initialized)
             {
-                _logger.LogInformation("Proposal reminder task is already fired. Skipping initialization.", DateTime.Now);
-
                 return;
             }
 
@@ -168,9 +168,9 @@ namespace OSISDiscordAssistant.Services
                 }
             });
 
-            SharedData.IsProposalReminderInitialized = true;
+            initialized = true;
 
-            _logger.LogInformation("Initialized proposal submission reminder task.", DateTime.Now);
+            _logger.LogInformation("Initialized proposal submission reminder task.");
         }
     }
 }
