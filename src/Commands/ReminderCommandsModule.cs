@@ -11,6 +11,7 @@ using DSharpPlus;
 using OSISDiscordAssistant.Services;
 using OSISDiscordAssistant.Utilities;
 using OSISDiscordAssistant.Models;
+using OSISDiscordAssistant.Entities;
 using Humanizer;
 using Microsoft.EntityFrameworkCore;
 
@@ -176,8 +177,7 @@ namespace OSISDiscordAssistant.Commands
                     displayTarget = "everyone";
                     break;
                 default:
-                    string toCheck = remindTarget.Remove(2);
-                    if (remindTarget.StartsWith("<") && toCheck == "<@")
+                    if (remindTarget.Remove(2) == "<@")
                     {
                         displayTarget = remindTarget;
 
@@ -187,13 +187,25 @@ namespace OSISDiscordAssistant.Commands
                         }
                     }
 
+                    // Expecting that the input would be a name of a member which belongs to the guild or a role...
                     else
                     {
-                        var errorMessage = await ctx.RespondAsync($"{Formatter.Bold("[ERROR]")} Looks like an invalid reminder target! Type {Formatter.InlineCode("osis remind")} to ensure you are following the command syntax correctly. Alternatively, click the emoji below to get help.");
+                        var reminderTarget = await GetUserOrRoleMention(ctx, remindTarget);
 
-                        await SendHelpEmoji(ctx, errorMessage);
+                        if (reminderTarget is null)
+                        {
+                            var errorMessage = await ctx.RespondAsync($"{Formatter.Bold("[ERROR]")} Looks like an invalid reminder target! Type {Formatter.InlineCode("osis remind")} to ensure you are following the syntax correctly. Alternatively, click the emoji below to get help.");
 
-                        return;
+                            await SendHelpEmoji(ctx, errorMessage);
+
+                            break;
+                        }
+
+                        remindTarget = reminderTarget.MentionString;
+
+                        string userDisplayName = reminderTarget.DisplayName is null ? string.Empty : $"({reminderTarget.DisplayName})";
+
+                        displayTarget = reminderTarget.IsUser is true ? $"{reminderTarget.Name}#{reminderTarget.Discriminator} {userDisplayName}" : $"everyone with the role {Formatter.Bold(reminderTarget.Name)}";
                     }
 
                     break;
@@ -357,7 +369,51 @@ namespace OSISDiscordAssistant.Commands
         /// <returns></returns>
         private string CreateReminderReceiptMessage(TimeSpan timeSpan, string remindMessage, string displayTarget)
         {
-            return $"Okay! In {timeSpan.Humanize(1)} ({Formatter.Timestamp(timeSpan, TimestampFormat.LongDateTime)}) {displayTarget} will be reminded of the following:\n\n {remindMessage}";
+            string receiptMessage = $"Okay! In {timeSpan.Humanize(1)} ({Formatter.Timestamp(timeSpan, TimestampFormat.LongDateTime)}) {displayTarget} will be reminded of the following:\n\n {remindMessage}";
+
+            return receiptMessage.Replace("  ", " ");
+        }
+
+        /// <summary>
+        /// Gets the mention string of the partial member or role name.
+        /// </summary>
+        /// <returns>A <see cref="ReminderTarget" /> object which contains the mention string and necessary data of the associated member if any contains the given string, or the role mention string if fetching the associated member returns null and a role with the name that contains the given string. Returns null if no member or role name contains the given string.</returns>
+        private async Task<ReminderTarget> GetUserOrRoleMention(CommandContext ctx, string remindTarget)
+        {
+            var list = await ctx.Guild.GetAllMembersAsync();
+            var user = list.FirstOrDefault(x => x.Username.ToLowerInvariant().Contains(remindTarget.ToLowerInvariant())) ?? list.FirstOrDefault(x => x.DisplayName.ToLowerInvariant().Contains(remindTarget.ToLowerInvariant()));
+
+            if (user is null)
+            {
+                var role = ctx.Guild.Roles.Values.FirstOrDefault(x => x.Name.ToLowerInvariant().Contains(remindTarget.ToLowerInvariant()));
+
+                if (role is null)
+                {
+                    return null;
+                }
+
+                else
+                {
+                    return new ReminderTarget()
+                    {
+                        Name = role.Name,
+                        MentionString = role.Mention,
+                        IsUser = false
+                    };
+                }
+            }
+
+            else
+            {
+                return new ReminderTarget()
+                {
+                    Name = user.Username,
+                    DisplayName = user.DisplayName == user.Username ? null : user.DisplayName,
+                    Discriminator = user.Discriminator,
+                    MentionString = user.Mention,
+                    IsUser = true
+                };
+            }
         }
 
         private async Task SendHelpMessage(CommandContext ctx)
