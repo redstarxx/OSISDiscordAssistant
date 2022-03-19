@@ -36,7 +36,7 @@ namespace OSISDiscordAssistant.Commands
         /// </summary>
         [RequireMainGuild, RequireAccessRole]
         [Command("event")]
-        public async Task EventCreateOrList(CommandContext ctx)
+        public async Task EventsManagerAsync(CommandContext ctx, [RemainingText] string param)
         {
             var mainMessageBuilder = new DiscordMessageBuilder();
 
@@ -57,8 +57,8 @@ namespace OSISDiscordAssistant.Commands
                 $"{Formatter.Bold("SEARCH")} - Search for an event which name contains the given keyword.\n" +
                 $"{Formatter.Bold("GET")} - Gets an event directly with the provided name (must be exact) or ID.\n" +
                 $"{Formatter.Bold("LIST")} - Lists all registered events for the desired year.\n" +
-                $"{Formatter.Bold("PROPOSAL")} - Gets, updates, or deletes the proposal file for the respective event.\n\n" +
-                $"{Formatter.Bold("DELETE")} - Deletes an event.\n" +
+                $"{Formatter.Bold("PROPOSAL")} - Gets, updates, or deletes the proposal file for the respective event.\n" +
+                $"{Formatter.Bold("DELETE")} - Deletes an event.\n\n" +
                 $"You have 5 (five) minutes to click one of the buttons below.";
 
             var firstRowButtons = new DiscordButtonComponent[]
