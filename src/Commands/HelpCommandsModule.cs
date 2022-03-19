@@ -24,7 +24,7 @@ namespace OSISDiscordAssistant.Commands
                 }
             };
 
-            string councilCommands = $"{Formatter.Bold("event")} - Commands to access the Events Manager (create and manage automated reminders for upcoming events and proposal submissions, including proposal storage).\n" +
+            string councilCommands = $"{Formatter.Bold("event")} - Access the ARTEMIS (Automated Reminder & Event Management System or previously as Events Manager).\n" +
                 $"{Formatter.Bold("remind")} - Reminder feature to remind yourself, another member, a division, or everyone.\n" +
                 $"{Formatter.Bold("reminder")} - Commands to manage or view upcoming reminders.\n";
 
