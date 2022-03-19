@@ -117,11 +117,7 @@ namespace OSISDiscordAssistant.Services
                         };
 
                         messageBuilder.WithEmbed(embed: embedBuilder);
-                        messageBuilder.AddComponents(new DiscordButtonComponent[]
-                        {
-                        new DiscordButtonComponent(ButtonStyle.Success, "accept_button", "ACCEPT", false, null),
-                        new DiscordButtonComponent(ButtonStyle.Danger, "deny_button", "DECLINE", false, null)
-                        });
+                        messageBuilder.AddComponents(GetVerificationVerdictButtons());
 
                         DiscordChannel channel = e.Guild.GetChannel(SharedData.VerificationRequestsProcessingChannelId);
                         var requestEmbed = await channel.SendMessageAsync(builder: messageBuilder);
@@ -166,7 +162,7 @@ namespace OSISDiscordAssistant.Services
 
                         await nameResult.Result.Interaction.CreateFollowupMessageAsync(new DiscordFollowupMessageBuilder()
                         {
-                            Content = "You did not entered your requested nickname within 10 (ten) minutes. Please try again.",
+                            Content = "You did not submit your requested nickname within 10 (ten) minutes. Please try again.",
                             IsEphemeral = true
                         });
                     }
@@ -184,6 +180,13 @@ namespace OSISDiscordAssistant.Services
                     }
 
                     var member = await e.Guild.GetMemberAsync(userDataRow.UserId);
+
+                    var buttonOptions = GetVerificationVerdictButtons();
+
+                    foreach (var button in buttonOptions)
+                    {
+                        button.Disable();
+                    }
 
                     if (e.Id == "accept_button")
                     {
@@ -210,9 +213,8 @@ namespace OSISDiscordAssistant.Services
                         };
 
                         var messageBuilder = new DiscordMessageBuilder()
-                        {
-                            Embed = updatedEmbed
-                        };
+                            .WithEmbed(updatedEmbed)
+                            .AddComponents(buttonOptions);
 
                         await e.Interaction.CreateResponseAsync(InteractionResponseType.UpdateMessage, new DiscordInteractionResponseBuilder(messageBuilder));
 
@@ -247,9 +249,8 @@ namespace OSISDiscordAssistant.Services
                         };
 
                         var messageBuilder = new DiscordMessageBuilder()
-                        {
-                            Embed = updatedEmbed
-                        };
+                            .WithEmbed(updatedEmbed)
+                            .AddComponents(buttonOptions);
 
                         await e.Interaction.CreateResponseAsync(InteractionResponseType.UpdateMessage, new DiscordInteractionResponseBuilder(messageBuilder));
                     }
@@ -393,6 +394,19 @@ namespace OSISDiscordAssistant.Services
 
                 return Task.CompletedTask;
             }            
+        }
+
+        /// <summary>
+        /// Retrieves a pair of buttons which will be attached to the verification request embed.
+        /// </summary>
+        /// <returns>A <see cref="List{T}" /> of <see cref="DiscordButtonComponent" /> objects, an ACCEPT and DENY button.</returns>
+        public List<DiscordButtonComponent> GetVerificationVerdictButtons()
+        {
+            return new List<DiscordButtonComponent>
+            {
+                new DiscordButtonComponent(ButtonStyle.Success, "accept_button", "ACCEPT", false, null),
+                new DiscordButtonComponent(ButtonStyle.Danger, "deny_button", "DECLINE", false, null)
+            };
         }
     }
 }
