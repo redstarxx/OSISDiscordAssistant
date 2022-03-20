@@ -65,7 +65,7 @@ namespace OSISDiscordAssistant
                     services.AddDbContext<ReminderContext>(Builder, ServiceLifetime.Transient);
 
                     // Services
-                    services.AddSingleton<IHandleMiscInteractivity, HandleMiscInteractivity>();
+                    services.AddSingleton<IMainGuildStaticInteractionHandler, MainGuildStaticInteractionHandler>();
                     services.AddSingleton<IEventReminderService, EventReminderService>();
                     services.AddSingleton<IProposalReminderService, ProposalReminderService>();
                     services.AddSingleton<IVerificationCleanupService, VerificationCleanupService>();

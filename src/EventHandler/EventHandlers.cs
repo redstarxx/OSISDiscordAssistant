@@ -15,7 +15,7 @@ namespace OSISDiscordAssistant
     public class EventHandlers
     {
         private readonly ILogger<EventHandlers> _logger;
-        private readonly IHandleMiscInteractivity _handleMiscInteractivity;
+        private readonly IMainGuildStaticInteractionHandler _mainGuildStaticInteractionHandler;
         private readonly IEventReminderService _eventReminderService;
         private readonly IProposalReminderService _proposalReminderService;
         private readonly IVerificationCleanupService _verificationCleanupService;
@@ -24,7 +24,7 @@ namespace OSISDiscordAssistant
         private readonly IReminderService _reminderService;
 
         public EventHandlers(ILogger<EventHandlers> logger, 
-            IHandleMiscInteractivity handleMiscInteractivity, 
+            IMainGuildStaticInteractionHandler mainGuildStaticInteractionHandler, 
             IEventReminderService eventReminderService, 
             IProposalReminderService proposalReminderService, 
             IVerificationCleanupService verificationCleanupService, 
@@ -33,7 +33,7 @@ namespace OSISDiscordAssistant
             IReminderService reminderService)
         {
             _logger = logger;
-            _handleMiscInteractivity = handleMiscInteractivity;
+            _mainGuildStaticInteractionHandler = mainGuildStaticInteractionHandler;
             _eventReminderService = eventReminderService;
             _proposalReminderService = proposalReminderService;
             _verificationCleanupService = verificationCleanupService;
@@ -153,12 +153,12 @@ namespace OSISDiscordAssistant
 
                 if (e.Id == "verify_button" || e.Id == "accept_button" || e.Id == "deny_button" || e.Id == "why_button")
                 {
-                    await _handleMiscInteractivity.HandleVerificationRequests(sender, e);
+                    await _mainGuildStaticInteractionHandler.HandleVerificationRequests(sender, e);
                 }
 
                 else if (e.Id == "roles_button" || e.Id.Contains("roles_dropdown"))
                 {
-                    await _handleMiscInteractivity.HandleRolesInteraction(sender, e);
+                    await _mainGuildStaticInteractionHandler.HandleRolesInteraction(sender, e);
                 }
             });
 

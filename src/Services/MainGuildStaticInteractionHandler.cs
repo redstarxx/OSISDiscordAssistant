@@ -12,13 +12,13 @@ using OSISDiscordAssistant.Utilities;
 
 namespace OSISDiscordAssistant.Services
 {
-    public class HandleMiscInteractivity : IHandleMiscInteractivity
+    public class MainGuildStaticInteractionHandler : IMainGuildStaticInteractionHandler
     {
-        private readonly ILogger<HandleMiscInteractivity> _logger;
+        private readonly ILogger<MainGuildStaticInteractionHandler> _logger;
         private readonly VerificationContext _verificationContext;
         private readonly CounterContext _counterContext;
 
-        public HandleMiscInteractivity(ILogger<HandleMiscInteractivity> logger, VerificationContext verificationContext, CounterContext countercontext, DiscordShardedClient shardedClient)
+        public MainGuildStaticInteractionHandler(ILogger<MainGuildStaticInteractionHandler> logger, VerificationContext verificationContext, CounterContext countercontext, DiscordShardedClient shardedClient)
         {
             _logger = logger;
             _verificationContext = verificationContext;
@@ -107,7 +107,7 @@ namespace OSISDiscordAssistant.Services
                             Title = $"Verification Request #{verificationCounterNumber} | PENDING",
                             Description = $"{e.User.Username}#{e.User.Discriminator} has submitted a verification request.\n"
                                 + $"{Formatter.Bold("Requested Nickname:")} {requestedName}\n{Formatter.Bold("User ID:")} {e.User.Id}\n{Formatter.Bold("Verification Status:")} PENDING.\n"
-                                + $"This request expires at {Formatter.Timestamp(DateTime.Now.AddDays(SharedData.MaxPendingVerificationWaitingDay), TimestampFormat.LongDateTime)}.\nAlternatively, use the {Formatter.InlineCode("!overify")} command to manually verify a new member.",
+                                + $"This request expires at {Formatter.Timestamp(DateTime.Now.AddDays(SharedData.MaxPendingVerificationWaitingDay), TimestampFormat.LongDateTime)}.\nAlternatively, use the {Formatter.InlineCode("osis overify")} command to manually verify a new member.",
                             Timestamp = DateTime.Now,
                             Footer = new DiscordEmbedBuilder.EmbedFooter
                             {
@@ -125,7 +125,7 @@ namespace OSISDiscordAssistant.Services
                         messageBuilder.Clear();
 
                         embedBuilder.Title = embedBuilder.Title.Replace(" | PENDING", string.Empty);
-                        embedBuilder.Description = embedBuilder.Description.Replace("Alternatively, use the `!overify` command to manually verify a new member.", string.Empty);
+                        embedBuilder.Description = embedBuilder.Description.Replace("Alternatively, use the `osis overify` command to manually verify a new member.", string.Empty);
                         messageBuilder.WithContent($"Your verification request has been sent successfully! Here's a copy of your verification request details.");
                         messageBuilder.WithEmbed(embedBuilder);
 

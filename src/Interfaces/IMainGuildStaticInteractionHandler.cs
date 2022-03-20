@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace OSISDiscordAssistant.Services
 {
-    public interface IHandleMiscInteractivity
+    public interface IMainGuildStaticInteractionHandler
     {
         Task<Task> HandleRolesInteraction(DiscordClient client, ComponentInteractionCreateEventArgs e);
         Task<Task> HandleVerificationRequests(DiscordClient client, ComponentInteractionCreateEventArgs e);
