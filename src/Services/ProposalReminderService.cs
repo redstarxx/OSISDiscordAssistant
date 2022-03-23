@@ -87,7 +87,7 @@ namespace OSISDiscordAssistant.Services
                                     {
                                         if (row.ProposalReminded == false)
                                         {
-                                            reminderEmbed.Title = $"Events Manager - Proposal Submission for {row.EventName}... (ID: {row.Id})";
+                                            reminderEmbed.Title = $"ARTEMIS - Proposal Submission for {row.EventName}... (ID: {row.Id})";
                                             reminderEmbed.Description = $"Make sure you have submitted your respective proposals in preparation for {Formatter.Bold(row.EventName)}!";
 
                                             reminderEmbed.AddField("Tanggal / Waktu Pelaksanaan", Formatter.Timestamp(eventDateTime, TimestampFormat.LongDate), true);

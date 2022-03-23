@@ -86,7 +86,7 @@ namespace OSISDiscordAssistant.Services
 
                                     TimeSpan timeSpan = eventDateTime - DateTime.Today;
 
-                                    reminderEmbed.Title = $"Events Manager - Reminding {row.EventName}... (ID: {row.Id})";
+                                    reminderEmbed.Title = $"ARTEMIS - Reminding {row.EventName}... (ID: {row.Id})";
 
                                     reminderEmbed.AddField("Ketua / Wakil Ketua Event", row.PersonInCharge, true);
                                     reminderEmbed.AddField("Tanggal / Waktu Pelaksanaan", Formatter.Timestamp(eventDateTime, TimestampFormat.LongDate), true);

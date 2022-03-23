@@ -42,7 +42,7 @@ namespace OSISDiscordAssistant.Commands
 
             var mainEmbed = new DiscordEmbedBuilder
             {
-                Title = "ARTEMIS (Automated Reminder & Event Management System) - Overview",
+                Title = "ARTEMIS (Automated Reminders & Events Management System) - Overview",
                 Timestamp = DateTime.Now,
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
@@ -288,7 +288,7 @@ namespace OSISDiscordAssistant.Commands
 
                         string reminderSettingStatus = eventData.ReminderDisabled is false ? "Disable" : "Enable";
 
-                        embedBuilder.Title = $"Events Manager - Updating {eventData.EventName} (ID: {eventData.Id})...";
+                        embedBuilder.Title = $"ARTEMIS - Updating {eventData.EventName} (ID: {eventData.Id})...";
                         embedBuilder.Description = $"Choose either one of the following buttons to select what are you going to change from {Formatter.Bold(eventData.EventName)}.\n\n" +
                             $"You have 5 (five) minutes to make your choice.";
 
@@ -361,7 +361,7 @@ namespace OSISDiscordAssistant.Commands
 
                                         await _eventContext.SaveChangesAsync();
 
-                                        embedBuilder.Title = $"Events Manager - {eventData.EventName} (ID: {eventData.Id}) Update Details";
+                                        embedBuilder.Title = $"ARTEMIS - {eventData.EventName} (ID: {eventData.Id}) Update Details";
                                         embedBuilder.Description = $"{ctx.Member.Mention} has made update(s) to {eventData.EventName}.\n\n{Formatter.Bold("Changes made:")}\n• Changed event name from {Formatter.InlineCode(eventData.EventName)} to {Formatter.InlineCode(eventNameResult.Result.Content)}.";
                                         embedBuilder.Timestamp = DateTime.Now;
 
@@ -408,7 +408,7 @@ namespace OSISDiscordAssistant.Commands
 
                                         await _eventContext.SaveChangesAsync();
 
-                                        embedBuilder.Title = $"Events Manager - {eventData.EventName} (ID: {eventData.Id}) Update Details";
+                                        embedBuilder.Title = $"ARTEMIS - {eventData.EventName} (ID: {eventData.Id}) Update Details";
                                         embedBuilder.Description = $"{ctx.Member.Mention} has made update(s) to {eventData.EventName}.\n\n{Formatter.Bold("Changes made:")}\n• Changed Ketua / Wakil Ketua Acara from {Formatter.InlineCode(eventData.PersonInCharge)} to {Formatter.InlineCode(eventPersonInChargeResult.Result.Content)}.";
                                         embedBuilder.Timestamp = DateTime.Now;
 
@@ -512,7 +512,7 @@ namespace OSISDiscordAssistant.Commands
                                             await _eventContext.SaveChangesAsync();
                                         }
 
-                                        embedBuilder.Title = $"Events Manager - {eventData.EventName} (ID: {eventData.Id}) Update Details";
+                                        embedBuilder.Title = $"ARTEMIS - {eventData.EventName} (ID: {eventData.Id}) Update Details";
                                         embedBuilder.Description = $"{ctx.Member.Mention} has made update(s) to {eventData.EventName}.\n\n{Formatter.Bold("Changes made:")}\n• Changed event date from {Formatter.Timestamp(ClientUtilities.ConvertUnixTimestampToDateTime(eventData.EventDateUnixTimestamp), TimestampFormat.LongDate)} to {Formatter.Timestamp(ClientUtilities.ConvertUnixTimestampToDateTime(rowToUpdate.EventDateUnixTimestamp), TimestampFormat.LongDate)}.";
                                         embedBuilder.Timestamp = DateTime.Now;
 
@@ -559,7 +559,7 @@ namespace OSISDiscordAssistant.Commands
                                             await _eventContext.SaveChangesAsync();
                                         }
 
-                                        embedBuilder.Title = $"Events Manager - {eventData.EventName} (ID: {eventData.Id}) Update Details";
+                                        embedBuilder.Title = $"ARTEMIS - {eventData.EventName} (ID: {eventData.Id}) Update Details";
                                         embedBuilder.Description = $"{ctx.Member.Mention} has made update(s) to {eventData.EventName}.\n\n{Formatter.Bold("Changes made:")}\n• Changed event description from {Formatter.InlineCode(eventData.EventDescription)} to {Formatter.InlineCode(eventDescriptionResult.Result.Content)}.";
                                         embedBuilder.Timestamp = DateTime.Now;
 
@@ -587,7 +587,7 @@ namespace OSISDiscordAssistant.Commands
                                         await _eventContext.SaveChangesAsync();
                                     }
 
-                                    embedBuilder.Title = $"Events Manager - {eventData.EventName} (ID: {eventData.Id}) Update Details";
+                                    embedBuilder.Title = $"ARTEMIS - {eventData.EventName} (ID: {eventData.Id}) Update Details";
                                     embedBuilder.Description = $"{ctx.Member.Mention} has made update(s) to {eventData.EventName}.\n\n{Formatter.Bold("Changes made:")}\n• {reminderSettingStatus}d reminders.";
                                     embedBuilder.Timestamp = DateTime.Now;
 
@@ -606,7 +606,7 @@ namespace OSISDiscordAssistant.Commands
                     {
                         var embedBuilder = new DiscordEmbedBuilder
                         {
-                            Title = "Events Manager - Search Result",
+                            Title = "ARTEMIS - Search Result",
                             Timestamp = DateTime.Now,
                             Footer = new DiscordEmbedBuilder.EmbedFooter
                             {
@@ -621,11 +621,16 @@ namespace OSISDiscordAssistant.Commands
 
                         IEnumerable<Events> eventsData = FetchAllEventsData(false, keyword);
 
+                        // TODO: project all 25 results into a single embed each, then paginate
+                        if (eventsData.Count() > 25)
+                        {
+                        }
+
                         foreach (var events in eventsData)
                         {
                             var resultEmbed = new DiscordEmbedBuilder
                             {
-                                Title = "Events Manager - Search Results",
+                                Title = "ARTEMIS - Search Results",
                                 Timestamp = DateTime.Now,
                                 Footer = new DiscordEmbedBuilder.EmbedFooter
                                 {
@@ -676,7 +681,7 @@ namespace OSISDiscordAssistant.Commands
 
                         var embedBuilder = new DiscordEmbedBuilder
                         {
-                            Title = "Events Manager - Get Result",
+                            Title = "ARTEMIS - Get Result",
                             Timestamp = DateTime.Now,
                             Footer = new DiscordEmbedBuilder.EmbedFooter
                             {
@@ -722,7 +727,7 @@ namespace OSISDiscordAssistant.Commands
                         _eventContext.Remove(eventData);
                         await _eventContext.SaveChangesAsync();
 
-                        await ctx.Channel.SendMessageAsync($"Okay {ctx.Member.Mention}, {Formatter.Bold(eventData.EventName)} (ID: {eventData.Id}) has been deleted from Events Manager.");
+                        await ctx.Channel.SendMessageAsync($"Okay {ctx.Member.Mention}, {Formatter.Bold(eventData.EventName)} (ID: {eventData.Id}) has been deleted from ARTEMIS.");
                     }
 
                     else if (mainButtonResult.Result.Id.Contains("proposal_event_"))
@@ -764,7 +769,7 @@ namespace OSISDiscordAssistant.Commands
                                 break;
                         }
 
-                        embedBuilder.Title = $"Events Manager - Accessing {eventName}'s (ID: {eventData.Id}) Proposal...";
+                        embedBuilder.Title = $"ARTEMIS - Accessing {eventName}'s (ID: {eventData.Id}) Proposal...";
                         embedBuilder.Description = $"Choose either one of the following buttons to select what are you going to do with {Formatter.Bold(eventName)}. This event {Formatter.Underline(fileExist)} have a proposal file stored.\n\n" +
                             $"You have 5 (five) minutes to select your choice.";
 
@@ -989,7 +994,7 @@ namespace OSISDiscordAssistant.Commands
 
                     var embedBuilder = new DiscordEmbedBuilder
                     {
-                        Title = "Events Manager - Listing All Events...",
+                        Title = "ARTEMIS - Listing All Events...",
                         Timestamp = DateTime.Now,
                         Footer = new DiscordEmbedBuilder.EmbedFooter
                         {
@@ -998,7 +1003,7 @@ namespace OSISDiscordAssistant.Commands
                         Color = DiscordColor.MidnightBlue
                     };
 
-                    var notifyMessage = await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[EVENTS MANAGER]")} Give me a second to process everything...");
+                    var notifyMessage = await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ARTEMIS]")} Give me a second to process everything...");
                     await ctx.TriggerTypingAsync();
 
                     _ = Task.Run(async () =>
@@ -1025,7 +1030,7 @@ namespace OSISDiscordAssistant.Commands
                         {
                             var embedBuilder = new DiscordEmbedBuilder
                             {
-                                Title = "Events Manager - Listing All Events...",
+                                Title = "ARTEMIS - Listing All Events...",
                                 Timestamp = DateTime.Now,
                                 Footer = new DiscordEmbedBuilder.EmbedFooter
                                 {
@@ -1187,20 +1192,22 @@ namespace OSISDiscordAssistant.Commands
         {
             DateTime eventDate = ClientUtilities.ConvertUnixTimestampToDateTime(events.EventDateUnixTimestamp);
 
-            bool isProposalEmpty = events.ProposalFileTitle is null ? false : true;
+            bool proposalExists = events.ProposalFileTitle is null ? false : true;
+
+            string proposalFileName = proposalExists is true ? $" (file name: {events.ProposalFileTitle})" : "";
 
             if (DateTime.Now < eventDate)
             {
                 TimeSpan remainingDateTime = eventDate - DateTime.Now;
 
-                string reminderSettingStatus = events.ReminderDisabled is false ? "Enabled" : "Disabled";
+                string reminderSettingStatus = events.ReminderDisabled is false ? $"Enabled. (next reminder at {Formatter.Timestamp(ClientUtilities.ConvertUnixTimestampToDateTime(events.NextScheduledReminderUnixTimestamp), TimestampFormat.LongDateTime)})" : "Disabled.";
 
-                return $"Status: {ClientUtilities.ConvertBoolValue(events.Expired, ConvertBoolOption.UpcomingOrDone)} ({Formatter.Timestamp(remainingDateTime, TimestampFormat.RelativeTime)})\nKetua / Wakil Ketua Acara: {events.PersonInCharge}\nProposal: {ClientUtilities.ConvertBoolValue(isProposalEmpty, ConvertBoolOption.StoredOrNotStored)}\nReminders: {reminderSettingStatus}.\nDescription: {events.EventDescription}";
+                return $"Status: {ClientUtilities.ConvertBoolValue(events.Expired, ConvertBoolOption.UpcomingOrDone)} ({Formatter.Timestamp(remainingDateTime, TimestampFormat.RelativeTime)})\nKetua / Wakil Ketua Acara: {events.PersonInCharge}\nProposal: {ClientUtilities.ConvertBoolValue(proposalExists, ConvertBoolOption.StoredOrNotStored)}{proposalFileName}\nReminders: {reminderSettingStatus}\nDescription: {events.EventDescription}";
             }
 
             else
             {
-                return $"Status: {ClientUtilities.ConvertBoolValue(events.Expired, ConvertBoolOption.UpcomingOrDone)}\nKetua / Wakil Ketua Acara: {events.PersonInCharge}\nProposal: {ClientUtilities.ConvertBoolValue(isProposalEmpty, ConvertBoolOption.StoredOrNotStored)}\nDescription: {events.EventDescription}";
+                return $"Status: {ClientUtilities.ConvertBoolValue(events.Expired, ConvertBoolOption.UpcomingOrDone)}\nKetua / Wakil Ketua Acara: {events.PersonInCharge}\nProposal: {ClientUtilities.ConvertBoolValue(proposalExists, ConvertBoolOption.StoredOrNotStored)}{proposalFileName}\nDescription: {events.EventDescription}";
             }
         }
         #endregion
