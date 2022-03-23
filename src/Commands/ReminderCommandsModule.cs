@@ -194,7 +194,7 @@ namespace OSISDiscordAssistant.Commands
 
                         if (reminderTarget is null)
                         {
-                            var errorMessage = await ctx.RespondAsync($"{Formatter.Bold("[ERROR]")} Looks like an invalid reminder target! Type {Formatter.InlineCode("osis remind")} to ensure you are following the syntax correctly. Alternatively, click the emoji below to get help.");
+                            var errorMessage = await ctx.RespondAsync($"{Formatter.Bold("[ERROR]")} Looks like an invalid reminder target! Type {Formatter.InlineCode("osis remind")} to ensure you are following the syntax correctly.");
 
                             await SendHelpEmoji(ctx, errorMessage);
 
