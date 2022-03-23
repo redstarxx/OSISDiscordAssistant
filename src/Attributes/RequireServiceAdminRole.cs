@@ -12,9 +12,7 @@ namespace OSISDiscordAssistant.Attributes
     {
         public override Task<bool> ExecuteCheckAsync(CommandContext ctx, bool help)
         {
-            bool isServiceAdmin = ctx.Member.Roles.Any(x => x.Name == "Service Administrator");
-
-            return Task.FromResult(isServiceAdmin);
+            return Task.FromResult(ctx.Member.Roles.Any(x => x.Name == "Service Administrator"));
         }
     }
 }

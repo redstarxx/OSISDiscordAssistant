@@ -15,9 +15,7 @@ namespace OSISDiscordAssistant.Attributes
     {
         public override Task<bool> ExecuteCheckAsync(CommandContext ctx, bool help)
         {
-            bool hasAccessRole = ctx.Member.Roles.Any(x => x.Id == SharedData.AccessRoleId);
-
-            return Task.FromResult(hasAccessRole);
+            return Task.FromResult(ctx.Member.Roles.Any(x => x.Id == SharedData.AccessRoleId));
         }
     }
 }
