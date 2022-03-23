@@ -975,14 +975,14 @@ namespace OSISDiscordAssistant.Commands
                 {
                     string year = "";
 
-                    await ctx.Channel.SendMessageAsync($"Please enter the desired year to list all events in the given year (optionally, type {Formatter.InlineCode("this")} if you want to retrieve this year's event list).");
+                    await ctx.Channel.SendMessageAsync($"Please enter the desired year to list all events in the given year (optionally, type {Formatter.InlineCode("this")} or {Formatter.InlineCode("now")} if you want to retrieve this year's event list).");
 
                     var yearResult = await interactivity.WaitForMessageAsync
                         (x => x.Author.Id == ctx.User.Id && x.Channel.Id == ctx.Channel.Id, TimeSpan.FromMinutes(5));
 
                     if (!yearResult.TimedOut)
                     {
-                        year = yearResult.Result.Content is "this" ? DateTime.Now.Year.ToString() : yearResult.Result.Content;
+                        year = yearResult.Result.Content.ToLowerInvariant() is "this" or "now" ? DateTime.Now.Year.ToString() : yearResult.Result.Content;
                     }
 
                     else
