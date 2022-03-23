@@ -232,20 +232,18 @@ namespace OSISDiscordAssistant.Commands
         [Command("assignrole")]
         public async Task AssignRoleAsync(CommandContext ctx, DiscordMember member, [RemainingText] string roleName)
         {
-            ulong? selectedRoleId = ctx.Guild.Roles.FirstOrDefault(x => x.Value.Name.ToLowerInvariant().Contains(roleName.ToLowerInvariant())).Value.Id;
+            var selectedRole = ctx.Guild.Roles.FirstOrDefault(x => x.Value.Name.ToLowerInvariant().Contains(roleName.ToLowerInvariant())).Value;
 
-            if (selectedRoleId is null)
+            if (selectedRole is null)
             {
                 await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} There are no roles in this server that contains the word {Formatter.Bold($"{roleName}")}! Make sure you are typing the {Formatter.Underline("exact")} name of the role you are assigning.");
 
                 return;
             }
 
-            DiscordRole selectedRole = ctx.Guild.GetRole((ulong)selectedRoleId);
-
-            if (member.Roles.Any(x => x.Id == selectedRole.Id))
+            if (member.Roles.Any(x => x == selectedRole))
             {
-                await ctx.Channel.SendMessageAsync($"The member has the role {Formatter.Bold($"{selectedRole.Name}")} assigned already!");
+                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} The member has the role {Formatter.Bold($"{selectedRole.Name}")} assigned already!");
 
                 return;
             }
@@ -255,6 +253,34 @@ namespace OSISDiscordAssistant.Commands
                 await member.GrantRoleAsync(selectedRole);
 
                 await ctx.Channel.SendMessageAsync($"Assigned role {Formatter.Bold($"{selectedRole.Name}")} to {member.Mention}.");
+            }
+        }
+
+        [RequireAdminRole]
+        [Command("revokerole")]
+        public async Task RevokeRoleAsync(CommandContext ctx, DiscordMember member, [RemainingText] string roleName)
+        {
+            var selectedRole = ctx.Guild.Roles.FirstOrDefault(x => x.Value.Name.ToLowerInvariant().Contains(roleName.ToLowerInvariant())).Value;
+
+            if (selectedRole is null)
+            {
+                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} There are no roles in this server that contains the word {Formatter.Bold($"{roleName}")}! Make sure you are typing the {Formatter.Underline("exact")} name of the role you are assigning.");
+
+                return;
+            }
+
+            if (!member.Roles.Any(x => x == selectedRole))
+            {
+                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} The member does not have the role {Formatter.Bold($"{selectedRole.Name}")} assigned!");
+
+                return;
+            }
+
+            else
+            {
+                await member.RevokeRoleAsync(selectedRole);
+
+                await ctx.Channel.SendMessageAsync($"Revoked role {Formatter.Bold($"{selectedRole.Name}")} from {member.Mention}.");
             }
         }
 
@@ -387,6 +413,13 @@ namespace OSISDiscordAssistant.Commands
         public async Task AssignRoleHelpAsync(CommandContext ctx)
         {
             await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[SYNTAX]")} osis assignrole [USER MENTION] [ROLE NAME]");
+        }
+
+        [RequireAdminRole]
+        [Command("revokerole")]
+        public async Task RevokeRoleHelpAsync(CommandContext ctx)
+        {
+            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[SYNTAX]")} osis revokerole [USER MENTION] [ROLE NAME]");
         }
     }
 }
