@@ -37,8 +37,6 @@ namespace OSISDiscordAssistant.Services
 
             Task.Run(async () =>
             {
-                DiscordGuild mainGuild = await _shardedClient.GetShard(SharedData.MainGuildId).GetGuildAsync(SharedData.MainGuildId);
-
                 Stopwatch stopwatch = new();
                 stopwatch.Start();
 
