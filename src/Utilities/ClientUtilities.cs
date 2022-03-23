@@ -114,32 +114,6 @@ namespace OSISDiscordAssistant.Utilities
         }
 
         /// <summary>
-        /// Retrieves the role ID associated with the division name.
-        /// </summary>
-        /// <param name="divisionName">Name of the division to retrieve its role ID.</param>
-        /// <returns>The role ID of the division name.</returns>
-        public static ulong? GetRoleID(DiscordGuild guild, string divisionName)
-        {            
-            if (divisionName.ToLowerInvariant() != "inti")
-            {
-                foreach (var role in SharedData.AvailableRoles.ToList())
-                {
-                    if (role.RoleName.ToLowerInvariant().Contains(divisionName.ToLowerInvariant()))
-                    {
-                        return role.RoleId;
-                    }
-                }
-            }
-
-            else
-            {
-                return guild.Roles.FirstOrDefault(x => x.Value.Name.ToLowerInvariant().Contains("inti")).Value.Id;
-            }
-
-            return null;
-        }
-
-        /// <summary>
         /// Converts the bool value to the specified option.
         /// </summary>
         /// <param name="boolValue">The bool value.</param>
