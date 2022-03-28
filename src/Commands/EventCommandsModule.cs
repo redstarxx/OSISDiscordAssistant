@@ -624,11 +624,36 @@ namespace OSISDiscordAssistant.Commands
                         // TODO: project all 25 results into a single embed each, then paginate
                         if (eventsData.Count() > 25)
                         {
+                            foreach (var events in eventsData)
+                            {
+                                int dataCount = 0;
+
+                                if (dataCount is 25 || dataCount is 0)
+                                {
+                                    eventEmbeds.Add(new DiscordEmbedBuilder()
+                                    {
+                                        Title = "ARTEMIS - Search Results",
+                                        Timestamp = DateTime.Now,
+                                        Footer = new DiscordEmbedBuilder.EmbedFooter
+                                        {
+                                            Text = "OSIS Discord Assistant"
+                                        },
+                                        Color = DiscordColor.MidnightBlue
+                                    });
+
+                                    dataCount = 0;
+                                }
+
+                                eventEmbeds.Last().AddField($"(ID: {events.Id}) {events.EventName} [{Formatter.Timestamp(ClientUtilities.ConvertUnixTimestampToDateTime(events.EventDateUnixTimestamp), TimestampFormat.LongDate)}]", ComposeEventDescriptionField(events), true);
+
+                                dataCount++;
+                                counter++;
+                            }
                         }
 
-                        foreach (var events in eventsData)
+                        else
                         {
-                            var resultEmbed = new DiscordEmbedBuilder
+                            eventEmbeds.Add(new DiscordEmbedBuilder()
                             {
                                 Title = "ARTEMIS - Search Results",
                                 Timestamp = DateTime.Now,
@@ -637,25 +662,28 @@ namespace OSISDiscordAssistant.Commands
                                     Text = "OSIS Discord Assistant"
                                 },
                                 Color = DiscordColor.MidnightBlue
-                            };
+                            });
 
-                            resultEmbed.AddField($"(ID: {events.Id}) {events.EventName} [{Formatter.Timestamp(ClientUtilities.ConvertUnixTimestampToDateTime(events.EventDateUnixTimestamp), TimestampFormat.LongDate)}]", ComposeEventDescriptionField(events), true);
+                            foreach (var events in eventsData)
+                            {
+                                eventEmbeds.Last().AddField($"(ID: {events.Id}) {events.EventName} [{Formatter.Timestamp(ClientUtilities.ConvertUnixTimestampToDateTime(events.EventDateUnixTimestamp), TimestampFormat.LongDate)}]", ComposeEventDescriptionField(events), true);
 
-                            eventEmbeds.Add(resultEmbed);
-                            counter++;
+                                counter++;
+                            }
                         }
 
+                        // TODO TESTING: insert 26 events (reuse them) into the events table
                         if (counter == 0)
                         {
                             await ctx.Channel.SendMessageAsync(embedBuilder.WithDescription($"Oops! There are no results for keyword {Formatter.InlineCode(keyword)}! If you are getting an event by ID, choose the {Formatter.InlineCode("GET")} button."));
                         }
 
-                        else if (counter == 1)
+                        else if (counter < 25 || counter == 25)
                         {
                             await ctx.Channel.SendMessageAsync(eventEmbeds.First().WithDescription($"Showing {counter} ({counter.ToWords()}) search result for keyword {Formatter.InlineCode(keyword)}."));
                         }
 
-                        else
+                        else if (counter > 25)
                         {
                             foreach (var embed in eventEmbeds)
                             {
@@ -1026,9 +1054,38 @@ namespace OSISDiscordAssistant.Commands
                             return;
                         }
 
-                        foreach (var events in eventsData)
+                        if (eventsData.Count() > 25)
                         {
-                            var embedBuilder = new DiscordEmbedBuilder
+                            foreach (var events in eventsData)
+                            {
+                                int dataCount = 0;
+
+                                if (dataCount is 25 || dataCount is 0)
+                                {
+                                    eventEmbeds.Add(new DiscordEmbedBuilder()
+                                    {
+                                        Title = "ARTEMIS - Listing All Events...",
+                                        Timestamp = DateTime.Now,
+                                        Footer = new DiscordEmbedBuilder.EmbedFooter
+                                        {
+                                            Text = "OSIS Discord Assistant"
+                                        },
+                                        Color = DiscordColor.MidnightBlue
+                                    });
+
+                                    dataCount = 0;
+                                }
+
+                                eventEmbeds.Last().AddField($"(ID: {events.Id}) {events.EventName} [{Formatter.Timestamp(ClientUtilities.ConvertUnixTimestampToDateTime(events.EventDateUnixTimestamp), TimestampFormat.LongDate)}]", ComposeEventDescriptionField(events), true);
+
+                                dataCount++;
+                                counter++;
+                            }
+                        }
+
+                        else
+                        {
+                            eventEmbeds.Add(new DiscordEmbedBuilder()
                             {
                                 Title = "ARTEMIS - Listing All Events...",
                                 Timestamp = DateTime.Now,
@@ -1037,12 +1094,14 @@ namespace OSISDiscordAssistant.Commands
                                     Text = "OSIS Discord Assistant"
                                 },
                                 Color = DiscordColor.MidnightBlue
-                            };
+                            });
 
-                            embedBuilder.AddField($"(ID: {events.Id}) {events.EventName} [{Formatter.Timestamp(ClientUtilities.ConvertUnixTimestampToDateTime(events.EventDateUnixTimestamp), TimestampFormat.LongDate)}]", ComposeEventDescriptionField(events), true);
+                            foreach (var events in eventsData)
+                            {
+                                eventEmbeds.Last().AddField($"(ID: {events.Id}) {events.EventName} [{Formatter.Timestamp(ClientUtilities.ConvertUnixTimestampToDateTime(events.EventDateUnixTimestamp), TimestampFormat.LongDate)}]", ComposeEventDescriptionField(events), true);
 
-                            eventEmbeds.Add(embedBuilder);
-                            counter++;
+                                counter++;
+                            }
                         }
 
                         await notifyMessage.DeleteAsync();
@@ -1052,12 +1111,12 @@ namespace OSISDiscordAssistant.Commands
                             await ctx.Channel.SendMessageAsync(embedBuilder.WithDescription($"There are no events registered for the year {Formatter.Underline(year)}."));
                         }
 
-                        else if (counter == 1)
+                        else if (counter < 25 || counter == 25)
                         {
                             await ctx.Channel.SendMessageAsync(eventEmbeds.First().WithDescription($"List of all registered events for the year {Formatter.Underline(year)}. Indexed {counter} ({counter.ToWords()}) events."));
                         }
 
-                        else
+                        else if (counter > 25)
                         {
                             foreach (var embed in eventEmbeds)
                             {
