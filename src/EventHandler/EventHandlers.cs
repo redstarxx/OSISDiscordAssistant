@@ -276,7 +276,7 @@ namespace OSISDiscordAssistant
                 {
                     if (failedCheck is RequireMainGuild)
                     {
-                        await e.Context.RespondAsync($"{Formatter.Bold("[ERROR]")} This command is only usable in the OSIS Sekolah Djuwita Batam Discord server!\nInvite Link: https://discord.gg/WC7FRsxFwb");
+                        await e.Context.RespondAsync($"{Formatter.Bold("[ERROR]")} This command is only usable in the OSIS Sekolah Djuwita Batam Discord server!\nInvite Link: {SharedData.MainGuildInviteLink}");
                     }
 
                     else if (failedCheck is RequireAdminRole)

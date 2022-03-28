@@ -87,5 +87,11 @@ namespace OSISDiscordAssistant
         /// </summary>
         [JsonProperty("AccessRoleId")]
         public ulong? AccessRoleId { get; private set; }
+
+        /// <summary>
+        /// The main guild invite link.
+        /// </summary>
+        [JsonProperty("MainGuildInviteLink")]
+        public string MainGuildInviteLink { get; private set; }
     }
 }

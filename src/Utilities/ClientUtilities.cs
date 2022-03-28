@@ -359,6 +359,8 @@ namespace OSISDiscordAssistant.Utilities
 
             SharedData.AccessRoleId = (ulong)configJson.AccessRoleId;
 
+            SharedData.MainGuildInviteLink = configJson.MainGuildInviteLink;
+
             JObject roleArray = JObject.Parse(json);
 
             // Read the MainGuildRoles array which contains the main guild assignable divisional roles.

@@ -107,6 +107,8 @@ namespace OSISDiscordAssistant.Services
         /// </summary>
         public static ulong AccessRoleId;
 
+        public static string MainGuildInviteLink;
+
         /// <summary>
         /// The number of heartbeats received from Discord. Resets back to zero every five minutes.
         /// </summary>
