@@ -168,6 +168,7 @@ namespace OSISDiscordAssistant.Services
 
                                             if (eventData != null)
                                             {
+                                                eventData.NextScheduledReminderUnixTimestamp = eventData.EventDateUnixTimestamp;
                                                 eventData.ExecutedReminderLevel = 0;
 
                                                 await eventContext.SaveChangesAsync();
