@@ -107,6 +107,9 @@ namespace OSISDiscordAssistant.Services
         /// </summary>
         public static ulong AccessRoleId;
 
+        /// <summary>
+        /// The main guild invite link.
+        /// </summary>
         public static string MainGuildInviteLink;
 
         /// <summary>
