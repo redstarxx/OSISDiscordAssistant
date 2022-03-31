@@ -49,6 +49,7 @@ namespace OSISDiscordAssistant.Commands
 
             string administrationCommands = $"{Formatter.Bold("setname")} - Sets a new name for yourself or another user.\n" +
                 $"{Formatter.Bold("assignrole")} - Assigns a role to a member by specifying the role name.\n" +
+                $"{Formatter.Bold("revokerole")} - Revokes a role from a member by specifying the role name.\n" +
                 $"{Formatter.Bold("kick")} - Kicks a member from this Discord server.\n" +
                 $"{Formatter.Bold("ban")} - Bans a member from this Discord server.\n" +
                 $"{Formatter.Bold("unban")} - Unbans a member from this Discord server.\n" +
