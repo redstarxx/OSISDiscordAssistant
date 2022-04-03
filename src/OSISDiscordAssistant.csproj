@@ -11,9 +11,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DSharpPlus" Version="4.2.0-nightly-01099" />
-    <PackageReference Include="DSharpPlus.CommandsNext" Version="4.2.0-nightly-01099" />
-    <PackageReference Include="DSharpPlus.Interactivity" Version="4.2.0-nightly-01099" />
+    <PackageReference Include="DSharpPlus" Version="4.2.0-nightly-01105" />
+    <PackageReference Include="DSharpPlus.CommandsNext" Version="4.2.0-nightly-01105" />
+    <PackageReference Include="DSharpPlus.Interactivity" Version="4.2.0-nightly-01105" />
     <PackageReference Include="Humanizer" Version="2.14.1" />
     <PackageReference Include="KawalCoronaSharp" Version="1.2.1" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="4.1.0" />
