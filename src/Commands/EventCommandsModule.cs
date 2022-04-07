@@ -624,10 +624,10 @@ namespace OSISDiscordAssistant.Commands
                         // TODO: project all 25 results into a single embed each, then paginate
                         if (eventsData.Count() > 25)
                         {
+                            int dataCount = 0;
+
                             foreach (var events in eventsData)
                             {
-                                int dataCount = 0;
-
                                 if (dataCount is 25 || dataCount is 0)
                                 {
                                     eventEmbeds.Add(new DiscordEmbedBuilder()
@@ -1201,7 +1201,7 @@ namespace OSISDiscordAssistant.Commands
         /// </summary>
         /// <param name="indexYear">Sets whether to search events based on the year or process them as a whole.</param>
         /// <param name="keyword">The keyword of the search.</param>
-        /// <returns>An <see cref="IEnumerable{T}" /> of <see cref="Events" /> object.</returns>
+        /// <returns>An <see cref="IEnumerable{T}" /> of <see cref="Events" /> object, ordered from the earliest to the latest.</returns>
         private IEnumerable<Events> FetchAllEventsData(bool indexYear, string keyword)
         {
             IEnumerable<Events> Events;
@@ -1240,7 +1240,7 @@ namespace OSISDiscordAssistant.Commands
 
             Events = eventsData;
 
-            return Events;
+            return Events.OrderBy(x => x.EventDateUnixTimestamp);
         }
 
         /// <summary>
