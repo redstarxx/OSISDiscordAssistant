@@ -37,9 +37,11 @@ namespace OSISDiscordAssistant.Services
 
             Task.Run(async () =>
             {
-                DiscordChannel proposalChannel = await _shardedClient.GetShard(SharedData.MainGuildId).GetChannelAsync(SharedData.ProposalChannelId);
+                var mainGuild = _shardedClient.GetShard(SharedData.MainGuildId);
 
-                DiscordChannel errorLogsChannel = await _shardedClient.GetShard(SharedData.MainGuildId).GetChannelAsync(SharedData.ErrorChannelId);
+                DiscordChannel proposalChannel = await mainGuild.GetChannelAsync(SharedData.ProposalChannelId);
+
+                DiscordChannel errorLogsChannel = await mainGuild.GetChannelAsync(SharedData.ErrorChannelId);
 
                 DiscordMessageBuilder reminderMessageBuilder = new DiscordMessageBuilder
                 {
@@ -56,7 +58,7 @@ namespace OSISDiscordAssistant.Services
                             Timestamp = DateTime.Now,
                             Footer = new DiscordEmbedBuilder.EmbedFooter
                             {
-                                Text = "OSIS Discord Assistant"
+                                Text = "ARTEMIS - OSIS Discord Assistant"
                             },
                             Color = DiscordColor.MidnightBlue
                         };
@@ -87,8 +89,8 @@ namespace OSISDiscordAssistant.Services
                                     {
                                         if (row.ProposalReminded == false)
                                         {
-                                            reminderEmbed.Title = $"ARTEMIS - Proposal Submission for {row.EventName}... (ID: {row.Id})";
-                                            reminderEmbed.Description = $"Make sure you have submitted your respective proposals in preparation for {Formatter.Bold(row.EventName)}!";
+                                            reminderEmbed.Title = $"{DiscordEmoji.FromName(mainGuild, ":alarm_clock:")} Penyerahan Proposal untuk {row.EventName}... (ID: {row.Id})";
+                                            reminderEmbed.Description = $"Pastikan kamu sudah menyerahkan proposal event {Formatter.Bold(row.EventName)} ke kepala sekolah!";
 
                                             reminderEmbed.AddField("Tanggal / Waktu Pelaksanaan", Formatter.Timestamp(eventDateTime, TimestampFormat.LongDate), true);
                                             reminderEmbed.AddField("Informasi Tambahan", row.EventDescription, true);

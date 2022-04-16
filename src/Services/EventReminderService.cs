@@ -38,9 +38,11 @@ namespace OSISDiscordAssistant.Services
 
             Task.Run(async () =>
             {
-                DiscordChannel eventsChannel = await _shardedClient.GetShard(SharedData.MainGuildId).GetChannelAsync(SharedData.EventChannelId);
+                var mainGuild = _shardedClient.GetShard(SharedData.MainGuildId);
 
-                DiscordChannel errorLogsChannel = await _shardedClient.GetShard(SharedData.MainGuildId).GetChannelAsync(SharedData.ErrorChannelId);
+                DiscordChannel eventsChannel = await mainGuild.GetChannelAsync(SharedData.EventChannelId);
+
+                DiscordChannel errorLogsChannel = await mainGuild.GetChannelAsync(SharedData.ErrorChannelId);
 
                 DiscordMessageBuilder reminderMessageBuilder = new DiscordMessageBuilder
                 {
@@ -57,7 +59,7 @@ namespace OSISDiscordAssistant.Services
                             Timestamp = DateTime.Now,
                             Footer = new DiscordEmbedBuilder.EmbedFooter
                             {
-                                Text = "OSIS Discord Assistant"
+                                Text = "ARTEMIS - OSIS Discord Assistant"
                             },
                             Color = DiscordColor.MidnightBlue
                         };
@@ -86,7 +88,7 @@ namespace OSISDiscordAssistant.Services
 
                                     TimeSpan timeSpan = eventDateTime - DateTime.Today;
 
-                                    reminderEmbed.Title = $"ARTEMIS - Reminding {row.EventName}... (ID: {row.Id})";
+                                    reminderEmbed.Title = $"{DiscordEmoji.FromName(mainGuild, ":alarm_clock:")} Mengingatkan {row.EventName}... (ID: {row.Id})";
 
                                     reminderEmbed.AddField("Ketua / Wakil Ketua Event", row.PersonInCharge, true);
                                     reminderEmbed.AddField("Tanggal / Waktu Pelaksanaan", Formatter.Timestamp(eventDateTime, TimestampFormat.LongDate), true);
@@ -98,7 +100,7 @@ namespace OSISDiscordAssistant.Services
                                     {
                                         if (row.ExecutedReminderLevel is 1 or 2 or 3)
                                         {
-                                            reminderEmbed.Description = timeSpan.Days is not 1 ? $"In {timeSpan.Days} days, it will be the day for {Formatter.Bold(row.EventName)}!" : $"Tomorrow will be the day for {Formatter.Bold(row.EventName)}!";
+                                            reminderEmbed.Description = timeSpan.Days is not 1 ? $"Dalam {timeSpan.Days} hari, event {Formatter.Bold(row.EventName)} akan dilaksanakan!" : $"Besok adalah hari pelaksanaan event {Formatter.Bold(row.EventName)}!";
 
                                             if (row.ProposalFileContent is not null)
                                             {
@@ -140,7 +142,7 @@ namespace OSISDiscordAssistant.Services
 
                                         else if (row.ExecutedReminderLevel is 4)
                                         {
-                                            reminderEmbed.Description = $"Tomorrow will be the day for {Formatter.Bold(row.EventName)}!";
+                                            reminderEmbed.Description = $"Besok adalah hari pelaksanaan event {Formatter.Bold(row.EventName)}!";
 
                                             if (row.ProposalFileContent is not null)
                                             {
@@ -180,7 +182,7 @@ namespace OSISDiscordAssistant.Services
 
                                     if (DateTime.Today == eventDateTime)
                                     {
-                                        reminderEmbed.Description = $"Today is the the day for {Formatter.Bold(row.EventName)}!";
+                                        reminderEmbed.Description = $"Hari ini adalah hari pelaksanaan event {Formatter.Bold(row.EventName)}!";
 
                                         if (row.ProposalFileContent is not null)
                                         {
