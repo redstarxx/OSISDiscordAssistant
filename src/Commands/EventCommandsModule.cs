@@ -619,7 +619,7 @@ namespace OSISDiscordAssistant.Commands
 
                         List<DiscordEmbedBuilder> eventEmbeds = new List<DiscordEmbedBuilder>();
 
-                        IEnumerable<Events> eventsData = FetchAllEventsData(false, keyword);
+                        IEnumerable<Events> eventsData = FetchAllEventsData(false, keyword).Reverse();
 
                         // TODO: project all 25 results into a single embed each, then paginate
                         if (eventsData.Count() > 25)
@@ -1255,19 +1255,11 @@ namespace OSISDiscordAssistant.Commands
 
             string proposalFileName = proposalExists is true ? $" (file name: {events.ProposalFileTitle})" : "";
 
-            if (DateTime.Now < eventDate)
-            {
-                TimeSpan remainingDateTime = eventDate - DateTime.Now;
+            TimeSpan remainingDateTime = eventDate - DateTime.Now;
 
-                string reminderSettingStatus = events.ReminderDisabled is false ? $"Enabled. (next reminder at {Formatter.Timestamp(ClientUtilities.ConvertUnixTimestampToDateTime(events.NextScheduledReminderUnixTimestamp), TimestampFormat.LongDateTime)})" : "Disabled.";
+            string reminderSettingStatus = events.ReminderDisabled is false ? $"Enabled. (next reminder at {Formatter.Timestamp(ClientUtilities.ConvertUnixTimestampToDateTime(events.NextScheduledReminderUnixTimestamp), TimestampFormat.LongDateTime)})" : "Disabled.";
 
-                return $"Status: {ClientUtilities.ConvertBoolValue(events.Expired, ConvertBoolOption.UpcomingOrDone)} ({Formatter.Timestamp(remainingDateTime, TimestampFormat.RelativeTime)})\nKetua / Wakil Ketua Acara: {events.PersonInCharge}\nProposal: {ClientUtilities.ConvertBoolValue(proposalExists, ConvertBoolOption.StoredOrNotStored)}{proposalFileName}\nReminders: {reminderSettingStatus}\nDescription: {events.EventDescription}";
-            }
-
-            else
-            {
-                return $"Status: {ClientUtilities.ConvertBoolValue(events.Expired, ConvertBoolOption.UpcomingOrDone)}\nKetua / Wakil Ketua Acara: {events.PersonInCharge}\nProposal: {ClientUtilities.ConvertBoolValue(proposalExists, ConvertBoolOption.StoredOrNotStored)}{proposalFileName}\nDescription: {events.EventDescription}";
-            }
+            return $"Status: {ClientUtilities.ConvertBoolValue(events.Expired, ConvertBoolOption.UpcomingOrDone)} ({Formatter.Timestamp(remainingDateTime, TimestampFormat.RelativeTime)})\nKetua / Wakil Ketua Acara: {events.PersonInCharge}\nProposal: {ClientUtilities.ConvertBoolValue(proposalExists, ConvertBoolOption.StoredOrNotStored)}{proposalFileName}\nReminders: {reminderSettingStatus}\nDescription: {events.EventDescription}";
         }
         #endregion
     }
