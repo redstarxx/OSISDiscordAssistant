@@ -32,12 +32,12 @@ namespace OSISDiscordAssistant.Services
         /// <param name="e">The event arguments passed from the event handler.</param>
         public async Task<Task> HandleVerificationRequests(DiscordClient client, ComponentInteractionCreateEventArgs e)
         {
+            var interactivity = client.GetInteractivity();
+
             try
             {
                 if (e.Id == "verify_button")
                 {
-                    var interactivity = client.GetInteractivity();
-
                     var member = await e.Guild.GetMemberAsync(e.User.Id);
 
                     // Check if the requesting user has a pending verification request.
@@ -228,31 +228,44 @@ namespace OSISDiscordAssistant.Services
 
                     else if (e.Id == "deny_button")
                     {
-                        await member.SendMessageAsync($"{Formatter.Bold("[VERIFICATION]")} Mohon maaf, permintaan verifikasimu telah {Formatter.Bold("DITOLAK")} oleh {e.User.Mention}! Kamu boleh menghubungi penolak atau anggota Inti OSIS lewat DM untuk mendapatkan alasan penolakan.");
+                        string modalId = $"deny_verification_request_{ClientUtilities.GetCurrentUnixTimestamp()}";
 
-                        var getEmbed = await e.Channel.GetMessageAsync(e.Message.Id);
+                        var modal = new DiscordInteractionResponseBuilder()
+                            .WithTitle($"Verification Denial Reason")
+                            .WithCustomId(modalId)
+                            .AddComponents(new TextInputComponent($"Please enter the reason for the denial:", "denial_reason", null, null, true, TextInputStyle.Paragraph, min_length: 1, max_length: 100));
+                        await e.Interaction.CreateResponseAsync(InteractionResponseType.Modal, modal);
 
-                        DiscordEmbed updatedEmbed = null;
+                        var reasonModalResult = await interactivity.WaitForModalAsync(modalId, TimeSpan.FromMinutes(10));
 
-                        foreach (var embed in getEmbed.Embeds.ToList())
+                        if (!reasonModalResult.TimedOut)
                         {
-                            DiscordEmbedBuilder embedBuilder = new DiscordEmbedBuilder(embed)
+                            await reasonModalResult.Result.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
+
+                            string denialReason = string.Join("", reasonModalResult.Result.Values.Where(x => x.Key is "denial_reason").Select(x => x.Value));
+
+                            await member.SendMessageAsync($"{Formatter.Bold("[VERIFICATION]")} Mohon maaf, permintaan verifikasimu telah {Formatter.Bold("DITOLAK")} oleh {e.User.Mention}! Apabila kamu merasa ini adalah sebuah kesalahan, silahkan hubungi anggota Inti OSIS untuk bantuan.\n\n{Formatter.Underline("Alasan:")} {denialReason}");
+
+                            var getEmbed = await e.Channel.GetMessageAsync(e.Message.Id);
+
+                            DiscordEmbed updatedEmbed = null;
+
+                            foreach (var embed in getEmbed.Embeds.ToList())
                             {
-                                Title = $"{embed.Title.Replace(" | PENDING", " | DENIED")}",
-                                Description = $"{member.Username}#{member.Discriminator} has submitted a verification request.\n"
-                                + $"{Formatter.Bold("Requested Nickname:")} {userDataRow.RequestedName}\n{Formatter.Bold("User ID:")} {member.Id}\n{Formatter.Bold("Verification Status:")} DENIED (handled by {e.Interaction.User.Mention} at {Formatter.Timestamp(ClientUtilities.ConvertUnixTimestampToDateTime(e.Interaction.CreationTimestamp.ToUnixTimeSeconds()), TimestampFormat.LongDateTime)})."
+                                DiscordEmbedBuilder embedBuilder = new DiscordEmbedBuilder(embed)
+                                {
+                                    Title = $"{embed.Title.Replace(" | PENDING", " | DENIED")}",
+                                    Description = $"{member.Username}#{member.Discriminator} has submitted a verification request.\n"
+                                    + $"{Formatter.Bold("Requested Nickname:")} {userDataRow.RequestedName}\n{Formatter.Bold("User ID:")} {member.Id}\n{Formatter.Bold("Verification Status:")} DENIED (handled by {e.Interaction.User.Mention} at {Formatter.Timestamp(ClientUtilities.ConvertUnixTimestampToDateTime(e.Interaction.CreationTimestamp.ToUnixTimeSeconds()), TimestampFormat.LongDateTime)}).\n{Formatter.Bold("Reason:")} {denialReason}"
+                                };
+
+                                updatedEmbed = embedBuilder.Build();
+
+                                break;
                             };
 
-                            updatedEmbed = embedBuilder.Build();
-
-                            break;
-                        };
-
-                        var messageBuilder = new DiscordMessageBuilder()
-                            .WithEmbed(updatedEmbed)
-                            .AddComponents(buttonOptions);
-
-                        await e.Interaction.CreateResponseAsync(InteractionResponseType.UpdateMessage, new DiscordInteractionResponseBuilder(messageBuilder));
+                            await getEmbed.ModifyAsync(x => x.WithEmbed(updatedEmbed).AddComponents(buttonOptions));
+                        }
                     }
 
                     // Remove the user data immediately, as it serves no purpose hereafter.
