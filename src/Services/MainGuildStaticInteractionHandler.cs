@@ -47,7 +47,7 @@ namespace OSISDiscordAssistant.Services
 
                         DiscordFollowupMessageBuilder followupMessageBuilder = new DiscordFollowupMessageBuilder()
                         {
-                            Content = "You have already requested for a verification! If it has not been handled yet for some time, feel free to reach out to a member of Inti OSIS for assistance.",
+                            Content = "Kamu sudah meminta untuk diverifikasi! Apabila permintaanmu belum diproses setelah waktu yang lama, silahkan DM salah satu anggota Inti OSIS untuk bantuan.",
                             IsEphemeral = true
                         };
 
@@ -63,7 +63,7 @@ namespace OSISDiscordAssistant.Services
 
                         DiscordFollowupMessageBuilder followupMessageBuilder = new DiscordFollowupMessageBuilder()
                         {
-                            Content = "You are already verified!",
+                            Content = "Kamu sudah terverifikasi!",
                             IsEphemeral = true
                         };
 
@@ -126,14 +126,14 @@ namespace OSISDiscordAssistant.Services
 
                         embedBuilder.Title = embedBuilder.Title.Replace(" | PENDING", string.Empty);
                         embedBuilder.Description = embedBuilder.Description.Replace("Alternatively, use the `osis overify` command to manually verify a new member.", string.Empty);
-                        messageBuilder.WithContent($"Your verification request has been sent successfully! Here's a copy of your verification request details.");
+                        messageBuilder.WithContent($"Permintaan verifikasimu telah diterima! Ini adalah duplikat dari detail permintaan verifikasimu.");
                         messageBuilder.WithEmbed(embedBuilder);
 
                         await member.SendMessageAsync(messageBuilder);
 
                         await nameResult.Result.Interaction.CreateFollowupMessageAsync(new DiscordFollowupMessageBuilder()
                         {
-                            Content = "Your verification request has been sent! Please check your Direct Messages to see your verification request receipt.",
+                            Content = "Permintaan verifikasimu telah diterima! Silahkan lihat Direct Messages anda untuk melihat detail permintaan verifikasimu.",
                             IsEphemeral = true
                         });
 
@@ -162,7 +162,7 @@ namespace OSISDiscordAssistant.Services
 
                         await nameResult.Result.Interaction.CreateFollowupMessageAsync(new DiscordFollowupMessageBuilder()
                         {
-                            Content = "You did not submit your requested nickname within 10 (ten) minutes. Please try again.",
+                            Content = "Kamu tidak memasukkan nama panggilanmu dalam 10 menit. Silahkan coba lagi.",
                             IsEphemeral = true
                         });
                     }
@@ -192,7 +192,7 @@ namespace OSISDiscordAssistant.Services
                     {
                         await member.GrantRoleAsync(e.Guild.GetRole(SharedData.AccessRoleId));
 
-                        await member.SendMessageAsync($"{Formatter.Bold("[VERIFICATION]")} Your verification request has been {Formatter.Bold("ACCEPTED")} by {e.User.Mention}! You may now access the internal channels of {e.Guild.Name} and receive your divisional roles at <#{SharedData.RolesChannelId}>.");
+                        await member.SendMessageAsync($"{Formatter.Bold("[VERIFICATION]")} Permintaan verifikasimu telah {Formatter.Bold("DITERIMA")} oleh {e.User.Mention}! Sekarang kamu bisa mengakses channel internal server {e.Guild.Name} dan mendapatkan role seksimu di <#{SharedData.RolesChannelId}>.");
 
                         var getEmbed = e.Message;
 
@@ -228,7 +228,7 @@ namespace OSISDiscordAssistant.Services
 
                     else if (e.Id == "deny_button")
                     {
-                        await member.SendMessageAsync($"{Formatter.Bold("[VERIFICATION]")} I'm sorry, your verification request has been {Formatter.Bold("DENIED")} by {e.User.Mention}! You may reach out to the denying person directly or a member of Inti OSIS to find out why.");
+                        await member.SendMessageAsync($"{Formatter.Bold("[VERIFICATION]")} Mohon maaf, permintaan verifikasimu telah {Formatter.Bold("DITOLAK")} oleh {e.User.Mention}! Kamu boleh menghubungi penolak atau anggota Inti OSIS lewat DM untuk mendapatkan alasan penolakan.");
 
                         var getEmbed = await e.Channel.GetMessageAsync(e.Message.Id);
 
@@ -270,8 +270,9 @@ namespace OSISDiscordAssistant.Services
 
                     DiscordFollowupMessageBuilder followupMessageBuilder = new DiscordFollowupMessageBuilder()
                     {
-                        Content = $"Although {e.Guild.Name} is a private server, a verification system is set up in the effort to deter server raids and keep unwanted users out, should the invite link is somehow compromised.\n\n" +
-                        $"If you are a new member of OSIS Sekolah Djuwita Batam, get verified now to access our internal channels!",
+                        Content = $"Meskipun {e.Guild.Name} adalah server privat, sistem verifikasi disiapkan dalam upaya untuk mencegah server raid dan mencegah pengguna yang tidak diinginkan, jika invite link bocor.\n\n" +
+                         $"Jika Anda adalah anggota baru OSIS Sekolah Djuwita Batam, verifikasikan dirimu sekarang untuk mengakses channel internal server ini!\n\n" +
+                         $"{DiscordEmoji.FromName(client, ":green_circle:")} Keuntungan pengguna terverifikasi:\n- Mendapatkan pengingat hari -H event dan pengumpulan proposal,\n- Bisa ikut rapat atau nongkrong online sambil dengerin lagu,\n- Sistem komunikasi antar anggota yang terintegrasi (tidak seperti di platform media sosial lainnya dimana kamu harus buat grup ini dan itu secara terpisah sehingga berantakan.)",
                         IsEphemeral = true
                     };
 
@@ -298,13 +299,15 @@ namespace OSISDiscordAssistant.Services
         {
             try
             {
+                await e.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
+
                 DiscordFollowupMessageBuilder followupMessageBuilder = new DiscordFollowupMessageBuilder();
 
                 var member = await e.Guild.GetMemberAsync(e.User.Id);
 
                 if (!member.Roles.Any(x => x.Id == SharedData.AccessRoleId))
                 {
-                    followupMessageBuilder.Content = $"To grant yourself a role, you must go through the verification process first. Check it out at <#{SharedData.VerificationInfoChannelId}>.";
+                    followupMessageBuilder.Content = $"Untuk bisa mendapatkan role seksi, kamu harus melewati proses verifikasi terlebih dulu di <#{SharedData.VerificationInfoChannelId}>.";
                     followupMessageBuilder.IsEphemeral = true;
 
                     await e.Interaction.CreateFollowupMessageAsync(followupMessageBuilder);
@@ -314,9 +317,7 @@ namespace OSISDiscordAssistant.Services
 
                 if (e.Interaction.Data.ComponentType is ComponentType.Button)
                 {
-                    await e.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
-
-                    followupMessageBuilder.Content = "Select either one of the options of which division you are assigned to. You can select only one option at a time.";
+                    followupMessageBuilder.Content = "Pilih seksi dimana kamu ditempatkan. Kamu hanya bisa memilih salah satu saja.";
                     followupMessageBuilder.IsEphemeral = true;
 
                     var rolesDropdownOptions = new List<DiscordSelectComponentOption>();
@@ -357,8 +358,6 @@ namespace OSISDiscordAssistant.Services
         {
             try
             {
-                await e.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
-
                 var member = await e.Guild.GetMemberAsync(e.User.Id);
                 var userRoleIds = member.Roles.Select(r => r.Id);
 

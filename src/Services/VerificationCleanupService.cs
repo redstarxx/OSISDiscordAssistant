@@ -75,7 +75,7 @@ namespace OSISDiscordAssistant.Services
                                         await requestEmbed.ModifyAsync(x => x.WithEmbed(updatedEmbed));
 
                                         await _shardedClient.GetShard(SharedData.MainGuildId).GetGuildAsync(SharedData.MainGuildId).Result
-                                        .GetMemberAsync(row.UserId).Result.SendMessageAsync($"{Formatter.Bold("[VERIFICATION]")} I'm sorry, your verification request has expired (nobody responded to it within {SharedData.MaxPendingVerificationWaitingDay} ({SharedData.MaxPendingVerificationWaitingDay.ToWords()}) days). Feel free to try again or reach out to a member of Inti OSIS for assistance.");
+                                        .GetMemberAsync(row.UserId).Result.SendMessageAsync($"{Formatter.Bold("[VERIFICATION]")} Mohon maaf, permintaan verifikasimu telah expired (tidak ada yang menanggapi dalam {SharedData.MaxPendingVerificationWaitingDay} ({SharedData.MaxPendingVerificationWaitingDay.ToWords()}) hari). Silahkan DM salah satu anggota Inti OSIS untuk bantuan.");
 
                                         var request = _verificationContext.Verifications.SingleOrDefault(x => x.VerificationEmbedId == row.VerificationEmbedId);
 
