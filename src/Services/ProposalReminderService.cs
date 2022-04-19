@@ -90,7 +90,7 @@ namespace OSISDiscordAssistant.Services
                                         if (row.ProposalReminded == false)
                                         {
                                             reminderEmbed.Title = $"{DiscordEmoji.FromName(mainGuild, ":alarm_clock:")} Penyerahan Proposal untuk {row.EventName}... (ID: {row.Id})";
-                                            reminderEmbed.Description = $"Pastikan kamu sudah menyerahkan proposal event {Formatter.Bold(row.EventName)} ke kepala sekolah!";
+                                            reminderEmbed.Description = $"Pastikan kamu sudah menyerahkan proposal event {Formatter.Bold(row.EventName)} ke kepala sekolah dan pembina OSIS!";
 
                                             reminderEmbed.AddField("Tanggal / Waktu Pelaksanaan", Formatter.Timestamp(eventDateTime, TimestampFormat.LongDate), true);
                                             reminderEmbed.AddField("Informasi Tambahan", row.EventDescription, true);
