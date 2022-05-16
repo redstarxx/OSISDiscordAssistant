@@ -126,14 +126,14 @@ namespace OSISDiscordAssistant.Services
 
                         embedBuilder.Title = embedBuilder.Title.Replace(" | PENDING", string.Empty);
                         embedBuilder.Description = embedBuilder.Description.Replace("Alternatively, use the `osis overify` command to manually verify a new member.", string.Empty);
-                        messageBuilder.WithContent($"Permintaan verifikasimu telah diterima! Ini adalah duplikat dari detail permintaan verifikasimu.");
+                        messageBuilder.WithContent($"Permintaan verifikasimu telah dikirim! Ini adalah duplikat dari detail permintaan verifikasimu.");
                         messageBuilder.WithEmbed(embedBuilder);
 
                         await member.SendMessageAsync(messageBuilder);
 
                         await nameResult.Result.Interaction.CreateFollowupMessageAsync(new DiscordFollowupMessageBuilder()
                         {
-                            Content = "Permintaan verifikasimu telah diterima! Silahkan lihat Direct Messages anda untuk melihat detail permintaan verifikasimu.",
+                            Content = "Permintaan verifikasimu telah dikirim! Silahkan lihat Direct Messages anda untuk melihat detail permintaan verifikasimu.",
                             IsEphemeral = true
                         });
 
@@ -283,9 +283,9 @@ namespace OSISDiscordAssistant.Services
 
                     DiscordFollowupMessageBuilder followupMessageBuilder = new DiscordFollowupMessageBuilder()
                     {
-                        Content = $"Meskipun {e.Guild.Name} adalah server privat, sistem verifikasi disiapkan dalam upaya untuk mencegah server raid dan mencegah pengguna yang tidak diinginkan, jika invite link bocor.\n\n" +
-                         $"Jika Anda adalah anggota baru OSIS Sekolah Djuwita Batam, verifikasikan dirimu sekarang untuk mengakses channel internal server ini!\n\n" +
-                         $"{DiscordEmoji.FromName(client, ":green_circle:")} Keuntungan pengguna terverifikasi:\n- Mendapatkan pengingat hari -H event dan pengumpulan proposal,\n- Bisa ikut rapat atau nongkrong online sambil dengerin lagu,\n- Sistem komunikasi antar anggota yang terintegrasi (tidak seperti di platform media sosial lainnya dimana kamu harus buat grup ini dan itu secara terpisah sehingga berantakan.)",
+                        Content = $"Meskipun {e.Guild.Name} adalah server privat, sistem verifikasi dibuat dalam upaya mencegah server raid dan mencegah pengguna yang tidak diinginkan, jika invite link bocor.\n\n" +
+                         $"Jika Anda adalah anggota baru OSIS Sekolah Djuwita Batam, verifikasikan dirimu sekarang agar bisa mengakses channel internal server tanpa halangan!\n\n" +
+                         $"{DiscordEmoji.FromName(client, ":clipboard:")} {Formatter.Bold("Keuntungan pengguna terverifikasi")}:\n• Mendapatkan pengingat hari -H event dan pengumpulan proposal,\n• Ikut rapat atau nongkrong online sambil dengerin musik,\n• Sistem komunikasi antar anggota yang terintegrasi (tidak seperti di platform media sosial lainnya, dimana kamu harus buat grup ini dan itu secara terpisah untuk seksi masing-masing sehingga berantakan).",
                         IsEphemeral = true
                     };
 
