@@ -12,6 +12,8 @@ namespace OSISDiscordAssistant.Commands
 {
     class COVIDStatisticsCommandsModule : BaseCommandModule
     {
+        // NOTE TO SELF: KAWALCORONA IS DEAD, FIND A BETTER ONE OR MAKE ONE BASED OFF https://covid19.go.id/dokumentasi-api.
+
         [Command("covid")]
         public async Task CovidStatisticAsync(CommandContext ctx, [RemainingText] string countryName)
         {
