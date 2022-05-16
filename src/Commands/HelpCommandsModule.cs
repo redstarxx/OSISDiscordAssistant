@@ -31,7 +31,6 @@ namespace OSISDiscordAssistant.Commands
             string generalCommands = $"{Formatter.Bold("poll")} - Creates a poll with a set of specified emojis to choose.\n" +
                 $"{Formatter.Bold("myinfo")} - Displays the info that this bot has over you.\n" +
                 $"{Formatter.Bold("avatar")} - Shows a Discord profile picture of your account or another user.\n" +
-                $"{Formatter.Bold("covid")} - Shows COVID-19 statistics of a country or globally.\n" +
                 $"{Formatter.Bold("stats")} - Display statistics related to the bot.\n" +
                 $"{Formatter.Bold("ping")} - Displays the WebSocket connection latency in milliseconds.\n" +
                 $"{Formatter.Bold("prefix")} - Displays the bot's prefixes.\n" +
@@ -48,8 +47,8 @@ namespace OSISDiscordAssistant.Commands
             string verificationCommands = $"{Formatter.Bold("overify")} - Manually verifies a new member as a council member.\n";
 
             string administrationCommands = $"{Formatter.Bold("setname")} - Sets a new name for yourself or another user.\n" +
-                $"{Formatter.Bold("assignrole")} - Assigns a role to a member by specifying the role name.\n" +
-                $"{Formatter.Bold("revokerole")} - Revokes a role from a member by specifying the role name.\n" +
+                $"{Formatter.Bold("giverole")} - Assigns a role to a member by specifying the role name.\n" +
+                $"{Formatter.Bold("takerole")} - Removes a role from a member by specifying the role name.\n" +
                 $"{Formatter.Bold("kick")} - Kicks a member from this Discord server.\n" +
                 $"{Formatter.Bold("ban")} - Bans a member from this Discord server.\n" +
                 $"{Formatter.Bold("unban")} - Unbans a member from this Discord server.\n" +

@@ -229,7 +229,7 @@ namespace OSISDiscordAssistant.Commands
         }
 
         [RequireAdminRole]
-        [Command("assignrole")]
+        [Command("giverole")]
         public async Task AssignRoleAsync(CommandContext ctx, DiscordMember member, [RemainingText] string roleName)
         {
             var selectedRole = ctx.Guild.Roles.FirstOrDefault(x => x.Value.Name.ToLowerInvariant().Contains(roleName.ToLowerInvariant())).Value;
@@ -252,12 +252,12 @@ namespace OSISDiscordAssistant.Commands
             {
                 await member.GrantRoleAsync(selectedRole);
 
-                await ctx.Channel.SendMessageAsync($"Assigned role {Formatter.Bold($"{selectedRole.Name}")} to {member.Mention}.");
+                await ctx.Channel.SendMessageAsync($"Gave role {Formatter.Bold($"{selectedRole.Name}")} to {member.Mention}.");
             }
         }
 
         [RequireAdminRole]
-        [Command("revokerole")]
+        [Command("takerole")]
         public async Task RevokeRoleAsync(CommandContext ctx, DiscordMember member, [RemainingText] string roleName)
         {
             var selectedRole = ctx.Guild.Roles.FirstOrDefault(x => x.Value.Name.ToLowerInvariant().Contains(roleName.ToLowerInvariant())).Value;
@@ -280,7 +280,7 @@ namespace OSISDiscordAssistant.Commands
             {
                 await member.RevokeRoleAsync(selectedRole);
 
-                await ctx.Channel.SendMessageAsync($"Revoked role {Formatter.Bold($"{selectedRole.Name}")} from {member.Mention}.");
+                await ctx.Channel.SendMessageAsync($"Took role {Formatter.Bold($"{selectedRole.Name}")} from {member.Mention}.");
             }
         }
 
@@ -409,17 +409,17 @@ namespace OSISDiscordAssistant.Commands
         }
 
         [RequireAdminRole]
-        [Command("assignrole")]
+        [Command("giverole")]
         public async Task AssignRoleHelpAsync(CommandContext ctx)
         {
-            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[SYNTAX]")} osis assignrole [USER MENTION] [ROLE NAME]");
+            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[SYNTAX]")} osis giverole [USER MENTION] [ROLE NAME]");
         }
 
         [RequireAdminRole]
-        [Command("revokerole")]
+        [Command("takerole")]
         public async Task RevokeRoleHelpAsync(CommandContext ctx)
         {
-            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[SYNTAX]")} osis revokerole [USER MENTION] [ROLE NAME]");
+            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[SYNTAX]")} osis takerole [USER MENTION] [ROLE NAME]");
         }
     }
 }
