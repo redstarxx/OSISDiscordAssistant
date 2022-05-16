@@ -28,32 +28,18 @@ namespace OSISDiscordAssistant.Commands
             _reminderService = reminderService;
         }
 
+        [Command("reminders")]
+        public async Task GetGuildRemindersAsync(CommandContext ctx)
+        {
+            await SendGuildReminders(ctx);
+        }
+
         [Command("reminder")]
         public async Task GetGuildRemindersAsync(CommandContext ctx, string option)
         {
             if (option is "list")
             {
-                var embedBuilder = new DiscordEmbedBuilder
-                {
-                    Title = $"Listing All Reminders for {ctx.Guild.Name}...",
-                    Timestamp = DateTime.Now,
-                    Footer = new DiscordEmbedBuilder.EmbedFooter
-                    {
-                        Text = "OSIS Discord Assistant"
-                    },
-                    Color = DiscordColor.MidnightBlue
-                };
-
-                var reminders = _reminderContext.Reminders.AsNoTracking().Where(x => x.Cancelled == false).Where(x => x.TargetGuildId == ctx.Guild.Id);
-
-                foreach (var reminder in reminders)
-                {
-                    var initiatingUser = await ctx.Guild.GetMemberAsync(reminder.InitiatingUserId);
-
-                    embedBuilder.AddField($"(ID: {reminder.Id}) by {initiatingUser.Username}#{initiatingUser.Discriminator} ({initiatingUser.DisplayName})", $"Date / Time: {Formatter.Timestamp(ClientUtilities.ConvertUnixTimestampToDateTime(reminder.UnixTimestampRemindAt), TimestampFormat.LongDateTime)}\nWho to remind: {reminder.TargetedUserOrRoleMention}\nContent: {reminder.Content}", true);
-                }
-
-                _ = reminders.Count() is 0 ? await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} There are no reminders to display for this guild.") : await ctx.Channel.SendMessageAsync(embedBuilder.Build());
+                await SendGuildReminders(ctx);
             }
 
             else if (option is "cancel")
@@ -126,7 +112,7 @@ namespace OSISDiscordAssistant.Commands
             };
 
             embedBuilder.Description = $"{Formatter.Bold("osis remind")} - Creates a new reminder.\n" +
-                $"{Formatter.Bold("osis reminder list")} - Lists all active reminders for this guild.\n" +
+                $"{Formatter.Bold("osis reminders")} / {Formatter.Bold("osis reminder list")} - Lists all active reminders for this guild.\n" +
                 $"{Formatter.Bold("osis reminder cancel")} - Cancels a reminder from the specified ID, which is taken from {Formatter.InlineCode("osis reminder list")}.\n";
 
             await ctx.Channel.SendMessageAsync(embed: embedBuilder);
@@ -372,6 +358,36 @@ namespace OSISDiscordAssistant.Commands
             string receiptMessage = $"Okay! In {timeSpan.Humanize(1)} ({Formatter.Timestamp(timeSpan, TimestampFormat.LongDateTime)}) {displayTarget} will be reminded of the following:\n\n {remindMessage}";
 
             return receiptMessage.Replace("  ", " ");
+        }
+
+        /// <summary>
+        /// Sends the list of active reminders that belongs to the respective guild.
+        /// </summary>
+        /// <returns></returns>
+        private async Task SendGuildReminders(CommandContext ctx)
+        {
+            var embedBuilder = new DiscordEmbedBuilder
+            {
+                Title = $"Listing All Reminders for {ctx.Guild.Name}...",
+                Description = $"To create a new reminder or cancel an active reminder, use {Formatter.Bold("osis reminder")}.",
+                Timestamp = DateTime.Now,
+                Footer = new DiscordEmbedBuilder.EmbedFooter
+                {
+                    Text = "OSIS Discord Assistant"
+                },
+                Color = DiscordColor.MidnightBlue
+            };
+
+            var reminders = _reminderContext.Reminders.AsNoTracking().Where(x => x.Cancelled == false).Where(x => x.TargetGuildId == ctx.Guild.Id);
+
+            foreach (var reminder in reminders)
+            {
+                var initiatingUser = await ctx.Guild.GetMemberAsync(reminder.InitiatingUserId);
+
+                embedBuilder.AddField($"(ID: {reminder.Id}) by {initiatingUser.Username}#{initiatingUser.Discriminator} ({initiatingUser.DisplayName})", $"When: {Formatter.Timestamp(ClientUtilities.ConvertUnixTimestampToDateTime(reminder.UnixTimestampRemindAt), TimestampFormat.LongDateTime)} ({Formatter.Timestamp(ClientUtilities.ConvertUnixTimestampToDateTime(reminder.UnixTimestampRemindAt), TimestampFormat.RelativeTime)})\nWho: {reminder.TargetedUserOrRoleMention}\nContent: {reminder.Content}", true);
+            }
+
+            _ = reminders.Count() is 0 ? await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} There are no reminders to display for this guild.") : await ctx.Channel.SendMessageAsync(embedBuilder.Build());
         }
 
         /// <summary>
