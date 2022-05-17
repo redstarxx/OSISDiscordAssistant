@@ -33,7 +33,7 @@ namespace OSISDiscordAssistant.Commands
             }
 
             await member.GrantRoleAsync(ctx.Guild.GetRole(SharedData.AccessRoleId));
-            await member.SendMessageAsync($"{Formatter.Bold("[VERIFICATION]")} You have been manually verified by {ctx.Member.Mention}! You may now access the internal channels of {ctx.Guild.Name} and begin your interaction!");
+            await member.SendMessageAsync($"{Formatter.Bold("[VERIFICATION]")} Kamu telah diverifikasi secara manual oleh {ctx.Member.Mention}! Sekarang kamu bisa mengakses channel internal server {ctx.Guild.Name} dan mendapatkan role seksimu di <#{SharedData.RolesChannelId}>.");
 
             await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[VERIFICATION]")} {member.Mention} has been granted the access role.");
 
@@ -54,7 +54,8 @@ namespace OSISDiscordAssistant.Commands
             await member.GrantRoleAsync(ctx.Guild.GetRole(SharedData.AccessRoleId));
             await member.ModifyAsync(setName => setName.Nickname = displayName);
 
-            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[VERIFICATION]")} {member.Mention} has been given the access role and assigned a new nickname ({displayName}).");
+            await member.SendMessageAsync($"{Formatter.Bold("[VERIFICATION]")} Kamu telah diverifikasi secara manual oleh {ctx.Member.Mention}! Sekarang kamu bisa mengakses channel internal server {ctx.Guild.Name} dan mendapatkan role seksimu di <#{SharedData.RolesChannelId}>.");
+            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[VERIFICATION]")} {member.Mention} has been granted the access role and assigned a new nickname ({displayName}).");
 
             await CheckPendingVerificationRequest(ctx, member);
         }
