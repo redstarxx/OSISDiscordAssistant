@@ -24,7 +24,7 @@ namespace OSISDiscordAssistant.Commands
                 }
             };
 
-            string councilCommands = $"{Formatter.Bold("event")} - Access the ARTEMIS (Automated Reminder & Event Management System or previously as Events Manager).\n" +
+            string councilCommands = $"{Formatter.Bold("event")} - Access the ARTEMIS (Automated Reminder & Event Management System or previously known as Events Manager).\n" +
                 $"{Formatter.Bold("remind")} - Reminder feature to remind yourself, another member, a division, or everyone.\n" +
                 $"{Formatter.Bold("reminder")} - Commands to manage or view upcoming reminders.\n";
 
@@ -52,6 +52,7 @@ namespace OSISDiscordAssistant.Commands
                 $"{Formatter.Bold("kick")} - Kicks a member from this Discord server.\n" +
                 $"{Formatter.Bold("ban")} - Bans a member from this Discord server.\n" +
                 $"{Formatter.Bold("unban")} - Unbans a member from this Discord server.\n" +
+                $"{Formatter.Bold("timeout")} - Timeouts a member for a specified length of time.\n" +
                 $"{Formatter.Bold("mute")} - Mutes a member.\n" +
                 $"{Formatter.Bold("unmute")} - Unmutes a member.\n" +
                 $"{Formatter.Bold("prune")} - Prunes a channel from the specified message count to delete.\n" +
