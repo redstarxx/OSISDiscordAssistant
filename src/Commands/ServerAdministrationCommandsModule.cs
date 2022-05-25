@@ -89,6 +89,31 @@ namespace OSISDiscordAssistant.Commands
         }
 
         [RequireAdminRole]
+        [Command("timeout")]
+        public async Task TimeoutAsync(CommandContext ctx, DiscordMember member, TimeSpan timeSpan, [RemainingText] string reason)
+        {
+            if (member == ctx.Member)
+            {
+                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} You cannot timeout yourself.");
+
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(reason))
+            {
+                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} You must specify a reason.");
+
+                return;
+            }
+
+            var timeoutEnd = DateTimeOffset.UtcNow.Add(timeSpan);
+
+            await member.TimeoutAsync(timeoutEnd, reason);
+
+            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[TIMEOUT]")} {member.Mention} has been timeouted by {ctx.Member.Mention} until {Formatter.Timestamp(timeoutEnd, TimestampFormat.LongDateTime)}.\nReason: {reason}");
+        }
+
+        [RequireAdminRole]
         [Command("kick")]
         public async Task KickAsync(CommandContext ctx, DiscordMember member, [RemainingText] string kickReason)
         {
@@ -353,6 +378,13 @@ namespace OSISDiscordAssistant.Commands
         // ----------------------------------------------------------
 
         [RequireAdminRole]
+        [Command("timeout")]
+        public async Task TimeoutHelpAsync(CommandContext ctx)
+        {
+            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[SYNTAX]")} osis timeout [USER MENTION] [DURATION (in shortened words, example: two hours would be 2h, three minutes would be 3m)] [REASON]");
+        }
+
+        [RequireAdminRole]
         [Command("mute")]
         public async Task MuteHelpAsync(CommandContext ctx)
         {
@@ -398,7 +430,7 @@ namespace OSISDiscordAssistant.Commands
         [Command("announce")]
         public async Task AnnounceHelpAsync(CommandContext ctx)
         {
-            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[SYNTAX]")} osis announce [CHANNEL] [TAG (role / member to mention)] [MESSAGE]");
+            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[SYNTAX]")} osis announce [CHANNEL] [MENTION (role / member to mention)] [MESSAGE]");
         }
 
         [RequireAdminRole]
