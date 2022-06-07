@@ -15,6 +15,7 @@ using OSISDiscordAssistant.Commands;
 using OSISDiscordAssistant.Constants;
 using OSISDiscordAssistant.Models;
 using DSharpPlus;
+using DSharpPlus.SlashCommands;
 using DSharpPlus.Interactivity;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.Interactivity.Extensions;
@@ -33,15 +34,15 @@ namespace OSISDiscordAssistant
                             retainedFileCountLimit: null, rollingInterval: RollingInterval.Day, flushToDiskInterval: TimeSpan.FromMinutes(1)))
                             .CreateLogger();
 
-            Log.Logger.Information("[1/9] Logging initialized.");
+            Log.Logger.Information("[1/11] Logging initialized.");
 
             Log.Logger.Information("OSISDiscordAssistant {Version}", ClientUtilities.GetBuildVersion());
 
-            Log.Logger.Information("[2/9] Reading and loading config.json...");
+            Log.Logger.Information("[2/11] Reading and loading config.json...");
 
             ClientUtilities.LoadConfigurationValues();
 
-            Log.Logger.Information("[3/9] Initializing host builder...");
+            Log.Logger.Information("[3/11] Initializing host builder...");
 
             void Builder(DbContextOptionsBuilder b)
             {
@@ -95,7 +96,7 @@ namespace OSISDiscordAssistant
 
             var shardedClient = host.Services.GetRequiredService<DiscordShardedClient>();
 
-            Log.Logger.Information("[4/9] Registering client event handlers...");
+            Log.Logger.Information("[4/11] Registering client event handlers...");
 
             shardedClient.Ready += eventHandlers.OnClientReady;
             shardedClient.GuildDownloadCompleted += eventHandlers.OnGuildDownloadCompleted;
@@ -115,14 +116,14 @@ namespace OSISDiscordAssistant
             shardedClient.Heartbeated += eventHandlers.OnHeartbeated;
             shardedClient.UnknownEvent += eventHandlers.OnUnknownEvent;
 
-            Log.Logger.Information("[5/9] Loading up interactivity configuration...");
+            Log.Logger.Information("[5/11] Loading up interactivity configuration...");
             await shardedClient.UseInteractivityAsync(new InteractivityConfiguration
             {
                 Timeout = TimeSpan.FromDays(7),
                 AckPaginationButtons = true,
             });
 
-            Log.Logger.Information("[6/9] Loading up CommandsNext configuration...");
+            Log.Logger.Information("[6/11] Loading up CommandsNext configuration...");
             var commandsConfig = new CommandsNextConfiguration
             {
                 StringPrefixes = SharedData.Prefixes,
@@ -134,7 +135,7 @@ namespace OSISDiscordAssistant
 
             SharedData.Commands = await shardedClient.UseCommandsNextAsync(commandsConfig);
 
-            Log.Logger.Information("[7/9] Registering CommandsNext commands modules...");
+            Log.Logger.Information("[7/11] Registering CommandsNext commands modules...");
             // Registers commands.
             foreach (var cmd in SharedData.Commands.Values)
             {
@@ -150,7 +151,7 @@ namespace OSISDiscordAssistant
                 //cmd.RegisterCommands<COVIDStatisticsCommandsModule>();
             }
 
-            Log.Logger.Information("[8/9] Registering CommandsNext commands event handlers...");
+            Log.Logger.Information("[8/11] Registering CommandsNext commands event handlers...");
 
             // Registers event handlers related to CommandsNext.
             foreach (var hndlr in SharedData.Commands.Values)
@@ -159,8 +160,28 @@ namespace OSISDiscordAssistant
                 hndlr.CommandErrored += eventHandlers.CommandsNext_CommandErrored;
             }
 
+            Log.Logger.Information("[9/11] Registering slash commands...");
+
+            var slashConfig = new SlashCommandsConfiguration()
+            {
+                Services = host.Services
+            };
+
+            foreach (SlashCommandsExtension slashCommandsExtension in (await shardedClient.UseSlashCommandsAsync(slashConfig)).Values)
+            {
+                slashCommandsExtension.RegisterCommands<ReminderSlashCommandsModule>(788077207901306941);
+            }
+
+            Log.Logger.Information("[10/11] Registering slash commands event handlers...");
+
+            foreach (SlashCommandsExtension slashCommandsExtension in (await shardedClient.UseSlashCommandsAsync(slashConfig)).Values)
+            {
+                slashCommandsExtension.SlashCommandInvoked += eventHandlers.SlashCommands_CommandInvoked;
+                slashCommandsExtension.SlashCommandErrored += eventHandlers.SlashCommands_CommandErrored;
+            }
+
             // Tell that whoever is seeing this that the client is connecting to Discord's gateway.
-            Log.Logger.Information("[9/9] Initializing and connecting all shards...\n----------------------------------------");
+            Log.Logger.Information("[11/11] Initializing and connecting all shards...\n----------------------------------------");
 
             await shardedClient.StartAsync();
 

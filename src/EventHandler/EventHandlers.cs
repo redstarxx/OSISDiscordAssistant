@@ -5,6 +5,8 @@ using OSISDiscordAssistant.Attributes;
 using OSISDiscordAssistant.Constants;
 using OSISDiscordAssistant.Services;
 using DSharpPlus;
+using DSharpPlus.SlashCommands;
+using DSharpPlus.SlashCommands.EventArgs;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Exceptions;
 using DSharpPlus.EventArgs;
@@ -88,7 +90,7 @@ namespace OSISDiscordAssistant
 
             if (e.MessageBefore is null)
             {
-                _logger.LogInformation(EventIds.Core, "Message ({MessageId}) is not cached. Aborted storing previous message content.", e.Message.Id);
+                _logger.LogInformation(EventIds.Core, "Message ({MessageId}) is not cached. Cannot store original message content.", e.Message.Id);
 
                 return Task.CompletedTask;
             }
@@ -124,7 +126,7 @@ namespace OSISDiscordAssistant
 
             catch
             {
-                _logger.LogInformation(EventIds.Core, "Message ({MessageId}) was not cached. Skipped logging message deleted event.", e.Message.Id);
+                _logger.LogInformation(EventIds.Core, "Message ({MessageId}) is not cached. Cannot store deleted message content.", e.Message.Id);
 
                 return Task.CompletedTask;
             }
@@ -255,6 +257,22 @@ namespace OSISDiscordAssistant
             e.Handled = true;
 
             _logger.LogWarning(EventIds.Core, "Received unknown event {EventName}, payload:\n{JsonPayload}", e.EventName, e.Json);
+
+            return Task.CompletedTask;
+        }
+
+        public Task SlashCommands_CommandInvoked(SlashCommandsExtension sender, SlashCommandInvokedEventArgs e)
+        {
+            _logger.LogInformation(EventIds.CommandHandler,
+                "User '{Username}#{Discriminator}' ({UserId}) invoked /'{CommandName}' in #{ChannelName} ({ChannelId}) guild '{GuildName}' ({GuildId}).", e.Context.User.Username, e.Context.User.Discriminator, e.Context.User.Id, e.Context.CommandName, e.Context.Channel.Name, e.Context.Channel.Id, e.Context.Guild.Name, e.Context.Guild.Id);
+
+            return Task.CompletedTask;
+        }
+
+        public Task SlashCommands_CommandErrored(SlashCommandsExtension sender, SlashCommandErrorEventArgs e)
+        {
+            _logger.LogError(EventIds.CommandHandler, e.Exception,
+                "User '{Username}#{Discriminator}' ({UserId}) tried to execute /'{CommandName}' in #{ChannelName} ({ChannelId}) guild '{GuildName}' ({GuildId}) and failed.", e.Context.User.Username, e.Context.User.Discriminator, e.Context.User.Id, e.Context.CommandName, e.Context.Channel.Name, e.Context.Channel.Id, e.Context.Guild.Name, e.Context.Guild.Id);
 
             return Task.CompletedTask;
         }
