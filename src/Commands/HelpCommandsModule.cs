@@ -26,7 +26,7 @@ namespace OSISDiscordAssistant.Commands
 
             string councilCommands = $"{Formatter.Bold("event")} - Access the ARTEMIS (Automated Reminder & Event Management System or previously known as Events Manager).\n";
 
-            string reminderCommands = $"{Formatter.Bold("remind")} - Remind yourself, a role, a user, or everyone about something you'd like to remind.\n" +
+            string reminderCommands = $"{Formatter.Bold("remind")} - Remind yourself, a role, a user, or everyone about something.\n" +
                 $"{Formatter.Bold("reminder")} - Commands to manage or view upcoming reminders.\n";
 
             string generalCommands = $"{Formatter.Bold("poll")} - Creates a poll with a set of specified emojis to choose.\n" +
