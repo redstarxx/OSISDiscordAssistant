@@ -9,7 +9,7 @@ A Discord bot created for OSIS Sekolah Djuwita Batam, written on top of DSharpPl
 Contributions are open to everyone! Please read the contributions guideline for more information.
 
 ## Requirements
-- [.NET Core 5](https://dotnet.microsoft.com/download/dotnet/5.0)
+- [.NET Core 6](https://dotnet.microsoft.com/download/dotnet/6.0)
 - [PostgreSQL](https://www.postgresql.org/)
 
 ## Setting Up
@@ -28,6 +28,7 @@ Create a new file named `config.json` in the bot's directory. Fill that file wit
     "Token": "",
     "Prefix": [""],
     "DbConnectionString": "",
+    "BotAdministratorId": "",
     "MainGuildId": "",
     "StatusActivityType": ,
     "CustomStatusDisplay": [""],
@@ -45,13 +46,15 @@ Create a new file named `config.json` in the bot's directory. Fill that file wit
             "RoleName": "",
             "RoleEmoji": ""
         }
-	]
+	],
+    "MainGuildInviteLink": ""
 }
 ```
 
 - For the `Token` property, add your bot's token obtained from [Discord Developer Portal](https://discord.com/developers/applications). If you do not know how to obtain that, you'll need to create a new application then click on the Bot section. Click `Add User` and copy the token.
 - For the `Prefix` property, add your desired command prefix between the quotation marks.
 - For the `DbConnectionString` property, add your database's connection string. A typical PostgreSQL connection string would look like this: `Host=host;Username=username;Password=password;Database=database` Change these values according to your database.
+- For the `BotAdministratorId` property, add the user ID of the bot administrator's Discord account.
 - For the `MainGuildId` property, add the guild ID that you want the event and proposal submission reminders to be sent to.
 - For the `StatusActivityType` property, add the desired ActivityType enum number as specified in the D#+ documentation.
 - For the `CustomStatusDisplay` property, add the array of strings to be set as the bot's custom status which is updated on a minute basis.
@@ -64,6 +67,7 @@ Create a new file named `config.json` in the bot's directory. Fill that file wit
 - For the `ErrorChannelId` property, add the channel ID that you want the error(s) related to event and proposal submissions reminders background task to be sent to.
 - For the `AccessRoleId` property, add the ID of the role that serves as the OSIS role in the main guild.
 - For the `MainGuildRoles` array, add the array of divisional roles as needed.
+- For the `MainGuildInviteLink` property, add the invite link of the main guild which will be displayed if a command restricted for the main guild only is used outside of the guild.
 
 Make sure you have saved your changes before proceeding.
 
