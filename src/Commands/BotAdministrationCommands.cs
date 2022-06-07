@@ -45,6 +45,13 @@ namespace OSISDiscordAssistant.Commands
         [Command("eval")]
         public async Task EvalAsync(CommandContext ctx, [RemainingText] string code)
         {
+            if (code is null)
+            {
+                await ctx.RespondAsync($"{Formatter.Bold("[ERROR]")} Where is the code?");
+
+                return;
+            }
+
             var cs1 = code.IndexOf("```") + 3;
             cs1 = code.IndexOf('\n', cs1) + 1;
             var cs2 = code.LastIndexOf("```");
