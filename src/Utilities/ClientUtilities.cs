@@ -337,6 +337,8 @@ namespace OSISDiscordAssistant.Utilities
 
             SharedData.DbConnectionString = configJson.ConnectionString;
 
+            SharedData.BotAdministratorId = configJson.BotAdministratorId;
+
             SharedData.MainGuildId = (ulong)configJson.MainGuildId;
 
             SharedData.StatusActivityType = configJson.StatusActivityType;

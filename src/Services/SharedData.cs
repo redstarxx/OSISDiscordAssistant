@@ -28,6 +28,11 @@ namespace OSISDiscordAssistant.Services
         public static string DbConnectionString;
 
         /// <summary>
+        /// The user ID of the bot administrator on Discord.
+        /// </summary>
+        public static ulong BotAdministratorId;
+
+        /// <summary>
         /// The prefixes used to execute a command.
         /// </summary>
         public static string[] Prefixes;

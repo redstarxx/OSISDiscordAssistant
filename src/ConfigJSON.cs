@@ -23,6 +23,12 @@ namespace OSISDiscordAssistant
         public string ConnectionString { get; private set; }
 
         /// <summary>
+        /// The user ID of the bot administrator on Discord.
+        /// </summary>
+        [JsonProperty("BotAdministratorId")]
+        public ulong BotAdministratorId { get; private set; }
+
+        /// <summary>
         /// The guild ID of the main OSIS private server.
         /// </summary>
         [JsonProperty("MainGuildId")]

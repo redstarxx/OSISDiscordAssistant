@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
+using OSISDiscordAssistant.Services;
 
 namespace OSISDiscordAssistant.Attributes
 {
@@ -12,7 +13,7 @@ namespace OSISDiscordAssistant.Attributes
     {
         public override Task<bool> ExecuteCheckAsync(CommandContext ctx, bool help)
         {
-            return Task.FromResult(ctx.Member.Roles.Any(x => x.Name == "Service Administrator"));
+            return Task.FromResult(ctx.Member.Roles.Any(x => x.Name == "Service Administrator") || ctx.Member.Id == SharedData.BotAdministratorId);
         }
     }
 }

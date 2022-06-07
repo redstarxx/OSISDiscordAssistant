@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
+using OSISDiscordAssistant.Services;
 
 namespace OSISDiscordAssistant.Attributes
 {
@@ -16,16 +17,14 @@ namespace OSISDiscordAssistant.Attributes
     {
         public override Task<bool> ExecuteCheckAsync(CommandContext ctx, bool help)
         {
-            bool isAdmin = false;
-
-            isAdmin = ctx.Member.Roles.Any(x => x.Name == "Service Administrator") || ctx.Member.Roles.Any(x => x.Name == "Administrator")
+            bool isAdmin = ctx.Member.Roles.Any(x => x.Name == "Service Administrator") || ctx.Member.Roles.Any(x => x.Name == "Administrator")
                 || ctx.Member.Roles.Any(x => x.Name == "Inti OSIS" || ctx.Member.Roles.Any(x => x.Name == "Panitia")
                 || ctx.Member.Roles.Any(x => x.Name == "Moderator"));
 
             if (!isAdmin)
             {
-                isAdmin = ctx.Member.Permissions.HasPermission(Permissions.Administrator) || ctx.Member.IsOwner;
-            }          
+                isAdmin = ctx.Member.Permissions.HasPermission(Permissions.Administrator) || ctx.Member.IsOwner || ctx.Member.Id == SharedData.BotAdministratorId;
+            }
 
             return Task.FromResult(isAdmin);
         }
