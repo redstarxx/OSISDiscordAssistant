@@ -147,7 +147,7 @@ namespace OSISDiscordAssistant
                 cmd.RegisterCommands<BotAdministrationCommands>();
                 cmd.RegisterCommands<PollCommandsModule>();
                 cmd.RegisterCommands<TagsCommandsModule>();
-                cmd.RegisterCommands<COVIDStatisticsCommandsModule>();
+                //cmd.RegisterCommands<COVIDStatisticsCommandsModule>();
             }
 
             Log.Logger.Information("[8/9] Registering CommandsNext commands event handlers...");
