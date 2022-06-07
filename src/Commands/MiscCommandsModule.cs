@@ -272,7 +272,7 @@ namespace OSISDiscordAssistant.Commands
                     IconUrl = ctx.Member.AvatarUrl
                 },
                 Title = "Member Information",
-                Description = $"Halo, {ctx.Member.Mention}! Informasi akun anda adalah sebagai berikut:",
+                Description = $"Hello, {ctx.Member.Mention}! Your Discord account information is as follows:",
                 Timestamp = DateTime.Now,
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
@@ -302,7 +302,9 @@ namespace OSISDiscordAssistant.Commands
 
             embedBuilder.AddField("Discord Tag", ctx.Member.Username + "#" + ctx.Member.Discriminator, true);
             embedBuilder.AddField("Discord User ID", ctx.Member.Id.ToString(), true);
-            embedBuilder.AddField("Server Username", ctx.Member.DisplayName, true);
+            embedBuilder.AddField("Server Display Name", ctx.Member.DisplayName, true);
+            embedBuilder.AddField("Registered at", Formatter.Timestamp(ctx.Member.CreationTimestamp, TimestampFormat.LongDateTime), true);
+            embedBuilder.AddField("Joined at", Formatter.Timestamp(ctx.Member.JoinedAt, TimestampFormat.LongDateTime), true);
             embedBuilder.AddField(roleHeader, roleList, true);
 
             await ctx.Channel.SendMessageAsync(embed: embedBuilder);
