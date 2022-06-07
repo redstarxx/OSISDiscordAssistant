@@ -397,11 +397,11 @@ namespace OSISDiscordAssistant.Commands
         private async Task<ReminderTarget> GetUserOrRoleMention(CommandContext ctx, string remindTarget)
         {
             var list = await ctx.Guild.GetAllMembersAsync();
-            var user = list.FirstOrDefault(x => x.Username.ToLowerInvariant().Contains(remindTarget.ToLowerInvariant())) ?? list.FirstOrDefault(x => x.DisplayName.ToLowerInvariant().Contains(remindTarget.ToLowerInvariant()));
+            var user = list.FirstOrDefault(x => x.Username.ToLowerInvariant().Replace(" ", "").Contains(remindTarget.ToLowerInvariant())) ?? list.FirstOrDefault(x => x.DisplayName.ToLowerInvariant().Replace(" ", "").Contains(remindTarget.ToLowerInvariant()));
 
             if (user is null)
             {
-                var role = ctx.Guild.Roles.Values.FirstOrDefault(x => x.Name.ToLowerInvariant().Contains(remindTarget.ToLowerInvariant()));
+                var role = ctx.Guild.Roles.Values.FirstOrDefault(x => x.Name.ToLowerInvariant().Replace(" ", "").Contains(remindTarget.ToLowerInvariant()));
 
                 if (role is null)
                 {
@@ -434,7 +434,7 @@ namespace OSISDiscordAssistant.Commands
 
         private async Task SendHelpMessage(CommandContext ctx)
         {
-            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[SYNTAX]")} osis remind [ROLE / MEMBER] [TANGGAL / WAKTU UNTUK DIINGATKAN (example: 25/06/2021 or 6j30m or 12:30 or 30m)] [CHANNEL (optional)] [MESSAGE]\nExample: {Formatter.InlineCode("osis remind everyone 2h Rapat OSIS")}");
+            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[SYNTAX]")} osis remind [ROLE / MEMBER (accepts one recipient only, by mentioning or type the partial name or the whole name without space)] [DATE / TIME TO REMIND (example: 25/06/2021 or 6h30m or 12:30 or 30m)] [CHANNEL (optional)] [MESSAGE]\nExample: {Formatter.InlineCode("osis remind everyone 2h VC meeting")} or {Formatter.InlineCode("osis remind SecurityGuards 1d Ban DM raiders")}");
         }
 
         private async Task SendHelpEmoji(CommandContext ctx, DiscordMessage errorMessage)
