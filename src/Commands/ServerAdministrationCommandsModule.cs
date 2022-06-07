@@ -381,7 +381,7 @@ namespace OSISDiscordAssistant.Commands
         [Command("timeout")]
         public async Task TimeoutHelpAsync(CommandContext ctx)
         {
-            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[SYNTAX]")} osis timeout [USER MENTION] [DURATION (in shortened words, example: two hours would be 2h, three minutes would be 3m)] [REASON]");
+            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[SYNTAX]")} osis timeout [USER MENTION] [DURATION (in shortened words, example: two hours would be 2h, three minutes would be 3m)] [REASON]\nExample: {Formatter.InlineCode("osis timeout @RedStar 1h Spamming")}");
         }
 
         [RequireAdminRole]
