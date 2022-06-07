@@ -138,19 +138,10 @@ namespace OSISDiscordAssistant.Commands
             await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[KICKED]")} {member.Mention} has been kicked from this server by {ctx.Member.Mention}. Reason: {kickReason}");
         }
 
+        [RequireAdminRole]
         [Command("setname")]
         public async Task SetNameAsync(CommandContext ctx, DiscordMember member, [RemainingText] string newNickname)
         {
-            if (ctx.Member != member)
-            {
-                if (!ClientUtilities.CheckAdminPermissions(ctx))
-                {
-                    await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} If you are not an administrator, you cannot rename someone else's nickname!");
-
-                    return;
-                }
-            }
-
             // Checks whether the command is executed with a reason.
             if (newNickname is null)
             {
@@ -162,7 +153,7 @@ namespace OSISDiscordAssistant.Commands
             string previousNickname = member.DisplayName;
             await member.ModifyAsync(x => x.Nickname = newNickname);
 
-            await ctx.Channel.SendMessageAsync($"{member.Mention} {previousNickname}'s server username has been changed to {newNickname} by {ctx.Member.Mention}.");
+            await ctx.Channel.SendMessageAsync($"{member.Mention} Your server display name has been changed to {newNickname} by {ctx.Member.Mention}.");
         }
 
         [RequireAdminRole]
