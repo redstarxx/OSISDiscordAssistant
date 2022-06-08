@@ -44,34 +44,34 @@ namespace OSISDiscordAssistant.Services
                 {
                     try
                     {
-                        TimeSpan timeSpan = ClientUtilities.ConvertUnixTimestampToDateTime(reminder.UnixTimestampRemindAt) - DateTime.Now;
-
-                        if (timeSpan.TotalSeconds < 0)
+                        if (reminder.Cancelled is true)
                         {
-                            await SendReminder(reminder);
+                            _reminderContext.Remove(reminder);
 
-                            await RemoveReminder(reminder);
+                            await _reminderContext.SaveChangesAsync();
 
-                            _logger.LogInformation("Removed reminder ID {Id} due to late completion.", reminder.Id);
-                            dispatchedRemindersCount++;
+                            _logger.LogInformation("Removed reminder ID {Id} due to cancelled.", reminder.Id);
                         }
 
                         else
                         {
-                            if (reminder.Cancelled is true)
+                            TimeSpan timeSpan = ClientUtilities.ConvertUnixTimestampToDateTime(reminder.UnixTimestampRemindAt) - DateTime.Now;
+
+                            if (timeSpan.TotalSeconds < 0)
                             {
-                                _reminderContext.Remove(reminder);
+                                await SendReminder(reminder);
 
-                                await _reminderContext.SaveChangesAsync();
+                                await RemoveReminder(reminder);
 
-                                _logger.LogInformation("Removed reminder ID {Id} due to cancelled.", reminder.Id);
+                                _logger.LogInformation("Removed reminder ID {Id} due to late completion.", reminder.Id);
+                                dispatchedRemindersCount++;
                             }
 
                             else
                             {
                                 CreateReminderTask(reminder, timeSpan);
                             }
-                        }
+                        }                       
                     }
 
                     catch (Exception ex)
