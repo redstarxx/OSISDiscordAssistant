@@ -314,7 +314,7 @@ namespace OSISDiscordAssistant.Commands
             var embedBuilder = new DiscordEmbedBuilder
             {
                 Title = $"Listing All Reminders for {ctx.Guild.Name}...",
-                Description = $"To view commands to manage or list upcoming reminders., use {Formatter.Bold("/reminder")}.",
+                Description = $"To view commands to manage or list upcoming reminders, use {Formatter.Bold("/reminder")}.",
                 Timestamp = DateTime.Now,
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
