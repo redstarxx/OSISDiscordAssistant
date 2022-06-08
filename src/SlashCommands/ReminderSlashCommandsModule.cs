@@ -135,7 +135,7 @@ namespace OSISDiscordAssistant.Commands
                         {
                             await ctx.CreateResponseAsync($"{Formatter.Bold("[ERROR]")} Looks like an invalid reminder target! Type {Formatter.InlineCode("/remind")} to ensure you are following the syntax correctly.");
 
-                            break;
+                            return;
                         }
 
                         remindTarget = reminderTarget.MentionString;
