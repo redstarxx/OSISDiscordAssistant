@@ -226,10 +226,7 @@ namespace OSISDiscordAssistant.Commands
 
                         catch
                         {
-                            string errorMessage =
-                                $"{Formatter.Bold("[ERROR]")} An error occured while parsing your date. Acceptable date formats are " +
-                                "`DD/MM/YYYY`, `MM/DD/YYYY` or `DD/MMM/YYYY`. \nExample: 25/06/2019, 06/25/2019, 25/JUN/2019.";
-                            await ctx.RespondAsync(errorMessage);
+                            await SendTimespanHelpEmbedAsync(ctx);
 
                             return;
                         }
@@ -277,7 +274,19 @@ namespace OSISDiscordAssistant.Commands
 
             else
             {
-                TimeSpan remainingTime = ClientUtilities.ParseToSeconds(timeSpan);
+                TimeSpan remainingTime = TimeSpan.Zero;
+
+                try
+                {
+                    remainingTime = ClientUtilities.ParseToSeconds(timeSpan);
+                }
+
+                catch
+                {
+                    await SendTimespanHelpEmbedAsync(ctx);
+
+                    return;
+                }
 
                 DateTime remindTime = currentTime + remainingTime;
 
@@ -430,6 +439,21 @@ namespace OSISDiscordAssistant.Commands
                     IsUser = true
                 };
             }
+        }
+
+        private async Task SendTimespanHelpEmbedAsync(CommandContext ctx)
+        {
+            await ctx.RespondAsync(new DiscordEmbedBuilder()
+            {
+                Title = "Invalid timespan value given!",
+                Description = $"At the moment, I can only accept three forms of timespan, which is:\n• Shortened dates, example: {Formatter.InlineCode("25/06/2022")} or {Formatter.InlineCode("25/JUNE/2022")},\n• Relative time, example: {Formatter.InlineCode("2h")} to remind you in two hours or {Formatter.InlineCode("12h30m")} in twelve hours and 30 minutes,\n• Or you can just point out the time you want the reminder to be sent if you are going to remind them within the next 24 hours, example: {Formatter.InlineCode("11:30")}. Follow the 24 hours format when using this option.",
+                Timestamp = DateTime.Now,
+                Footer = new DiscordEmbedBuilder.EmbedFooter
+                {
+                    Text = "OSIS Discord Assistant"
+                },
+                Color = DiscordColor.MidnightBlue
+            });
         }
 
         private async Task SendHelpMessage(CommandContext ctx)
