@@ -105,7 +105,7 @@ namespace OSISDiscordAssistant.Services
                                 IconUrl = e.User.AvatarUrl
                             },
                             Title = $"Verification Request #{verificationCounterNumber} | PENDING",
-                            Description = $"{e.User.Username}#{e.User.Discriminator} has submitted a verification request.\n"
+                            Description = $"<@{e.User.Id}> has submitted a verification request.\n"
                                 + $"{Formatter.Bold("Requested Nickname:")} {requestedName}\n{Formatter.Bold("User ID:")} {e.User.Id}\n{Formatter.Bold("Verification Status:")} PENDING.\n"
                                 + $"This request expires at {Formatter.Timestamp(DateTime.Now.AddDays(SharedData.MaxPendingVerificationWaitingDay), TimestampFormat.LongDateTime)}.\nAlternatively, use the {Formatter.InlineCode("osis overify")} command to manually verify a new member.",
                             Timestamp = DateTime.Now,
