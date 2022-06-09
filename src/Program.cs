@@ -63,7 +63,7 @@ namespace OSISDiscordAssistant
                     services.AddDbContext<EventContext>(Builder, ServiceLifetime.Scoped);
                     services.AddDbContext<TagsContext>(Builder, ServiceLifetime.Transient);
                     services.AddDbContext<CounterContext>(Builder, ServiceLifetime.Transient);
-                    services.AddDbContext<ReminderContext>(Builder, ServiceLifetime.Transient);
+                    services.AddDbContext<ReminderContext>(Builder, ServiceLifetime.Scoped);
 
                     // Services
                     services.AddSingleton<IMainGuildStaticInteractionHandler, MainGuildStaticInteractionHandler>();
@@ -169,7 +169,7 @@ namespace OSISDiscordAssistant
 
             foreach (SlashCommandsExtension slashCommandsExtension in (await shardedClient.UseSlashCommandsAsync(slashConfig)).Values)
             {
-                slashCommandsExtension.RegisterCommands<ReminderSlashCommandsModule>();
+                slashCommandsExtension.RegisterCommands<ReminderSlashCommandsModule>(788077207901306941);
             }
 
             Log.Logger.Information("[10/11] Registering slash commands event handlers...");

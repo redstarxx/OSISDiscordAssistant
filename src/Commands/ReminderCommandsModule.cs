@@ -31,7 +31,7 @@ namespace OSISDiscordAssistant.Commands
         [Command("reminders")]
         public async Task GetGuildRemindersAsync(CommandContext ctx)
         {
-            await SendGuildReminders(ctx);
+            await _reminderService.SendGuildReminders(ctx);
         }
 
         [Command("reminder")]
@@ -39,7 +39,7 @@ namespace OSISDiscordAssistant.Commands
         {
             if (option is "list")
             {
-                await SendGuildReminders(ctx);
+                await _reminderService.SendGuildReminders(ctx);
             }
 
             else if (option is "cancel")
@@ -138,9 +138,7 @@ namespace OSISDiscordAssistant.Commands
         {
             if (remindMessage.Length == 0)
             {
-                var errorMessage = await ctx.RespondAsync($"{Formatter.Bold("[ERROR]")} You cannot remind someone with an empty message. Type {Formatter.InlineCode("osis remind")} to get help. Alternatively, click the emoji below to get help.");
-
-                await SendHelpEmoji(ctx, errorMessage);
+                await ctx.RespondAsync($"{Formatter.Bold("[ERROR]")} You cannot remind someone with an empty message. Type {Formatter.InlineCode("osis remind")} to ensure you are following the syntax correctly.");
 
                 return;
             }
@@ -176,13 +174,11 @@ namespace OSISDiscordAssistant.Commands
                     // Expecting that the input would be a name of a member which belongs to the guild or a role...
                     else
                     {
-                        var reminderTarget = await GetUserOrRoleMention(ctx, remindTarget);
+                        var reminderTarget = await ClientUtilities.GetUserOrRoleMention(remindTarget, ctx, null);
 
                         if (reminderTarget is null)
                         {
-                            var errorMessage = await ctx.RespondAsync($"{Formatter.Bold("[ERROR]")} Looks like an invalid reminder target! Type {Formatter.InlineCode("osis remind")} to ensure you are following the syntax correctly.");
-
-                            await SendHelpEmoji(ctx, errorMessage);
+                            await ctx.RespondAsync($"{Formatter.Bold("[ERROR]")} Looks like an invalid reminder target! Type {Formatter.InlineCode("osis remind")} to ensure you are following the syntax correctly.");
 
                             break;
                         }
@@ -226,7 +222,7 @@ namespace OSISDiscordAssistant.Commands
 
                         catch
                         {
-                            await SendTimespanHelpEmbedAsync(ctx);
+                            await _reminderService.SendTimespanHelpEmbedAsync(ctx);
 
                             return;
                         }
@@ -254,7 +250,7 @@ namespace OSISDiscordAssistant.Commands
                         return;
                     }
 
-                    await RegisterReminder(remainingTime, targetChannel, remindMessage, ctx, remindTarget, displayTarget);
+                    await _reminderService.RegisterReminder(remainingTime, targetChannel, remindMessage, remindTarget, displayTarget, ctx);
                 }
             }
 
@@ -269,7 +265,7 @@ namespace OSISDiscordAssistant.Commands
 
                 TimeSpan remainingTime = remindTime - currentTime;
 
-                await RegisterReminder(remainingTime, targetChannel, remindMessage, ctx, remindTarget, displayTarget);
+                await _reminderService.RegisterReminder(remainingTime, targetChannel, remindMessage, remindTarget, displayTarget, ctx);
             }
 
             else
@@ -283,7 +279,7 @@ namespace OSISDiscordAssistant.Commands
 
                 catch
                 {
-                    await SendTimespanHelpEmbedAsync(ctx);
+                    await _reminderService.SendTimespanHelpEmbedAsync(ctx);
 
                     return;
                 }
@@ -309,7 +305,7 @@ namespace OSISDiscordAssistant.Commands
                         return;
                     }
 
-                    await RegisterReminder(remainingTime, targetChannel, remindMessage, ctx, remindTarget, displayTarget);
+                    await _reminderService.RegisterReminder(remainingTime, targetChannel, remindMessage, remindTarget, displayTarget, ctx);
                 }
             }
         }
@@ -324,158 +320,9 @@ namespace OSISDiscordAssistant.Commands
             await SendHelpMessage(ctx);
         }
 
-        /// <summary>
-        /// Stores the reminder into the database and dispatches the reminder. It will check whether the reminder was cancelled before the reminder content is to be sent.
-        /// </summary>
-        private async Task RegisterReminder(TimeSpan remainingTime, DiscordChannel targetChannel, string remindMessage, CommandContext ctx, string remindTarget, string displayTarget)
-        {
-            var reminder = new Reminder()
-            {
-                InitiatingUserId = ctx.Member.Id,
-                TargetedUserOrRoleMention = remindTarget,
-                UnixTimestampRemindAt = ClientUtilities.ConvertDateTimeToUnixTimestamp(DateTime.UtcNow.Add(remainingTime)),
-                TargetGuildId = targetChannel.Guild.Id,
-                ReplyMessageId = ctx.Message.ReferencedMessage is null ? ctx.Message.Id : ctx.Message.ReferencedMessage.Id,
-                TargetChannelId = targetChannel.Id,
-                Cancelled = false,
-                Content = remindMessage
-            };
-
-            if (ctx.Channel != targetChannel)
-            {
-                reminder.ReplyMessageId = ctx.Message.Id;
-            }
-
-            _reminderContext.Add(reminder);
-
-            await _reminderContext.SaveChangesAsync();
-
-            _reminderService.CreateReminderTask(reminder, remainingTime);
-
-            await ctx.Channel.SendMessageAsync(CreateReminderReceiptMessage(remainingTime, remindMessage, displayTarget));
-        }
-
-        /// <summary>
-        /// Composes a reminder receipt message (sent upon the completion of firing a reminder task).
-        /// </summary>
-        /// <param name="timeSpan">The timespan object.</param>
-        /// <param name="remindMessage">Something to remind (text, link, picture, whatever).</param>
-        /// <param name="displayTarget"></param>
-        /// <returns></returns>
-        private string CreateReminderReceiptMessage(TimeSpan timeSpan, string remindMessage, string displayTarget)
-        {
-            string receiptMessage = $"Okay! In {timeSpan.Humanize(1)} ({Formatter.Timestamp(timeSpan, TimestampFormat.LongDateTime)}) {displayTarget} will be reminded of the following:\n\n {remindMessage}";
-
-            return receiptMessage.Replace("  ", " ");
-        }
-
-        /// <summary>
-        /// Sends the list of active reminders that belongs to the respective guild.
-        /// </summary>
-        /// <returns></returns>
-        private async Task SendGuildReminders(CommandContext ctx)
-        {
-            var embedBuilder = new DiscordEmbedBuilder
-            {
-                Title = $"Listing All Reminders for {ctx.Guild.Name}...",
-                Description = $"To create a new reminder or cancel an active reminder, use {Formatter.Bold("osis reminder")}.",
-                Timestamp = DateTime.Now,
-                Footer = new DiscordEmbedBuilder.EmbedFooter
-                {
-                    Text = "OSIS Discord Assistant"
-                },
-                Color = DiscordColor.MidnightBlue
-            };
-
-            var reminders = _reminderContext.Reminders.AsNoTracking().Where(x => x.Cancelled == false).Where(x => x.TargetGuildId == ctx.Guild.Id);
-
-            foreach (var reminder in reminders)
-            {
-                var initiatingUser = await ctx.Guild.GetMemberAsync(reminder.InitiatingUserId);
-
-                embedBuilder.AddField($"(ID: {reminder.Id}) by {initiatingUser.Username}#{initiatingUser.Discriminator} ({initiatingUser.DisplayName})", $"When: {Formatter.Timestamp(ClientUtilities.ConvertUnixTimestampToDateTime(reminder.UnixTimestampRemindAt), TimestampFormat.LongDateTime)} ({Formatter.Timestamp(ClientUtilities.ConvertUnixTimestampToDateTime(reminder.UnixTimestampRemindAt), TimestampFormat.RelativeTime)})\nWho: {reminder.TargetedUserOrRoleMention}\nContent: {reminder.Content}", true);
-            }
-
-            _ = reminders.Count() is 0 ? await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} There are no reminders to display for this guild.") : await ctx.Channel.SendMessageAsync(embedBuilder.Build());
-        }
-
-        /// <summary>
-        /// Gets the mention string of the partial member or role name.
-        /// </summary>
-        /// <returns>A <see cref="ReminderTarget" /> object which contains the mention string and necessary data of the associated member if any contains the given string, or the role mention string if fetching the associated member returns null and a role with the name that contains the given string. Returns null if no member or role name contains the given string.</returns>
-        private async Task<ReminderTarget> GetUserOrRoleMention(CommandContext ctx, string remindTarget)
-        {
-            var list = await ctx.Guild.GetAllMembersAsync();
-            var user = list.FirstOrDefault(x => x.Username.ToLowerInvariant().Replace(" ", "").Contains(remindTarget.ToLowerInvariant())) ?? list.FirstOrDefault(x => x.DisplayName.ToLowerInvariant().Replace(" ", "").Contains(remindTarget.ToLowerInvariant()));
-
-            if (user is null)
-            {
-                var role = ctx.Guild.Roles.Values.FirstOrDefault(x => x.Name.ToLowerInvariant().Replace(" ", "").Contains(remindTarget.ToLowerInvariant()));
-
-                if (role is null)
-                {
-                    return null;
-                }
-
-                else
-                {
-                    return new ReminderTarget()
-                    {
-                        Name = role.Name,
-                        MentionString = role.Mention,
-                        IsUser = false
-                    };
-                }
-            }
-
-            else
-            {
-                return new ReminderTarget()
-                {
-                    Name = user.Username,
-                    DisplayName = user.DisplayName == user.Username ? null : user.DisplayName,
-                    Discriminator = user.Discriminator,
-                    MentionString = user.Mention,
-                    IsUser = true
-                };
-            }
-        }
-
-        private async Task SendTimespanHelpEmbedAsync(CommandContext ctx)
-        {
-            await ctx.RespondAsync(new DiscordEmbedBuilder()
-            {
-                Title = "Invalid timespan value given!",
-                Description = $"At the moment, I can only accept three forms of timespan, which is:\n• Shortened dates, example: {Formatter.InlineCode("25/06/2022")} or {Formatter.InlineCode("25/JUNE/2022")},\n• Relative time, example: {Formatter.InlineCode("2h")} to remind you in two hours or {Formatter.InlineCode("12h30m")} in twelve hours and 30 minutes,\n• Or you can just point out the time you want the reminder to be sent if you are going to remind them within the next 24 hours, example: {Formatter.InlineCode("11:30")}. Follow the 24 hours format when using this option.",
-                Timestamp = DateTime.Now,
-                Footer = new DiscordEmbedBuilder.EmbedFooter
-                {
-                    Text = "OSIS Discord Assistant"
-                },
-                Color = DiscordColor.MidnightBlue
-            });
-        }
-
         private async Task SendHelpMessage(CommandContext ctx)
         {
             await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[SYNTAX]")} osis remind [ROLE / MEMBER (accepts one recipient only, by mentioning or type the partial name or the whole name without space)] [DATE / TIME TO REMIND (example: 25/06/2021 or 6h30m or 12:30 or 30m)] [CHANNEL (optional)] [MESSAGE]\nExample: {Formatter.InlineCode("osis remind everyone 2h VC meeting")} or {Formatter.InlineCode("osis remind SecurityGuards 1d Ban DM raiders")}");
-        }
-
-        private async Task SendHelpEmoji(CommandContext ctx, DiscordMessage errorMessage)
-        {
-            var helpEmoji = DiscordEmoji.FromName(ctx.Client, ":sos:");
-
-            await errorMessage.CreateReactionAsync(helpEmoji);
-
-            var interactivity = ctx.Client.GetInteractivity();
-
-            Thread.Sleep(TimeSpan.FromMilliseconds(500));
-            var emojiResult = await interactivity.WaitForReactionAsync(x => x.Message == errorMessage && (x.Emoji == helpEmoji));
-
-            if (emojiResult.Result.Emoji == helpEmoji)
-            {
-                await SendHelpMessage(ctx);
-            }
         }      
     }
 }

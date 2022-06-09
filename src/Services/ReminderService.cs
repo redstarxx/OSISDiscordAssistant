@@ -3,8 +3,12 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus;
+using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
+using DSharpPlus.SlashCommands;
+using Humanizer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OSISDiscordAssistant.Constants;
 using OSISDiscordAssistant.Models;
@@ -14,16 +18,18 @@ namespace OSISDiscordAssistant.Services
 {
     public class ReminderService : IReminderService
     {
-        private readonly ReminderContext _reminderContext;
+        private readonly IServiceScopeFactory _serviceScopeFactory;
+        //private readonly ReminderContext _reminderContext;
         private readonly DiscordShardedClient _shardedClient;
         private readonly ILogger<ReminderService> _logger;
 
         private int dispatchedRemindersCount = 0;
         private bool initialized = false;
 
-        public ReminderService(ReminderContext reminderContext, DiscordShardedClient shardedClient, ILogger<ReminderService> logger)
+        public ReminderService(IServiceScopeFactory serviceScopeFactory, /*ReminderContext reminderContext, */DiscordShardedClient shardedClient, ILogger<ReminderService> logger)
         {
-            _reminderContext = reminderContext;
+            _serviceScopeFactory = serviceScopeFactory;
+            //_reminderContext = reminderContext;
             _shardedClient = shardedClient;
             _logger = logger;
         }
@@ -40,45 +46,50 @@ namespace OSISDiscordAssistant.Services
                 Stopwatch stopwatch = new();
                 stopwatch.Start();
 
-                foreach (var reminder in _reminderContext.Reminders.AsNoTracking())
+                using (var scope = _serviceScopeFactory.CreateScope())
                 {
-                    try
+                    var reminderContext = scope.ServiceProvider.GetRequiredService<ReminderContext>();
+
+                    foreach (var reminder in reminderContext.Reminders.AsNoTracking())
                     {
-                        if (reminder.Cancelled is true)
+                        try
                         {
-                            _reminderContext.Remove(reminder);
-
-                            await _reminderContext.SaveChangesAsync();
-
-                            _logger.LogInformation("Removed reminder ID {Id} due to cancelled.", reminder.Id);
-                        }
-
-                        else
-                        {
-                            TimeSpan timeSpan = ClientUtilities.ConvertUnixTimestampToDateTime(reminder.UnixTimestampRemindAt) - DateTime.Now;
-
-                            if (timeSpan.TotalSeconds < 0)
+                            if (reminder.Cancelled is true)
                             {
-                                await SendReminder(reminder);
+                                reminderContext.Remove(reminder);
 
-                                await RemoveReminder(reminder);
+                                await reminderContext.SaveChangesAsync();
 
-                                _logger.LogInformation("Removed reminder ID {Id} due to late completion.", reminder.Id);
-                                dispatchedRemindersCount++;
+                                _logger.LogInformation("Removed reminder ID {Id} due to cancelled.", reminder.Id);
                             }
 
                             else
                             {
-                                CreateReminderTask(reminder, timeSpan);
-                            }
-                        }                       
-                    }
+                                TimeSpan timeSpan = ClientUtilities.ConvertUnixTimestampToDateTime(reminder.UnixTimestampRemindAt) - DateTime.Now;
 
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, "An error occured while dispatching a reminder (ID: {Id}).", reminder.Id);
+                                if (timeSpan.TotalSeconds < 0)
+                                {
+                                    await SendReminder(reminder);
+
+                                    await RemoveReminder(reminder);
+
+                                    _logger.LogInformation("Removed reminder ID {Id} due to late completion.", reminder.Id);
+                                    dispatchedRemindersCount++;
+                                }
+
+                                else
+                                {
+                                    CreateReminderTask(reminder, timeSpan);
+                                }
+                            }
+                        }
+
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, "An error occured while dispatching a reminder (ID: {Id}).", reminder.Id);
+                        }
                     }
-                }
+                }                
 
                 stopwatch.Stop();
 
@@ -132,9 +143,78 @@ namespace OSISDiscordAssistant.Services
         }
 
         /// <summary>
+        /// Composes a reminder receipt message (sent upon the completion of firing a reminder task).
+        /// </summary>
+        /// <param name="timeSpan">The timespan object.</param>
+        /// <param name="remindMessage">Something to remind (text, link, picture, whatever).</param>
+        /// <param name="displayTarget"></param>
+        /// <returns></returns>
+        private string CreateReminderReceiptMessage(TimeSpan timeSpan, string remindMessage, string displayTarget)
+        {
+            string receiptMessage = $"Okay! In {timeSpan.Humanize(1)} ({Formatter.Timestamp(timeSpan, TimestampFormat.LongDateTime)}) {displayTarget} will be reminded of the following:\n\n {remindMessage}";
+
+            return receiptMessage.Replace("  ", " ");
+        }
+
+        /// <summary>
+        /// Stores the reminder into the database and dispatches the reminder. It will check whether the reminder was cancelled before the reminder content is to be sent.
+        /// </summary>
+        public async Task RegisterReminder(TimeSpan remainingTime, DiscordChannel targetChannel, string remindMessage, string remindTarget, string displayTarget, CommandContext commandContext = null, InteractionContext interactionContext = null)
+        {
+            Reminder reminder = null;
+
+            if (commandContext != null)
+            {
+                reminder = new Reminder()
+                {
+                    InitiatingUserId = commandContext.Member.Id,
+                    TargetedUserOrRoleMention = remindTarget,
+                    UnixTimestampRemindAt = ClientUtilities.ConvertDateTimeToUnixTimestamp(DateTime.UtcNow.Add(remainingTime)),
+                    TargetGuildId = targetChannel.Guild.Id,
+                    ReplyMessageId = commandContext.Message.ReferencedMessage is null ? commandContext.Message.Id : commandContext.Message.ReferencedMessage.Id,
+                    TargetChannelId = targetChannel.Id,
+                    Cancelled = false,
+                    Content = remindMessage
+                };
+
+                if (commandContext.Channel != targetChannel)
+                {
+                    reminder.ReplyMessageId = commandContext.Message.Id;
+                }
+            }
+
+            else
+            {
+                reminder = new Reminder()
+                {
+                    InitiatingUserId = interactionContext.Member.Id,
+                    TargetedUserOrRoleMention = remindTarget,
+                    UnixTimestampRemindAt = ClientUtilities.ConvertDateTimeToUnixTimestamp(DateTime.UtcNow.Add(remainingTime)),
+                    TargetGuildId = targetChannel.Guild.Id,
+                    TargetChannelId = targetChannel.Id,
+                    Cancelled = false,
+                    Content = remindMessage
+                };
+            }
+
+            using (var scope = _serviceScopeFactory.CreateScope())
+            {
+                var reminderContext = scope.ServiceProvider.GetRequiredService<ReminderContext>();
+
+                reminderContext.Add(reminder);
+
+                await reminderContext.SaveChangesAsync();
+            }
+
+            CreateReminderTask(reminder, remainingTime);
+
+            _ = commandContext is not null ? commandContext.Channel.SendMessageAsync(CreateReminderReceiptMessage(remainingTime, remindMessage, displayTarget)) : interactionContext.CreateResponseAsync(CreateReminderReceiptMessage(remainingTime, remindMessage, displayTarget));
+        }
+
+        /// <summary>
         /// Creates and fires a task which sends a reminder message after delaying from the specified timespan. It will check whether the reminder was cancelled before the reminder content is to be sent.
         /// </summary>
-        public void CreateReminderTask(Reminder reminder, TimeSpan remainingTime)
+        private void CreateReminderTask(Reminder reminder, TimeSpan remainingTime)
         {
             var reminderTask = new Task(async () =>
             {
@@ -149,7 +229,13 @@ namespace OSISDiscordAssistant.Services
 
                     await Task.Delay(remainingTime);
 
-                    var row = _reminderContext.Reminders.AsNoTracking().FirstOrDefault(x => x.Id == reminder.Id);
+                    Reminder row = null;
+
+                    using (var scope = _serviceScopeFactory.CreateScope())
+                    {
+                        row = scope.ServiceProvider.GetRequiredService<ReminderContext>()
+                            .Reminders.AsNoTracking().FirstOrDefault(x => x.Id == reminder.Id);
+                    }
 
                     if (row is null)
                     {
@@ -205,11 +291,78 @@ namespace OSISDiscordAssistant.Services
 
         private async Task<Task> RemoveReminder(Reminder reminder)
         {
-            _reminderContext.Remove(reminder);
+            using (var scope = _serviceScopeFactory.CreateScope())
+            {
+                var reminderContext = scope.ServiceProvider.GetRequiredService<ReminderContext>();
 
-            await _reminderContext.SaveChangesAsync();
+                reminderContext.Remove(reminder);
+
+                await reminderContext.SaveChangesAsync();
+            }
 
             return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Sends the list of active reminders that belongs to the respective guild.
+        /// </summary>
+        /// <returns></returns>
+        public async Task SendGuildReminders(CommandContext commandContext = null, InteractionContext interactionContext = null)
+        {
+            var guild = commandContext is not null ? commandContext.Guild : interactionContext.Guild;
+
+            var embedBuilder = new DiscordEmbedBuilder
+            {
+                Title = $"Listing All Reminders for {guild.Name}...",
+                Description = commandContext is not null ? $"To view commands to manage or list upcoming reminders, use {Formatter.Bold("osis reminder")}." : $"To view commands to manage or list upcoming reminders, use {Formatter.Bold("/reminder")}.",
+                Timestamp = DateTime.Now,
+                Footer = new DiscordEmbedBuilder.EmbedFooter
+                {
+                    Text = "OSIS Discord Assistant"
+                },
+                Color = DiscordColor.MidnightBlue
+            };
+
+            IQueryable<Reminder> reminders;
+
+            using (var scope = _serviceScopeFactory.CreateScope())
+            {
+                reminders = scope.ServiceProvider.GetRequiredService<ReminderContext>().Reminders.AsNoTracking().Where(x => x.Cancelled == false).Where(x => x.TargetGuildId == guild.Id);
+            }
+            
+            foreach (var reminder in reminders)
+            {
+                var initiatingUser = await guild.GetMemberAsync(reminder.InitiatingUserId);
+
+                embedBuilder.AddField($"(ID: {reminder.Id}) by {initiatingUser.Username}#{initiatingUser.Discriminator} ({initiatingUser.DisplayName})", $"When: {Formatter.Timestamp(ClientUtilities.ConvertUnixTimestampToDateTime(reminder.UnixTimestampRemindAt), TimestampFormat.LongDateTime)} ({Formatter.Timestamp(ClientUtilities.ConvertUnixTimestampToDateTime(reminder.UnixTimestampRemindAt), TimestampFormat.RelativeTime)})\nWho: {reminder.TargetedUserOrRoleMention}\nContent: {reminder.Content}", true);
+            }
+
+            if (reminders.Count() is 0)
+            {
+                _ = commandContext is not null ? commandContext.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} There are no reminders to display for this guild.") : interactionContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent($"{Formatter.Bold("[ERROR]")} There are no reminders to display for this guild."));
+            }
+
+            else
+            {
+                _ = commandContext is not null ? commandContext.Channel.SendMessageAsync(embedBuilder.Build()) : interactionContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AddEmbed(embedBuilder.Build()));
+            }
+        }
+
+        public async Task SendTimespanHelpEmbedAsync(CommandContext commandContext = null, InteractionContext interactionContext = null)
+        {
+            var embed = new DiscordEmbedBuilder()
+            {
+                Title = "Invalid timespan value given!",
+                Description = $"At the moment, I can only accept three forms of timespan, which is:\n• Shortened dates, example: {Formatter.InlineCode("25/06/2022")} or {Formatter.InlineCode("25/JUNE/2022")},\n• Relative time, example: {Formatter.InlineCode("2h")} to remind you in two hours or {Formatter.InlineCode("12h30m")} in twelve hours and 30 minutes,\n• Or you can just point out the time you want the reminder to be sent if you are going to remind them within the next 24 hours, example: {Formatter.InlineCode("11:30")}. Follow the 24 hours format when using this option.",
+                Timestamp = DateTime.Now,
+                Footer = new DiscordEmbedBuilder.EmbedFooter
+                {
+                    Text = "OSIS Discord Assistant"
+                },
+                Color = DiscordColor.MidnightBlue
+            };
+
+            _ = commandContext is not null ? commandContext.Channel.SendMessageAsync(embed) : interactionContext.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AddEmbed(embed.Build()));
         }
     }
 }

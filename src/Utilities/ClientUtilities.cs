@@ -8,11 +8,12 @@ using System.Reflection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using DSharpPlus;
-using DSharpPlus.Entities;
+using DSharpPlus.SlashCommands;
 using DSharpPlus.CommandsNext;
 using OSISDiscordAssistant.Services;
 using OSISDiscordAssistant.Enums;
 using OSISDiscordAssistant.Models;
+using OSISDiscordAssistant.Entities;
 
 namespace OSISDiscordAssistant.Utilities
 {
@@ -252,6 +253,50 @@ namespace OSISDiscordAssistant.Utilities
             }
 
             return data;
+        }
+
+        /// <summary>
+        /// Gets the mention string of the partial member or role name.
+        /// </summary>
+        /// <returns>A <see cref="ReminderTarget" /> object which contains the mention string and necessary data of the associated member if any contains the given string, or the role mention string if fetching the associated member returns null and a role with the name that contains the given string. Returns null if no member or role name contains the given string.</returns>
+        public static async Task<ReminderTarget> GetUserOrRoleMention(string remindTarget, CommandContext commandContext = null, InteractionContext interactionContext = null)
+        {
+            var guild = commandContext is not null ? commandContext.Guild : interactionContext.Guild;
+
+            var list = await guild.GetAllMembersAsync();
+            var user = list.FirstOrDefault(x => x.Username.ToLowerInvariant().Contains(remindTarget.ToLowerInvariant())) ?? list.FirstOrDefault(x => x.DisplayName.ToLowerInvariant().Contains(remindTarget.ToLowerInvariant()));
+
+            if (user is null)
+            {
+                var role = guild.Roles.Values.FirstOrDefault(x => x.Name.ToLowerInvariant().Contains(remindTarget.ToLowerInvariant()));
+
+                if (role is null)
+                {
+                    return null;
+                }
+
+                else
+                {
+                    return new ReminderTarget()
+                    {
+                        Name = role.Name,
+                        MentionString = role.Mention,
+                        IsUser = false
+                    };
+                }
+            }
+
+            else
+            {
+                return new ReminderTarget()
+                {
+                    Name = user.Username,
+                    DisplayName = user.DisplayName == user.Username ? null : user.DisplayName,
+                    Discriminator = user.Discriminator,
+                    MentionString = user.Mention,
+                    IsUser = true
+                };
+            }
         }
 
         /// <summary>
