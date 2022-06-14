@@ -120,7 +120,7 @@ namespace OSISDiscordAssistant.Commands
                     {
                         displayTarget = remindTarget;
 
-                        if (remindTarget == ctx.User.Mention)
+                        if (remindTarget.Contains(ctx.User.Id.ToString()))
                         {
                             displayTarget = "you";
                         }
@@ -133,6 +133,7 @@ namespace OSISDiscordAssistant.Commands
 
                         if (reminderTarget is null)
                         {
+                            // PENDING: more descriptive and helpful invalid reminder target message (similar to that of timespan embed)
                             await ctx.CreateResponseAsync($"{Formatter.Bold("[ERROR]")} Looks like an invalid reminder target! Type {Formatter.InlineCode("/remind")} to ensure you are following the syntax correctly.");
 
                             return;

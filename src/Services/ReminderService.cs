@@ -119,7 +119,7 @@ namespace OSISDiscordAssistant.Services
             // Late dispatch? Let them know how late has the reminder been.
             if (Math.Round(remainingTime.TotalMinutes) < -0)
             {
-                if (initiatingUser.Mention == reminder.TargetedUserOrRoleMention)
+                if (reminder.TargetedUserOrRoleMention.Contains(reminder.InitiatingUserId.ToString()))
                 {
                     return $"{DiscordEmoji.FromName(client, ":alarm_clock:")} {initiatingUser.Mention}, {Formatter.Timestamp(remindAt, TimestampFormat.RelativeTime)}, you wanted to be reminded of the following: \n\n{reminder.Content}";
                 }
@@ -131,7 +131,7 @@ namespace OSISDiscordAssistant.Services
             }
 
             // Else...
-            if (initiatingUser.Mention == reminder.TargetedUserOrRoleMention)
+            if (reminder.TargetedUserOrRoleMention.Contains(reminder.InitiatingUserId.ToString()))
             {
                 return $"{DiscordEmoji.FromName(client, ":alarm_clock:")} {initiatingUser.Mention}, you wanted to be reminded of the following: \n\n{reminder.Content}";
             }
@@ -197,14 +197,11 @@ namespace OSISDiscordAssistant.Services
                 };
             }
 
-            using (var scope = _serviceScopeFactory.CreateScope())
-            {
-                var reminderContext = scope.ServiceProvider.GetRequiredService<ReminderContext>();
+            var reminderContext = _serviceScopeFactory.CreateScope().ServiceProvider.GetRequiredService<ReminderContext>();
 
-                reminderContext.Add(reminder);
+            reminderContext.Add(reminder);
 
-                await reminderContext.SaveChangesAsync();
-            }
+            await reminderContext.SaveChangesAsync();
 
             CreateReminderTask(reminder, remainingTime);
 
@@ -229,13 +226,8 @@ namespace OSISDiscordAssistant.Services
 
                     await Task.Delay(remainingTime);
 
-                    Reminder row = null;
-
-                    using (var scope = _serviceScopeFactory.CreateScope())
-                    {
-                        row = scope.ServiceProvider.GetRequiredService<ReminderContext>()
-                            .Reminders.AsNoTracking().FirstOrDefault(x => x.Id == reminder.Id);
-                    }
+                    var row = _serviceScopeFactory.CreateScope().ServiceProvider.GetRequiredService<ReminderContext>()
+                            .Reminders.AsNoTracking().FirstOrDefault(x => x.Id == reminder.Id); ;
 
                     if (row is null)
                     {
@@ -291,14 +283,11 @@ namespace OSISDiscordAssistant.Services
 
         private async Task<Task> RemoveReminder(Reminder reminder)
         {
-            using (var scope = _serviceScopeFactory.CreateScope())
-            {
-                var reminderContext = scope.ServiceProvider.GetRequiredService<ReminderContext>();
+            var reminderContext = _serviceScopeFactory.CreateScope().ServiceProvider.GetRequiredService<ReminderContext>();
 
-                reminderContext.Remove(reminder);
+            reminderContext.Remove(reminder);
 
-                await reminderContext.SaveChangesAsync();
-            }
+            await reminderContext.SaveChangesAsync();
 
             return Task.CompletedTask;
         }
@@ -323,13 +312,8 @@ namespace OSISDiscordAssistant.Services
                 Color = DiscordColor.MidnightBlue
             };
 
-            IQueryable<Reminder> reminders;
+            IQueryable<Reminder> reminders = _serviceScopeFactory.CreateScope().ServiceProvider.GetRequiredService<ReminderContext>().Reminders.AsNoTracking().Where(x => x.Cancelled == false).Where(x => x.TargetGuildId == guild.Id);
 
-            using (var scope = _serviceScopeFactory.CreateScope())
-            {
-                reminders = scope.ServiceProvider.GetRequiredService<ReminderContext>().Reminders.AsNoTracking().Where(x => x.Cancelled == false).Where(x => x.TargetGuildId == guild.Id);
-            }
-            
             foreach (var reminder in reminders)
             {
                 var initiatingUser = await guild.GetMemberAsync(reminder.InitiatingUserId);

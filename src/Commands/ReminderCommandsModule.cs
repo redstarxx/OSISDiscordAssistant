@@ -165,7 +165,7 @@ namespace OSISDiscordAssistant.Commands
                     {
                         displayTarget = remindTarget;
 
-                        if (remindTarget == ctx.User.Mention)
+                        if (remindTarget.Contains(ctx.User.Id.ToString()))
                         {
                             displayTarget = "you";
                         }
