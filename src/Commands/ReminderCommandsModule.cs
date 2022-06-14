@@ -163,6 +163,23 @@ namespace OSISDiscordAssistant.Commands
                 default:
                     if (remindTarget.Remove(2) == "<@")
                     {
+                        int mentionCount = 0;
+
+                        foreach (char letter in remindTarget)
+                        {
+                            if (letter == '@')
+                            {
+                                mentionCount++;
+                            }
+                        }
+
+                        if (mentionCount > 5)
+                        {
+                            await ctx.RespondAsync($"{Formatter.Bold("[ERROR]")} You can remind up to 5 members and roles only!");
+
+                            return;
+                        }
+
                         displayTarget = remindTarget;
 
                         if (remindTarget.Contains(ctx.User.Id.ToString()))
