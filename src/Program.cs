@@ -169,7 +169,12 @@ namespace OSISDiscordAssistant
 
             foreach (SlashCommandsExtension slashCommandsExtension in (await shardedClient.UseSlashCommandsAsync(slashConfig)).Values)
             {
+#if DEBUG
                 slashCommandsExtension.RegisterCommands<ReminderSlashCommandsModule>(788077207901306941);
+#else
+                slashCommandsExtension.RegisterCommands<ReminderSlashCommandsModule>();
+#endif
+
             }
 
             Log.Logger.Information("[10/11] Registering slash commands event handlers...");
