@@ -116,10 +116,20 @@ namespace OSISDiscordAssistant.Services
 
             TimeSpan remainingTime = remindAt - DateTime.Now;
 
+            int mentionCount = 0;
+
+            foreach (char letter in reminder.TargetedUserOrRoleMention)
+            {
+                if (letter == '@')
+                {
+                    mentionCount++;
+                }
+            }
+
             // Late dispatch? Let them know how late has the reminder been.
             if (Math.Round(remainingTime.TotalMinutes) < -0)
             {
-                if (reminder.TargetedUserOrRoleMention.Contains(reminder.InitiatingUserId.ToString()))
+                if (mentionCount is 1 && reminder.TargetedUserOrRoleMention.Contains(reminder.InitiatingUserId.ToString()))
                 {
                     return $"{DiscordEmoji.FromName(client, ":alarm_clock:")} {initiatingUser.Mention}, {Formatter.Timestamp(remindAt, TimestampFormat.RelativeTime)}, you wanted to be reminded of the following: \n\n{reminder.Content}";
                 }
@@ -131,7 +141,7 @@ namespace OSISDiscordAssistant.Services
             }
 
             // Else...
-            if (reminder.TargetedUserOrRoleMention.Contains(reminder.InitiatingUserId.ToString()))
+            if (mentionCount is 1 && reminder.TargetedUserOrRoleMention.Contains(reminder.InitiatingUserId.ToString()))
             {
                 return $"{DiscordEmoji.FromName(client, ":alarm_clock:")} {initiatingUser.Mention}, you wanted to be reminded of the following: \n\n{reminder.Content}";
             }
