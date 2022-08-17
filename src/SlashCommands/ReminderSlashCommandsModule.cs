@@ -80,7 +80,7 @@ namespace OSISDiscordAssistant.Commands
         }
 
         [SlashCommand("remind", "Remind yourself, a role, a user, or everyone about something.")]
-        public async Task RemindWithoutChannelAsync(InteractionContext ctx, [Option("target", "Type the partial or full name of the member or role you want to remind, mentions are also welcome.")] string remindTarget, [Option("timespan", "Date / time when to remind (example: 25/06/2021 or 6h30m or 12:30 or 30m).")] string timeSpan, [Option("message", "What would you like to remind?")] string remindMessage)
+        public async Task RemindWithoutChannelAsync(InteractionContext ctx, [Option("target", "Mention the user or the role you want to remind, partial role or member names are also acceptable.")] string remindTarget, [Option("timespan", "Date / time when to remind (example: 25/06/2021 or 6h30m or 12:30 or 30m).")] string timeSpan, [Option("message", "What would you like to remind?")] string remindMessage)
         {
             await CreateReminderAsync(ctx, remindTarget, timeSpan, remindMessage, null);
         }
@@ -130,17 +130,12 @@ namespace OSISDiscordAssistant.Commands
 
                         if (mentionCount > 5)
                         {
-                            await ctx.CreateResponseAsync($"{Formatter.Bold("[ERROR]")} You can remind up to 5 members and roles only!");
+                            await ctx.CreateResponseAsync($"{Formatter.Bold("[ERROR]")} You can remind up to 5 members and roles combined!");
 
                             return;
                         }
 
                         displayTarget = remindTarget;
-
-                        if (remindTarget.Contains(ctx.User.Id.ToString()))
-                        {
-                            displayTarget = "you";
-                        }
                     }
 
                     // Expecting that the input would be a name of a member which belongs to the guild or a role...
