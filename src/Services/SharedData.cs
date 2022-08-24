@@ -1,7 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
 using DSharpPlus.CommandsNext;
-using DSharpPlus.Entities;
 using OSISDiscordAssistant.Entities;
 
 namespace OSISDiscordAssistant.Services
