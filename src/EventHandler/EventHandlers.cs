@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 using OSISDiscordAssistant.Attributes;
 using OSISDiscordAssistant.Constants;
 using OSISDiscordAssistant.Services;
+using OSISDiscordAssistant.Entities;
 using DSharpPlus;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.EventArgs;
@@ -97,14 +100,36 @@ namespace OSISDiscordAssistant
 
             if (!string.IsNullOrEmpty(e.MessageBefore.Content) || e.Message.Embeds.Count > 0)
             {
+                DateTimeOffset editedTimeOffset = (DateTimeOffset)e.Message.EditedTimestamp;
+
+                var message = new TransportMessage()
+                {
+                    DateTime = editedTimeOffset.DateTime,
+                    Message = e.MessageBefore
+                };
+
                 if (SharedData.EditedMessages.ContainsKey(e.Channel.Id))
                 {
-                    SharedData.EditedMessages[e.Channel.Id] = e.MessageBefore;
+                    var editedMessages = SharedData.EditedMessages[e.Channel.Id];
+
+                    if (editedMessages.Count() is 3)
+                    {
+                        var orderedMessagesByDate = editedMessages.OrderBy(x => x.DateTime);
+
+                        editedMessages.Remove(orderedMessagesByDate.FirstOrDefault());
+                    }
+
+                    editedMessages.Add(message);
+
+                    SharedData.EditedMessages[e.Channel.Id] = editedMessages;
                 }
 
                 else
                 {
-                    SharedData.EditedMessages.TryAdd(e.Channel.Id, e.MessageBefore);
+                    List<TransportMessage> messages = new List<TransportMessage>();
+                    messages.Add(message);
+
+                    SharedData.EditedMessages.TryAdd(e.Channel.Id, messages);
                 }
             }
 
@@ -133,14 +158,34 @@ namespace OSISDiscordAssistant
 
             if (!string.IsNullOrEmpty(e.Message.Content) || e.Message.Embeds.Count > 0)
             {
+                var message = new TransportMessage()
+                {
+                    DateTime = DateTime.Now,
+                    Message = e.Message
+                };
+
                 if (SharedData.DeletedMessages.ContainsKey(e.Channel.Id))
                 {
-                    SharedData.DeletedMessages[e.Channel.Id] = e.Message;
+                    var deletedMessages = SharedData.DeletedMessages[e.Channel.Id];
+
+                    if (deletedMessages.Count() is 3)
+                    {
+                        var orderedMessagesByDate = deletedMessages.OrderBy(x => x.DateTime);
+
+                        deletedMessages.Remove(orderedMessagesByDate.FirstOrDefault());
+                    }
+
+                    deletedMessages.Add(message);
+
+                    SharedData.DeletedMessages[e.Channel.Id] = deletedMessages;
                 }
 
                 else
                 {
-                    SharedData.DeletedMessages.TryAdd(e.Channel.Id, e.Message);
+                    List<TransportMessage> messages = new List<TransportMessage>();
+                    messages.Add(message);
+
+                    SharedData.DeletedMessages.TryAdd(e.Channel.Id, messages);
                 }
             }
 

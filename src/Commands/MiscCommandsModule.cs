@@ -15,6 +15,7 @@ using Npgsql;
 using OSISDiscordAssistant.Utilities;
 using OSISDiscordAssistant.Services;
 using OSISDiscordAssistant.Models;
+using Humanizer;
 
 namespace OSISDiscordAssistant.Commands
 {
@@ -192,36 +193,37 @@ namespace OSISDiscordAssistant.Commands
         {
             if (SharedData.DeletedMessages.ContainsKey(ctx.Channel.Id))
             {
-                var message = SharedData.DeletedMessages[ctx.Channel.Id];
+                var deletedMessagesCount = SharedData.DeletedMessages[ctx.Channel.Id].Count();
 
-                var messageContent = message.Content;
-
-                if (messageContent.Length > 500)
+                DiscordMessageBuilder messageBuilder = new DiscordMessageBuilder()
                 {
-                    messageContent = messageContent.Substring(0, 500) + "...";
-                }
-
-                DiscordEmbedBuilder snipeEmbed = new DiscordEmbedBuilder()
-                {
-                    Author = new DiscordEmbedBuilder.EmbedAuthor
-                    {
-                        Name = $"{message.Author.Username}#{message.Author.Discriminator}",
-                        IconUrl = message.Author.AvatarUrl
-                    },
-                    Timestamp = message.CreationTimestamp
+                    Content = $"Displaying last {deletedMessagesCount} ({deletedMessagesCount.ToWords()}) deleted messages for {ctx.Channel.Mention}."
                 };
 
-                if (!string.IsNullOrEmpty(message.Content))
+                foreach (var deletedMessage in SharedData.DeletedMessages[ctx.Channel.Id])
                 {
-                    snipeEmbed.WithDescription(message.Content);
+                    DiscordEmbedBuilder snipeEmbed = new DiscordEmbedBuilder()
+                    {
+                        Color = DiscordColor.MidnightBlue,
+                        Author = new DiscordEmbedBuilder.EmbedAuthor
+                        {
+                            Name = $"{deletedMessage.Message.Author.Username}#{deletedMessage.Message.Author.Discriminator}",
+                            IconUrl = deletedMessage.Message.Author.AvatarUrl
+                        },
+                        Timestamp = deletedMessage.DateTime,
+                        Description = deletedMessage.Message.Content.Length > 500 ? deletedMessage.Message.Content.Substring(0, 500) + "..." : deletedMessage.Message.Content
+                    };
+
+                    messageBuilder.AddEmbed(snipeEmbed);
                 }
 
-                await ctx.RespondAsync(embed: snipeEmbed.Build());
-
-                return;
+                await ctx.RespondAsync(messageBuilder);
             }
 
-            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} No message to snipe!");
+            else
+            {
+                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} No message to snipe!");
+            }
         }
 
         [Command("snipeedit")]
@@ -229,36 +231,37 @@ namespace OSISDiscordAssistant.Commands
         {
             if (SharedData.EditedMessages.ContainsKey(ctx.Channel.Id))
             {
-                var message = SharedData.EditedMessages[ctx.Channel.Id];
+                var editedMessagesCount = SharedData.EditedMessages[ctx.Channel.Id].Count();
 
-                var messageContent = message.Content;
-
-                if (messageContent.Length > 500)
+                DiscordMessageBuilder messageBuilder = new DiscordMessageBuilder()
                 {
-                    messageContent = messageContent.Substring(0, 500) + "...";
-                }
-
-                DiscordEmbedBuilder snipeEmbed = new DiscordEmbedBuilder()
-                {
-                    Author = new DiscordEmbedBuilder.EmbedAuthor
-                    {
-                        Name = $"{message.Author.Username}#{message.Author.Discriminator}",
-                        IconUrl = message.Author.AvatarUrl
-                    },
-                    Timestamp = message.EditedTimestamp
+                    Content = $"Displaying last {editedMessagesCount} ({editedMessagesCount.ToWords()}) original content of edited messages for {ctx.Channel.Mention}."
                 };
 
-                if (!string.IsNullOrEmpty(message.Content))
+                foreach (var editedMessage in SharedData.EditedMessages[ctx.Channel.Id])
                 {
-                    snipeEmbed.WithDescription(message.Content);
+                    DiscordEmbedBuilder snipeEmbed = new DiscordEmbedBuilder()
+                    {
+                        Color = DiscordColor.MidnightBlue,
+                        Author = new DiscordEmbedBuilder.EmbedAuthor
+                        {
+                            Name = $"{editedMessage.Message.Author.Username}#{editedMessage.Message.Author.Discriminator}",
+                            IconUrl = editedMessage.Message.Author.AvatarUrl
+                        },
+                        Timestamp = editedMessage.DateTime,
+                        Description = editedMessage.Message.Content.Length > 500 ? editedMessage.Message.Content.Substring(0, 500) + "..." : editedMessage.Message.Content
+                    };
+
+                    messageBuilder.AddEmbed(snipeEmbed);
                 }
 
-                await ctx.RespondAsync(embed: snipeEmbed.Build());
-
-                return;
+                await ctx.RespondAsync(messageBuilder);
             }
 
-            await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} No message to snipe!");
+            else
+            {
+                await ctx.Channel.SendMessageAsync($"{Formatter.Bold("[ERROR]")} No message to snipe!");
+            }
         }
 
         [Command("myinfo")]

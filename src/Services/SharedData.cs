@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
+using OSISDiscordAssistant.Entities;
 
 namespace OSISDiscordAssistant.Services
 {
@@ -45,12 +46,12 @@ namespace OSISDiscordAssistant.Services
         /// <summary>
         /// The dictionary that stores deleted messages that has been previously cached.
         /// </summary>
-        public static ConcurrentDictionary<ulong, DiscordMessage> DeletedMessages = new ConcurrentDictionary<ulong, DiscordMessage>();
+        public static ConcurrentDictionary<ulong, List<TransportMessage>> DeletedMessages = new ConcurrentDictionary<ulong, List<TransportMessage>>();
 
         /// <summary>
         /// The dictionary that stores the original content of an edited message that has been previously cached.
         /// </summary>
-        public static ConcurrentDictionary<ulong, DiscordMessage> EditedMessages = new ConcurrentDictionary<ulong, DiscordMessage>();
+        public static ConcurrentDictionary<ulong, List<TransportMessage>> EditedMessages = new ConcurrentDictionary<ulong, List<TransportMessage>>();
 
         /// <summary>
         /// The list that stores the list of the assignable divisional roles via a dropdown.
