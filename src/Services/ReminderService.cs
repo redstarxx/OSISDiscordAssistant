@@ -110,46 +110,67 @@ namespace OSISDiscordAssistant.Services
 
             var targetChannel = await client.GetChannelAsync((ulong)reminder.TargetChannelId);
 
-            var initiatingUser = await targetChannel.Guild.GetMemberAsync(reminder.InitiatingUserId);
+            DiscordUser initiatingUser = null;
 
-            var remindAt = ClientUtilities.ConvertUnixTimestampToDateTime(reminder.UnixTimestampRemindAt);
-
-            TimeSpan remainingTime = remindAt - DateTime.Now;
-
-            int mentionCount = 0;
-
-            foreach (char letter in reminder.TargetedUserOrRoleMention)
+            try
             {
-                if (letter == '@')
+                initiatingUser = await targetChannel.Guild.GetMemberAsync(reminder.InitiatingUserId);
+
+                var remindAt = ClientUtilities.ConvertUnixTimestampToDateTime(reminder.UnixTimestampRemindAt);
+
+                TimeSpan remainingTime = remindAt - DateTime.Now;
+
+                int mentionCount = 0;
+
+                foreach (char letter in reminder.TargetedUserOrRoleMention)
                 {
-                    mentionCount++;
+                    if (letter == '@')
+                    {
+                        mentionCount++;
+                    }
                 }
-            }
 
-            // Late dispatch? Let them know how late has the reminder been.
-            if (Math.Round(remainingTime.TotalMinutes) < -0)
-            {
+                // Late dispatch? Let them know how late has the reminder been.
+                if (Math.Round(remainingTime.TotalMinutes) < -0)
+                {
+                    if (mentionCount is 1 && reminder.TargetedUserOrRoleMention.Contains(reminder.InitiatingUserId.ToString()))
+                    {
+                        return $"{DiscordEmoji.FromName(client, ":alarm_clock:")} {initiatingUser.Mention}, {Formatter.Timestamp(remindAt, TimestampFormat.RelativeTime)}, you wanted to be reminded of the following: \n\n{reminder.Content}";
+                    }
+
+                    else
+                    {
+                        return $"{DiscordEmoji.FromName(client, ":alarm_clock:")} {reminder.TargetedUserOrRoleMention}, {Formatter.Timestamp(remindAt, TimestampFormat.RelativeTime)}, {initiatingUser.Mention} wanted to remind you of the following: \n\n{reminder.Content}";
+                    }
+                }
+
+                // Else...
                 if (mentionCount is 1 && reminder.TargetedUserOrRoleMention.Contains(reminder.InitiatingUserId.ToString()))
                 {
-                    return $"{DiscordEmoji.FromName(client, ":alarm_clock:")} {initiatingUser.Mention}, {Formatter.Timestamp(remindAt, TimestampFormat.RelativeTime)}, you wanted to be reminded of the following: \n\n{reminder.Content}";
+                    return $"{DiscordEmoji.FromName(client, ":alarm_clock:")} {initiatingUser.Mention}, you wanted to be reminded of the following: \n\n{reminder.Content}";
                 }
 
                 else
                 {
-                    return $"{DiscordEmoji.FromName(client, ":alarm_clock:")} {reminder.TargetedUserOrRoleMention}, {Formatter.Timestamp(remindAt, TimestampFormat.RelativeTime)}, {initiatingUser.Mention} wanted to remind you of the following: \n\n{reminder.Content}";
+                    return $"{DiscordEmoji.FromName(client, ":alarm_clock:")} {reminder.TargetedUserOrRoleMention}, {initiatingUser.Mention} wanted to remind you of the following: \n\n{reminder.Content}";
                 }
             }
 
-            // Else...
-            if (mentionCount is 1 && reminder.TargetedUserOrRoleMention.Contains(reminder.InitiatingUserId.ToString()))
+            catch
             {
-                return $"{DiscordEmoji.FromName(client, ":alarm_clock:")} {initiatingUser.Mention}, you wanted to be reminded of the following: \n\n{reminder.Content}";
+                using (var scope = _serviceScopeFactory.CreateScope())
+                {
+                    var reminderContext = scope.ServiceProvider.GetRequiredService<ReminderContext>();
+
+                    reminderContext.Remove(reminder);
+
+                    await reminderContext.SaveChangesAsync();
+
+                    _logger.LogInformation("Removed reminder ID {Id} due to initiating user no longer in the respective guild.", reminder.Id);
+                }
             }
 
-            else
-            {
-                return $"{DiscordEmoji.FromName(client, ":alarm_clock:")} {reminder.TargetedUserOrRoleMention}, {initiatingUser.Mention} wanted to remind you of the following: \n\n{reminder.Content}";
-            }
+            return null;
         }
 
         /// <summary>
